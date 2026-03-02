@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../services/firebase';
-import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { uploadMedia } from '../services/cloudinary';
 import Navbar from './Navbar';
+import { createNotification } from '../services/notifications';
 
 const Diary = ({ profile }) => {
     const [entries, setEntries] = useState([]);
@@ -61,6 +62,20 @@ const Diary = ({ profile }) => {
                 media: mediaUrls,
                 created_at: serverTimestamp()
             });
+
+            // Send Notification to Partner
+            const coupleSnap = await getDoc(doc(db, 'couples', profile.couple_id));
+            if (coupleSnap.exists()) {
+                const partnerId = coupleSnap.data().uids.find(id => id !== auth.currentUser.uid);
+                if (partnerId) {
+                    await createNotification(
+                        profile.couple_id,
+                        partnerId,
+                        'diary_entry',
+                        `${profile.nickname} vừa thêm một kỷ niệm mới: "${content.substring(0, 30)}${content.length > 30 ? '...' : ''}"`
+                    );
+                }
+            }
 
             setContent('');
             setSelectedFiles([]);
@@ -228,7 +243,7 @@ const Diary = ({ profile }) => {
                 )}
             </div>
 
-            <Navbar />
+            <Navbar profile={profile} />
         </div>
     );
 };

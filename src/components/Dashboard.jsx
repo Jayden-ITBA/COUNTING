@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { db } from '../services/firebase';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { db, auth } from '../services/firebase';
+import { doc, getDoc, onSnapshot, collection, query, where } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import Navbar from './Navbar';
 
 const Dashboard = ({ profile }) => {
     const navigate = useNavigate();
     const [coupleData, setCoupleData] = useState(null);
     const [partnerProfile, setPartnerProfile] = useState(null);
     const [daysTogether, setDaysTogether] = useState(0);
+    const [unreadCount, setUnreadCount] = useState(0);
 
     useEffect(() => {
         if (profile?.couple_id) {
@@ -31,12 +33,33 @@ const Dashboard = ({ profile }) => {
                     }
                 }
             });
-            return () => unsubscribe();
+
+            const q = query(
+                collection(db, 'notifications'),
+                where('couple_id', '==', profile.couple_id),
+                where('recipient_id', '==', auth.currentUser.uid),
+                where('read', '==', false)
+            );
+            const unsubNotif = onSnapshot(q, (snap) => setUnreadCount(snap.size));
+
+            return () => {
+                unsubscribe();
+                unsubNotif();
+            };
         }
     }, [profile]);
 
     return (
-        <div className="relative min-h-screen flex flex-col bg-blur-romantic overflow-hidden">
+        <div className="relative min-h-screen flex flex-col bg-background-light overflow-hidden">
+            {/* Background Image / Blur from settings */}
+            <div
+                className="fixed inset-0 bg-cover bg-center -z-10"
+                style={{
+                    backgroundImage: `url(${coupleData?.background_url || 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&q=80&w=2000'})`,
+                    filter: `blur(${coupleData?.blur_level || 0}px) brightness(0.9)`
+                }}
+            />
+
             {/* Floating Twinkle Icons */}
             <motion.div
                 className="fixed top-10 left-10 pointer-events-none"
@@ -56,10 +79,8 @@ const Dashboard = ({ profile }) => {
                 </button>
 
                 <div className="flex items-center gap-4">
-                    <div className="relative">
-                        <div className="w-16 h-16 rounded-full border-4 border-white shadow-lg overflow-hidden glass">
-                            <img src={profile?.avatar_url || "/api/placeholder/100/100"} alt="You" />
-                        </div>
+                    <div className="w-16 h-16 rounded-full border-4 border-white shadow-lg overflow-hidden glass">
+                        <img src={profile?.avatar_url || "/api/placeholder/100/100"} alt="You" />
                     </div>
 
                     <div className="flex flex-col items-center">
@@ -77,8 +98,16 @@ const Dashboard = ({ profile }) => {
                     </div>
                 </div>
 
-                <button className="glass w-10 h-10 flex items-center justify-center rounded-full">
+                <button
+                    onClick={() => navigate('/notifications')}
+                    className="glass w-10 h-10 flex items-center justify-center rounded-full relative"
+                >
                     <span className="material-symbols-outlined">notifications</span>
+                    {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-white">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                    )}
                 </button>
             </div>
 
@@ -89,16 +118,17 @@ const Dashboard = ({ profile }) => {
                         <motion.p
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="text-slate-600 font-medium tracking-widest uppercase text-sm mb-2"
+                            className="text-slate-100 font-medium tracking-widest uppercase text-[10px] mb-2 drop-shadow-lg"
                         >
                             We have been together for
                         </motion.p>
 
-                        <h1 className="text-7xl md:text-8xl font-extrabold text-slate-800 tracking-tighter drop-shadow-sm">
-                            {daysTogether} <span className="text-blue-500 font-display">Days</span>
+                        <h1 className="text-8xl md:text-9xl font-black text-white tracking-tighter drop-shadow-2xl">
+                            {daysTogether}
                         </h1>
+                        <p className="text-white/80 font-bold uppercase tracking-[0.2em] text-sm mt-1">Days Together</p>
 
-                        <p className="mt-4 text-slate-500 font-medium bg-blue-100/50 px-6 py-2 rounded-full inline-block backdrop-blur-sm">
+                        <p className="mt-8 text-white font-bold bg-white/20 px-6 py-2 rounded-full inline-block backdrop-blur-md border border-white/30 text-xs">
                             Since {coupleData?.anniversary_date.toDate().toLocaleDateString('vi-VN')}
                         </p>
                     </div>
@@ -118,15 +148,15 @@ const Dashboard = ({ profile }) => {
                 {/* Info Cards */}
                 {profile?.link_status === 'paired' && (
                     <div className="mt-12 grid grid-cols-2 gap-4 w-full max-w-md">
-                        <div className="glass p-6 rounded-3xl flex flex-col items-center">
+                        <div className="glass p-6 rounded-3xl flex flex-col items-center backdrop-blur-xl border-white/20">
                             <span className="material-symbols-outlined text-blue-500 mb-2">calendar_month</span>
-                            <span className="text-xs uppercase font-bold text-slate-400">Months</span>
-                            <span className="text-2xl font-bold">{Math.floor(daysTogether / 30)}</span>
+                            <span className="text-[10px] uppercase font-black text-slate-500 tracking-widest">Months</span>
+                            <span className="text-2xl font-bold text-slate-800">{Math.floor(daysTogether / 30)}</span>
                         </div>
-                        <div className="glass p-6 rounded-3xl flex flex-col items-center">
+                        <div className="glass p-6 rounded-3xl flex flex-col items-center backdrop-blur-xl border-white/20">
                             <span className="material-symbols-outlined text-blue-500 mb-2">sparkles</span>
-                            <span className="text-xs uppercase font-bold text-slate-400">Weeks</span>
-                            <span className="text-2xl font-bold">{Math.floor(daysTogether / 7)}</span>
+                            <span className="text-[10px] uppercase font-black text-slate-500 tracking-widest">Weeks</span>
+                            <span className="text-2xl font-bold text-slate-800">{Math.floor(daysTogether / 7)}</span>
                         </div>
                     </div>
                 )}
@@ -134,17 +164,18 @@ const Dashboard = ({ profile }) => {
 
             {/* Next Milestone Card */}
             {profile?.link_status === 'paired' && (
-                <div className="px-6 pb-24 z-20">
+                <div className="px-6 pb-32 z-20">
                     <motion.div
                         whileHover={{ scale: 1.02 }}
-                        className="glass p-5 rounded-3xl flex items-center gap-4"
+                        onClick={() => navigate('/anniversary')}
+                        className="glass p-5 rounded-[2.5rem] flex items-center gap-4 backdrop-blur-xl border-white/20 cursor-pointer"
                     >
-                        <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-blue-500">celebration</span>
+                        <div className="w-12 h-12 rounded-2xl bg-blue-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30">
+                            <span className="material-symbols-outlined">celebration</span>
                         </div>
                         <div className="flex-1">
-                            <h4 className="font-bold text-sm text-slate-800">Next Milestone</h4>
-                            <p className="text-xs text-slate-500">
+                            <h4 className="font-bold text-xs text-slate-800 uppercase tracking-wider">Next Milestone</h4>
+                            <p className="text-xs text-slate-500 font-medium">
                                 {(Math.floor(daysTogether / 100) + 1) * 100} Days in {((Math.floor(daysTogether / 100) + 1) * 100) - daysTogether} days
                             </p>
                         </div>
@@ -153,13 +184,7 @@ const Dashboard = ({ profile }) => {
                 </div>
             )}
 
-            <nav className="fixed bottom-6 left-6 right-6 glass rounded-full px-6 py-4 z-50 flex items-center justify-between">
-                <span onClick={() => navigate('/')} className="material-symbols-outlined text-blue-500 fill-1 cursor-pointer">home</span>
-                <span onClick={() => navigate('/anniversary')} className="material-symbols-outlined text-slate-400 cursor-pointer">calendar_month</span>
-                <span onClick={() => navigate('/diary')} className="material-symbols-outlined text-slate-400 cursor-pointer">auto_stories</span>
-                <span onClick={() => navigate('/album')} className="material-symbols-outlined text-slate-400 cursor-pointer">photo_library</span>
-                <span onClick={() => navigate('/settings')} className="material-symbols-outlined text-slate-400 cursor-pointer">settings</span>
-            </nav>
+            <Navbar profile={profile} />
         </div>
     );
 };

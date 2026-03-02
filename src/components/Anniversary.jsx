@@ -97,7 +97,7 @@ const Anniversary = ({ profile }) => {
                 </div>
             )}
 
-            <Navbar />
+            <Navbar profile={profile} />
         </div>
     );
 };

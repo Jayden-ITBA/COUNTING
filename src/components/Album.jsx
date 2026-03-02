@@ -82,7 +82,7 @@ const Album = ({ profile }) => {
                 </div>
             )}
 
-            <Navbar />
+            <Navbar profile={profile} />
         </div>
     );
 };

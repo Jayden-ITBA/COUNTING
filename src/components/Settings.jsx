@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { auth } from '../services/firebase';
 import Navbar from './Navbar';
 
-const Settings = () => {
+const Settings = ({ profile }) => {
     const navigate = useNavigate();
 
     const settingsItems = [
@@ -58,7 +58,7 @@ const Settings = () => {
                 </button>
             </div>
 
-            <Navbar />
+            <Navbar profile={profile} />
         </div>
     );
 };

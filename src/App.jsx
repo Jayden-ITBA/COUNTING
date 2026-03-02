@@ -13,6 +13,7 @@ import Pairing from './components/Pairing';
 import BgSettings from './components/BgSettings';
 import Widgets from './components/Widgets';
 import ProfileOnboarding from './components/ProfileOnboarding';
+import Notifications from './components/Notifications';
 
 const ProtectedRoute = ({ children, user, profile, loading }) => {
   if (loading) return (
@@ -81,6 +82,7 @@ function App() {
         <Route path="/settings/background" element={<ProtectedRoute user={user} profile={profile} loading={loading}><BgSettings profile={profile} /></ProtectedRoute>} />
         <Route path="/settings/pairing" element={<ProtectedRoute user={user} profile={profile} loading={loading}><Pairing profile={profile} onUpdate={handleProfileComplete} /></ProtectedRoute>} />
         <Route path="/settings/widgets" element={<ProtectedRoute user={user} profile={profile} loading={loading}><Widgets profile={profile} /></ProtectedRoute>} />
+        <Route path="/notifications" element={<ProtectedRoute user={user} profile={profile} loading={loading}><Notifications profile={profile} /></ProtectedRoute>} />
       </Routes>
     </Router>
   );

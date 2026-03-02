@@ -132,7 +132,7 @@ const BgSettings = ({ profile }) => {
                 </div>
             </div>
 
-            <Navbar />
+            <Navbar profile={profile} />
         </div>
     );
 };
