@@ -4,6 +4,7 @@ import { auth, db } from './services/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import Login from './components/Login';
+import SignUp from './components/SignUp';
 import Dashboard from './components/Dashboard';
 import Anniversary from './components/Anniversary';
 import Diary from './components/Diary';
@@ -88,6 +89,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+        <Route path="/signup" element={user ? <Navigate to="/" /> : <SignUp />} />
 
         <Route path="/onboarding" element={
           user ? (profile ? <Navigate to="/" /> : <ProfileOnboarding onComplete={handleProfileComplete} />) : <Navigate to="/login" />

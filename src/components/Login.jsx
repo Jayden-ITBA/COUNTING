@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { auth } from '../services/firebase';
 import { GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -146,7 +146,7 @@ const Login = () => {
                 <div className="text-center mt-12 mb-8">
                     <p className="text-slate-500 text-sm">
                         Chưa có tài khoản?
-                        <a className="text-primary font-bold ml-1 hover:underline" href="#">Đăng ký ngay</a>
+                        <Link to="/signup" className="text-primary font-bold ml-1 hover:underline">Đăng ký ngay</Link>
                     </p>
                 </div>
 

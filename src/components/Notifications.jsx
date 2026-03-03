@@ -46,6 +46,8 @@ const Notifications = ({ profile }) => {
             case 'diary_entry': return 'auto_stories';
             case 'anniversary': return 'celebration';
             case 'pairing': return 'favorite';
+            case 'like': return 'favorite';
+            case 'comment': return 'chat_bubble';
             default: return 'notifications';
         }
     };
