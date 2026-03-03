@@ -15,8 +15,11 @@ const Pairing = ({ profile, onUpdate }) => {
 
     // Initial check for join URL
     useEffect(() => {
-        if (urlInviteId && profile && profile.link_status === 'none') {
-            handleJoinInvite(urlInviteId);
+        if (urlInviteId && profile) {
+            // Even if link_status is pending, if the URL invite ID is different, we want to switch
+            if (profile.link_status === 'none' || (profile.link_status === 'pending' && profile.invite_id !== urlInviteId)) {
+                handleJoinInvite(urlInviteId);
+            }
         }
     }, [urlInviteId, profile]);
 
@@ -28,7 +31,8 @@ const Pairing = ({ profile, onUpdate }) => {
                     const data = docSnap.data();
                     setInviteData(data);
                     if (data.status === 'accepted' && data.receiver_id) {
-                        const pSnap = await getDoc(doc(db, 'profiles', data.receiver_id));
+                        const partnerId = data.sender_id === auth.currentUser.uid ? data.receiver_id : data.sender_id;
+                        const pSnap = await getDoc(doc(db, 'profiles', partnerId));
                         if (pSnap.exists()) setPartnerProfile(pSnap.data());
                     } else if (data.status === 'approved') {
                         onUpdate(); // Refresh profile in parent
@@ -165,64 +169,84 @@ const Pairing = ({ profile, onUpdate }) => {
                     </motion.div>
                 )}
 
-                {profile?.link_status === 'pending' && (
-                    <div className="space-y-6">
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            className="glass p-8 rounded-[3rem] text-center border-2 border-blue-200"
-                        >
-                            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                                <span className="material-symbols-outlined text-blue-400">hourglass_empty</span>
-                            </div>
-                            <h3 className="text-lg font-bold text-slate-800">Phòng chờ kết nối</h3>
-                            <p className="text-xs text-slate-400 mb-6 uppercase tracking-widest font-bold">
-                                {inviteData?.status === 'accepted' ? 'Đã có người tham gia' : 'Đang chờ đối phương'}
-                            </p>
+                {profile?.link_status === 'pending' && (() => {
+                    const isSender = inviteData?.sender_id === auth.currentUser.uid;
 
-                            <div className="bg-slate-100 p-4 rounded-2xl flex items-center gap-3 mb-4">
-                                <input
-                                    readOnly
-                                    value={inviteLink}
-                                    className="bg-transparent border-none text-[10px] text-slate-500 flex-1 outline-none truncate"
-                                    onClick={(e) => e.target.select()}
-                                />
-                                <button
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(inviteLink);
-                                        alert("Đã sao chép!");
-                                    }}
-                                    className="text-blue-500 font-bold text-xs uppercase"
-                                >
-                                    Sao chép
-                                </button>
-                            </div>
-                            <p className="text-[10px] text-slate-400">Gửi link này cho partner của bạn.</p>
-                        </motion.div>
-
-                        {inviteData?.status === 'accepted' && partnerProfile && (
-                            <div className="glass p-5 rounded-3xl">
-                                <h4 className="text-sm font-bold text-slate-800 mb-4">Yêu cầu đang chờ duyệt</h4>
-                                <div className="flex items-center gap-3 bg-white/50 p-3 rounded-2xl">
-                                    <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
-                                        <img src={partnerProfile.avatar_url || "/api/placeholder/50/50"} alt="Avatar" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-bold text-slate-700">{partnerProfile.nickname}</p>
-                                        <p className="text-[10px] text-slate-400">Vừa nhấn vào link của bạn</p>
-                                    </div>
-                                    <button
-                                        onClick={handleApprovePartner}
-                                        disabled={loading}
-                                        className="bg-blue-500 text-white text-[10px] font-bold px-4 py-2 rounded-full shadow-md"
-                                    >
-                                        {loading ? "..." : "DUYỆT"}
-                                    </button>
+                    return (
+                        <div className="space-y-6">
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                className="glass p-8 rounded-[3rem] text-center border-2 border-blue-200"
+                            >
+                                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                                    <span className="material-symbols-outlined text-blue-400">hourglass_empty</span>
                                 </div>
-                            </div>
-                        )}
-                    </div>
-                )}
+                                <h3 className="text-lg font-bold text-slate-800">Phòng chờ kết nối</h3>
+                                <p className="text-xs text-slate-400 mb-6 uppercase tracking-widest font-bold">
+                                    {inviteData?.status === 'accepted' ? 'Đã có người tham gia' : 'Đang chờ đối phương'}
+                                </p>
+
+                                {isSender && (
+                                    <>
+                                        <div className="bg-slate-100 p-4 rounded-2xl flex items-center gap-3 mb-4">
+                                            <input
+                                                readOnly
+                                                value={inviteLink}
+                                                className="bg-transparent border-none text-[10px] text-slate-500 flex-1 outline-none truncate"
+                                                onClick={(e) => e.target.select()}
+                                            />
+                                            <button
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(inviteLink);
+                                                    alert("Đã sao chép!");
+                                                }}
+                                                className="text-blue-500 font-bold text-xs uppercase"
+                                            >
+                                                Sao chép
+                                            </button>
+                                        </div>
+                                        <p className="text-[10px] text-slate-400">Gửi link này cho partner của bạn.</p>
+                                    </>
+                                )}
+
+                                {!isSender && inviteData?.status === 'accepted' && (
+                                    <p className="text-sm text-slate-500">
+                                        Bạn đã chấp nhận lời mời. Đang chờ {partnerProfile?.nickname || 'đối phương'} phê duyệt để hoàn tất kết nối.
+                                    </p>
+                                )}
+                            </motion.div>
+
+                            {inviteData?.status === 'accepted' && partnerProfile && (
+                                <div className="glass p-5 rounded-3xl">
+                                    <h4 className="text-sm font-bold text-slate-800 mb-4">
+                                        {isSender ? "Yêu cầu đang chờ duyệt" : "Thông tin đối phương"}
+                                    </h4>
+                                    <div className="flex items-center gap-3 bg-white/50 p-3 rounded-2xl">
+                                        <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
+                                            <img src={partnerProfile.avatar_url || "/api/placeholder/50/50"} alt="Avatar" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-bold text-slate-700">{partnerProfile.nickname}</p>
+                                            <p className="text-[10px] text-slate-400">
+                                                {isSender ? "Vừa nhấn vào link của bạn" : "Người gửi lời mời cho bạn"}
+                                            </p>
+                                        </div>
+                                        {isSender && (
+                                            <button
+                                                onClick={handleApprovePartner}
+                                                disabled={loading}
+                                                className="bg-blue-500 text-white text-[10px] font-bold px-4 py-2 rounded-full shadow-md"
+                                            >
+                                                {loading ? "..." : "DUYỆT"}
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })()}
 
                 {profile?.link_status === 'paired' && (
                     <div className="glass p-8 rounded-[3rem] text-center">

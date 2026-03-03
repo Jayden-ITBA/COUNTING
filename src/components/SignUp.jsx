@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { auth, db } from '../services/firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 
 const SignUp = () => {
     const navigate = useNavigate();
@@ -32,7 +32,9 @@ const SignUp = () => {
                 created_at: serverTimestamp()
             });
 
-            navigate('/onboarding');
+            const location = useLocation();
+            const from = location.state?.from || "/";
+            navigate('/onboarding', { state: { from } });
         } catch (error) {
             console.error("Sign Up Error:", error);
             alert("Đăng ký thất bại! " + error.message);

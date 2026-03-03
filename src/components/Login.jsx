@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { auth } from '../services/firebase';
 import { GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -11,12 +11,15 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    const location = useLocation();
+    const from = location.state?.from || "/";
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            navigate('/');
+            navigate(from, { replace: true });
         } catch (error) {
             console.error("Login Error:", error);
             alert("Đăng nhập thất bại! Vui lòng kiểm tra lại email và mật khẩu.");
@@ -29,7 +32,7 @@ const Login = () => {
         try {
             const provider = new GoogleAuthProvider();
             await signInWithPopup(auth, provider);
-            navigate('/');
+            navigate(from, { replace: true });
         } catch (error) {
             console.error("Google Login Error:", error);
             alert("Đăng nhập Google thất bại!");
@@ -40,7 +43,7 @@ const Login = () => {
         try {
             const provider = new FacebookAuthProvider();
             await signInWithPopup(auth, provider);
-            navigate('/');
+            navigate(from, { replace: true });
         } catch (error) {
             console.error("Facebook Login Error:", error);
             alert("Đăng nhập Facebook thất bại!");

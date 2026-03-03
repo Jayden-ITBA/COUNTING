@@ -25,8 +25,10 @@ const ProtectedRoute = ({ children, user, profile, loading, isVerified, setIsVer
       <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );
-  if (!user) return <Navigate to="/login" />;
-  if (!profile && window.location.pathname !== '/onboarding') return <Navigate to="/onboarding" />;
+  if (!user) return <Navigate to="/login" state={{ from: window.location.pathname }} />;
+  if (!profile && window.location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" state={{ from: window.location.pathname }} />;
+  }
 
   // PIN Lock check
   if (profile?.pin && !isVerified && window.location.pathname !== '/onboarding') {
@@ -92,7 +94,7 @@ function App() {
         <Route path="/signup" element={user ? <Navigate to="/" /> : <SignUp />} />
 
         <Route path="/onboarding" element={
-          user ? (profile ? <Navigate to="/" /> : <ProfileOnboarding onComplete={handleProfileComplete} />) : <Navigate to="/login" />
+          <OnboardingWrapper user={user} profile={profile} handleProfileComplete={handleProfileComplete} />
         } />
 
         <Route path="/join/:inviteId" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Pairing profile={profile} onUpdate={handleProfileComplete} /></ProtectedRoute>} />
@@ -115,6 +117,16 @@ function App() {
     </Router>
   );
 }
+
+const OnboardingWrapper = ({ user, profile, handleProfileComplete }) => {
+  const { state, pathname } = useLocation();
+  const from = state?.from || "/";
+
+  if (!user) return <Navigate to="/login" state={{ from: pathname }} />;
+  if (profile) return <Navigate to={from} replace />;
+
+  return <ProfileOnboarding onComplete={handleProfileComplete} />;
+};
 
 export default App;
 
