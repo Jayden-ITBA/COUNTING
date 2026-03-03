@@ -13,6 +13,9 @@ const Diary = ({ profile }) => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [activeComment, setActiveComment] = useState(null);
+    const [commentText, setCommentText] = useState('');
+    const [selectedMedia, setSelectedMedia] = useState(null);
 
     useEffect(() => {
         if (profile?.couple_id) {
@@ -60,6 +63,8 @@ const Diary = ({ profile }) => {
                 author_avatar: profile.avatar_url,
                 content,
                 media: mediaUrls,
+                likes: [],
+                comments: [],
                 created_at: serverTimestamp()
             });
 
@@ -87,11 +92,86 @@ const Diary = ({ profile }) => {
         }
     };
 
+    const handleLike = async (entryId, currentLikes = []) => {
+        try {
+            const uid = auth.currentUser.uid;
+            const isLiked = currentLikes.includes(uid);
+            const newLikes = isLiked
+                ? currentLikes.filter(id => id !== uid)
+                : [...currentLikes, uid];
+
+            await updateDoc(doc(db, 'diary', entryId), { likes: newLikes });
+
+            // Notify partner if it's a new like
+            if (!isLiked) {
+                const entry = entries.find(e => e.id === entryId);
+                if (entry && entry.author_id !== uid) {
+                    await createNotification(
+                        profile.couple_id,
+                        entry.author_id,
+                        'like',
+                        `${profile.nickname} đã thích kỷ niệm của bạn!`
+                    );
+                }
+            }
+        } catch (error) {
+            console.error("Like error:", error);
+        }
+    };
+
+    const handleComment = async (e, entryId) => {
+        e.preventDefault();
+        if (!commentText.trim()) return;
+
+        try {
+            const entry = entries.find(e => e.id === entryId);
+            const newComment = {
+                id: Date.now().toString(),
+                author_id: auth.currentUser.uid,
+                author_name: profile.nickname,
+                author_avatar: profile.avatar_url,
+                text: commentText,
+                created_at: new Date().toISOString()
+            };
+
+            const updatedComments = [...(entry.comments || []), newComment];
+            await updateDoc(doc(db, 'diary', entryId), { comments: updatedComments });
+
+            // Notify partner
+            if (entry.author_id !== auth.currentUser.uid) {
+                await createNotification(
+                    profile.couple_id,
+                    entry.author_id,
+                    'comment',
+                    `${profile.nickname} đã bình luận: "${commentText.substring(0, 20)}..."`
+                );
+            }
+
+            setCommentText('');
+            setActiveComment(null);
+        } catch (error) {
+            console.error("Comment error:", error);
+        }
+    };
+
+    const handleDelete = async (entryId) => {
+        if (!confirm("Bạn có chắc chắn muốn xóa kỷ niệm này?")) return;
+        try {
+            await deleteDoc(doc(db, 'diary', entryId));
+        } catch (error) {
+            alert("Lỗi khi xóa: " + error.message);
+        }
+    };
+
     const isEditable = (createdAt) => {
         if (!createdAt) return false;
-        const entryDate = createdAt.toDate();
-        const diff = (new Date() - entryDate) / (1000 * 60 * 60);
-        return diff < 24;
+        try {
+            const entryDate = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
+            const diff = (new Date() - entryDate) / (1000 * 60 * 60);
+            return diff < 24;
+        } catch (e) {
+            return false;
+        }
     };
 
     return (
@@ -99,7 +179,7 @@ const Diary = ({ profile }) => {
             <div className="px-6 pt-16 pb-8 flex justify-between items-end">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-800">Nhật ký tình yêu</h1>
-                    <p className="text-slate-500">Lưu giữ từng khoảnh khắc</p>
+                    <p className="text-slate-500 text-sm">Lưu giữ từng khoảnh khắc</p>
                 </div>
                 <motion.button
                     whileTap={{ scale: 0.9 }}
@@ -175,7 +255,7 @@ const Diary = ({ profile }) => {
                 ) : (
                     entries.map((entry, index) => (
                         <div key={entry.id} className="relative">
-                            <div className="absolute left-6 top-16 bottom-0 w-0.5 bg-blue-100" />
+                            <div className="absolute left-6 top-16 bottom-0 w-0.5 bg-blue-100/50" />
 
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -202,9 +282,12 @@ const Diary = ({ profile }) => {
                                         </div>
                                     </div>
 
-                                    {isEditable(entry.created_at) && entry.author_id === auth.currentUser.uid && (
-                                        <button className="text-slate-300 hover:text-blue-500">
-                                            <span className="material-symbols-outlined text-sm">edit</span>
+                                    {entry.author_id === auth.currentUser.uid && (
+                                        <button
+                                            onClick={() => handleDelete(entry.id)}
+                                            className="text-slate-300 hover:text-red-500 transition-colors"
+                                        >
+                                            <span className="material-symbols-outlined text-sm">delete</span>
                                         </button>
                                     )}
                                 </div>
@@ -216,36 +299,108 @@ const Diary = ({ profile }) => {
                                 {entry.media && entry.media.length > 0 && (
                                     <div className={`grid gap-2 ${entry.media.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
                                         {entry.media.map((item, i) => (
-                                            <div key={i} className="aspect-[4/3] rounded-2xl overflow-hidden shadow-sm bg-slate-50">
+                                            <div
+                                                key={i}
+                                                onClick={() => setSelectedMedia(item)}
+                                                className="aspect-[4/3] rounded-2xl overflow-hidden shadow-sm bg-slate-50 cursor-pointer"
+                                            >
                                                 {item.type === 'video' ? (
-                                                    <video src={item.url} controls className="w-full h-full object-cover" />
+                                                    <video src={item.url} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <img src={item.url} alt="Moment" className="w-full h-full object-cover" />
                                                 )}
                                             </div>
                                         ))}
                                     </div>
-                                )}
+                                )}{/* Timeline section fixes: corrected background-blue-100 height adjustment. Applied improved glass styles for entries. Added comment section display and interactions. Integrated like mechanism into footer. */}
 
                                 <div className="mt-4 flex items-center gap-4 border-t border-slate-50 pt-3">
-                                    <button className="flex items-center gap-1 text-slate-400 hover:text-blue-500 transition-colors">
-                                        <span className="material-symbols-outlined text-xl">favorite</span>
-                                        <span className="text-xs font-bold uppercase">Thả tim</span>
+                                    <button
+                                        onClick={() => handleLike(entry.id, entry.likes)}
+                                        className={`flex items-center gap-1 transition-colors ${entry.likes?.includes(auth.currentUser.uid) ? 'text-red-500' : 'text-slate-400 hover:text-blue-500'}`}
+                                    >
+                                        <span className={`material-symbols-outlined text-xl ${entry.likes?.includes(auth.currentUser.uid) ? 'fill-1' : ''}`}>favorite</span>
+                                        <span className="text-xs font-bold uppercase">{entry.likes?.length || 0} Tim</span>
                                     </button>
-                                    <button className="flex items-center gap-1 text-slate-400 hover:text-blue-500 transition-colors">
+                                    <button
+                                        onClick={() => setActiveComment(activeComment === entry.id ? null : entry.id)}
+                                        className={`flex items-center gap-1 transition-colors ${activeComment === entry.id ? 'text-blue-500' : 'text-slate-400 hover:text-blue-500'}`}
+                                    >
                                         <span className="material-symbols-outlined text-xl">chat_bubble</span>
-                                        <span className="text-xs font-bold uppercase">Bình luận</span>
+                                        <span className="text-xs font-bold uppercase">{entry.comments?.length || 0} Cmt</span>
                                     </button>
                                 </div>
+
+                                {/* Comments Section */}
+                                <AnimatePresence>
+                                    {activeComment === entry.id && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="mt-4 space-y-3 overflow-hidden"
+                                        >
+                                            <div className="space-y-3 pt-3 border-t border-slate-50">
+                                                {entry.comments?.map(comment => (
+                                                    <div key={comment.id} className="flex gap-2">
+                                                        <img src={comment.author_avatar} className="w-6 h-6 rounded-full" alt="" />
+                                                        <div className="flex-1 bg-slate-50 rounded-2xl px-3 py-2">
+                                                            <p className="text-[10px] font-bold text-slate-800">{comment.author_name}</p>
+                                                            <p className="text-xs text-slate-600">{comment.text}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <form onSubmit={(e) => handleComment(e, entry.id)} className="flex gap-2 pt-2">
+                                                <input
+                                                    value={commentText}
+                                                    onChange={(e) => setCommentText(e.target.value)}
+                                                    placeholder="Viết bình luận..."
+                                                    className="flex-1 bg-slate-100 rounded-full px-4 py-2 text-xs outline-none"
+                                                />
+                                                <button type="submit" className="text-blue-500 material-symbols-outlined">send</button>
+                                            </form>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </motion.div>
                         </div>
                     ))
                 )}
             </div>
 
+            {/* Media Zoom Modal */}
+            <AnimatePresence>
+                {selectedMedia && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setSelectedMedia(null)}
+                        className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm"
+                    >
+                        <button className="absolute top-10 right-10 text-white material-symbols-outlined text-3xl">close</button>
+                        <motion.div
+                            initial={{ scale: 0.9 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0.9 }}
+                            className="max-w-4xl max-h-[80vh] w-full"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            {selectedMedia.type === 'video' ? (
+                                <video src={selectedMedia.url} controls autoPlay className="w-full h-full object-contain rounded-2xl" />
+                            ) : (
+                                <img src={selectedMedia.url} className="w-full h-full object-contain rounded-2xl" alt="Zoomed" />
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <Navbar profile={profile} />
         </div>
     );
 };
+
 
 export default Diary;

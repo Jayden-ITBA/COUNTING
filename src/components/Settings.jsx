@@ -11,9 +11,9 @@ const Settings = ({ profile }) => {
         { icon: 'wallpaper', title: 'Cài đặt ảnh nền', description: 'Đổi ảnh Dashboard & độ mờ', path: '/settings/background' },
         { icon: 'widgets', title: 'Giao diện Widget', description: 'Xem các mẫu Widget (S, M, L)', path: '/settings/widgets' },
         { icon: 'link', title: 'Cài đặt kết nối', description: 'Link mời & Phòng chờ', path: '/settings/pairing' },
-        { icon: 'notifications', title: 'Thông báo', description: 'Nhắc nhở ngày kỷ niệm', path: '#' },
-        { icon: 'lock', title: 'Bảo mật', description: 'PIN & FaceID', path: '#' },
-        { icon: 'person', title: 'Thông tin cá nhân', description: 'Biệt danh & Ngày sinh', path: '#' },
+        { icon: 'notifications', title: 'Thông báo', description: 'Nhắc nhở ngày kỷ niệm', path: '/settings/notifications' },
+        { icon: 'lock', title: 'Bảo mật', description: 'Cài đặt mã PIN khóa App', path: '/settings/security' },
+        { icon: 'person', title: 'Thông tin cá nhân', description: 'Biệt danh & Ngày sinh', path: '/settings/profile' },
     ];
 
     return (
@@ -43,7 +43,7 @@ const Settings = ({ profile }) => {
                 ))}
 
                 <div className="pt-8 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                    Jayden vs Summer v1.0.0
+                    LoveDays v1.0.0
                 </div>
             </div>
 

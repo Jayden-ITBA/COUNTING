@@ -63,8 +63,8 @@ const Widgets = ({ profile }) => {
     return (
         <div className="relative min-h-screen bg-background-light pb-32">
             <div className="px-6 pt-16 pb-8">
-                <h1 className="text-3xl font-bold text-slate-800">Widget Previews</h1>
-                <p className="text-slate-500 text-sm">How your app looks on Home Screen</p>
+                <h1 className="text-3xl font-bold text-slate-800">Mẫu Widget</h1>
+                <p className="text-slate-500 text-sm">Giao diện ứng dụng trên màn hình chờ</p>
             </div>
 
             <div className="px-6 space-y-10">
