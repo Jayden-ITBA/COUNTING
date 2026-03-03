@@ -1,16 +1,67 @@
-# React + Vite
+# LoveDays 💖
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+LoveDays là ứng dụng lưu giữ khoảnh khắc tình yêu dành cho các cặp đôi. Ứng dụng giúp bạn đếm ngày bên nhau, lưu nhật ký, chia sẻ album ảnh và nhận thông báo về những cột mốc kỷ niệm quan trọng.
 
-Currently, two official plugins are available:
+## ✨ Tính năng chính
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Đếm ngày yêu**: Theo dõi thời gian bên nhau theo ngày, tuần, tháng.
+- **Nhật ký tình yêu**: Lưu giữ những câu chuyện và cảm xúc hàng ngày kèm hình ảnh.
+- **Album chung**: Nơi lưu trữ những khoảnh khắc đẹp nhất của hai người.
+- **Thông báo**: Nhận thông báo khi đối phương cập nhật nhật ký hoặc đến ngày kỷ niệm.
+- **Bảo mật**: Khóa ứng dụng bằng mã PIN để đảm bảo riêng tư.
+- **PWA**: Cài đặt ứng dụng trực tiếp trên điện thoại như một ứng dụng native.
 
-## React Compiler
+## 🚀 Công nghệ sử dụng
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React 19, Vite 7, Tailwind CSS 4
+- **Backend / Database**: Firebase (Authentication, Firestore, Storage)
+- **Animation**: Framer Motion
+- **Media**: Cloudinary
+- **Testing**: Vitest, React Testing Library
 
-## Expanding the ESLint configuration
+## 🛠️ Hướng dẫn cài đặt
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. **Clone repository**:
+   ```bash
+   git clone https://github.com/Jayden-ITBA/COUNTING.git
+   cd COUNTING
+   ```
+
+2. **Cài đặt dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Cấu hình biến môi trường**:
+   Tạo file `.env` ở thư mục gốc và thêm các thông tin sau:
+   ```env
+   VITE_FIREBASE_API_KEY=your_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+   VITE_FIREBASE_PROJECT_ID=your_project_id
+   VITE_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_id
+   VITE_FIREBASE_APP_ID=your_app_id
+   VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
+   VITE_CLOUDINARY_UPLOAD_PRESET=your_preset
+   ```
+
+4. **Chạy ứng dụng ở chế độ phát triển**:
+   ```bash
+   npm run dev
+   ```
+
+5. **Chạy Unit Test**:
+   ```bash
+   npm test
+   ```
+
+## 📦 Triển khai (Deployment)
+
+Dự án được cấu hình để triển khai dễ dàng trên **Vercel**. 
+1. Kết nối repository GitHub với Vercel.
+2. Thêm các biến môi trường trong file `.env` vào phần **Environment Variables** trên Vercel.
+3. Nhấn **Deploy**.
+
+## 📄 Giấy phép
+
+Hành trình hạnh phúc của Jayden và Summer.
