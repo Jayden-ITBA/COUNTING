@@ -1,4 +1,4 @@
-# LoveDays 💖
+# LoveDays 
 
 LoveDays là ứng dụng lưu giữ khoảnh khắc tình yêu dành cho các cặp đôi. Ứng dụng giúp bạn đếm ngày bên nhau, lưu nhật ký, chia sẻ album ảnh và nhận thông báo về những cột mốc kỷ niệm quan trọng.
 
