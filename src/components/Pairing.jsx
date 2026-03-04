@@ -9,7 +9,7 @@ const Pairing = ({ profile, onUpdate }) => {
     const { inviteId: urlInviteId } = useParams();
     const navigate = useNavigate();
     const [showWarning, setShowWarning] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [joining, setJoining] = useState(!!urlInviteId);
     const [inviteData, setInviteData] = useState(null);
     const [partnerProfile, setPartnerProfile] = useState(null);
 
@@ -19,7 +19,11 @@ const Pairing = ({ profile, onUpdate }) => {
             // Even if link_status is pending, if the URL invite ID is different, we want to switch
             if (profile.link_status === 'none' || (profile.link_status === 'pending' && profile.invite_id !== urlInviteId)) {
                 handleJoinInvite(urlInviteId);
+            } else {
+                setJoining(false);
             }
+        } else if (!urlInviteId) {
+            setJoining(false);
         }
     }, [urlInviteId, profile]);
 
@@ -75,13 +79,24 @@ const Pairing = ({ profile, onUpdate }) => {
     };
 
     const handleJoinInvite = async (invId) => {
+        setJoining(true);
         try {
             const iSnap = await getDoc(doc(db, 'invites', invId));
-            if (!iSnap.exists()) return alert("Link không tồn tại!");
+            if (!iSnap.exists()) {
+                setJoining(false);
+                return alert("Link không tồn tại!");
+            }
 
             const data = iSnap.data();
-            if (data.status !== 'pending') return alert("Link này đã hết hạn!");
-            if (data.sender_id === auth.currentUser.uid) return navigate('/settings/pairing');
+            if (data.status !== 'pending') {
+                setJoining(false);
+                return alert("Link này đã hết hạn!");
+            }
+
+            if (data.sender_id === auth.currentUser.uid) {
+                setJoining(false);
+                return navigate('/settings/pairing');
+            }
 
             await updateDoc(doc(db, 'invites', invId), {
                 status: 'accepted',
@@ -96,6 +111,9 @@ const Pairing = ({ profile, onUpdate }) => {
             onUpdate();
         } catch (error) {
             console.error("Join error:", error);
+            alert("Lỗi khi tham gia kết nối!");
+        } finally {
+            setJoining(false);
         }
     };
 
@@ -146,7 +164,14 @@ const Pairing = ({ profile, onUpdate }) => {
             </div>
 
             <div className="px-6">
-                {profile?.link_status === 'none' && (
+                {(loading || joining) && (
+                    <div className="flex flex-col items-center justify-center p-20">
+                        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+                        <p className="text-slate-400 text-sm font-medium">Đang xử lý kết nối...</p>
+                    </div>
+                )}
+
+                {!loading && !joining && profile?.link_status === 'none' && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}

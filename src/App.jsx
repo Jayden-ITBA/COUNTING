@@ -45,6 +45,7 @@ function App() {
   const [isVerified, setIsVerified] = useState(false);
 
   const fetchProfile = async (uid) => {
+    setLoading(true);
     try {
       const docSnap = await getDoc(doc(db, 'profiles', uid));
       if (docSnap.exists()) {
@@ -94,7 +95,7 @@ function App() {
         <Route path="/signup" element={user ? <Navigate to="/" /> : <SignUp />} />
 
         <Route path="/onboarding" element={
-          <OnboardingWrapper user={user} profile={profile} handleProfileComplete={handleProfileComplete} />
+          <OnboardingWrapper user={user} profile={profile} loading={loading} handleProfileComplete={handleProfileComplete} />
         } />
 
         <Route path="/join/:inviteId" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Pairing profile={profile} onUpdate={handleProfileComplete} /></ProtectedRoute>} />
@@ -118,9 +119,15 @@ function App() {
   );
 }
 
-const OnboardingWrapper = ({ user, profile, handleProfileComplete }) => {
+const OnboardingWrapper = ({ user, profile, loading, handleProfileComplete }) => {
   const { state, pathname } = useLocation();
   const from = state?.from || "/";
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-background-light">
+      <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 
   if (!user) return <Navigate to="/login" state={{ from: pathname }} />;
   if (profile) return <Navigate to={from} replace />;
