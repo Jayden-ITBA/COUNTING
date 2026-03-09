@@ -2,59 +2,51 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db, auth } from '../services/firebase';
-import { doc, onSnapshot, setDoc, updateDoc, collection, query, where, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, updateDoc, getDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { generatePairingCode } from '../utils/pairing_utils';
 import Navbar from './Navbar';
 
 const Pairing = ({ profile, onUpdate }) => {
     const { inviteId: urlInviteId } = useParams();
     const navigate = useNavigate();
     const [showWarning, setShowWarning] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [joining, setJoining] = useState(!!urlInviteId);
-    const [inviteData, setInviteData] = useState(null);
-    const [partnerProfile, setPartnerProfile] = useState(null);
+    const [manualCode, setManualCode] = useState('');
     const [loading, setLoading] = useState(false);
 
     // Initial check for join URL
     useEffect(() => {
         if (urlInviteId && profile) {
-            if (profile.link_status === 'none' || (profile.link_status === 'pending' && profile.invite_id !== urlInviteId)) {
-                handleJoinInvite(urlInviteId);
-            } else {
-                setJoining(false);
+            if (profile.link_status === 'none') {
+                handleJoinInvite(urlInviteId.toUpperCase());
+            } else if (profile.link_status === 'paired') {
+                navigate('/');
             }
-        } else if (!urlInviteId) {
-            setJoining(false);
         }
     }, [urlInviteId, profile]);
 
-    // Real-time listener for current user's invite if pending
+    // Real-time listener for current user's invite to show success modal to sender
     useEffect(() => {
         if (profile?.link_status === 'pending' && profile?.invite_id) {
-            const unsubscribe = onSnapshot(doc(db, 'invites', profile.invite_id), async (docSnap) => {
+            const unsubscribe = onSnapshot(doc(db, 'invites', profile.invite_id), (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    setInviteData({ id: docSnap.id, ...data });
-
-                    if (data.status === 'accepted' && data.receiver_id) {
-                        const partnerId = data.sender_id === auth.currentUser.uid ? data.receiver_id : data.sender_id;
-                        const partnerSnap = await getDoc(doc(db, 'profiles', partnerId));
-                        if (partnerSnap.exists()) setPartnerProfile(partnerSnap.data());
-                    } else if (data.status === 'approved') {
-                        onUpdate();
-                        navigate('/');
+                    if (data.status === 'paired') {
+                        setShowSuccessModal(true);
                     }
                 }
             });
 
             return () => unsubscribe();
         }
-    }, [profile, onUpdate, navigate]);
+    }, [profile]);
 
     const handleCreateLink = () => setShowWarning(true);
 
     const confirmCreateLink = async () => {
         setLoading(true);
-        const inviteId = Math.random().toString(36).substring(2, 10);
+        const inviteId = generatePairingCode();
         
         try {
             await setDoc(doc(db, 'invites', inviteId), {
@@ -73,86 +65,75 @@ const Pairing = ({ profile, onUpdate }) => {
             onUpdate();
         } catch (error) {
             console.error("Invite Creation Error:", error);
-            alert("Lỗi khi tạo link mời!");
+            alert("Lỗi khi tạo mã mời!");
         } finally {
             setLoading(false);
         }
     };
 
     const handleJoinInvite = async (invId) => {
-        setJoining(true);
+        if (!invId) return;
+        setLoading(true);
         try {
             const invSnap = await getDoc(doc(db, 'invites', invId));
             if (!invSnap.exists()) {
-                setJoining(false);
-                return alert("Link không tồn tại!");
+                alert("Mã này không tồn tại!");
+                return;
             }
 
             const invData = invSnap.data();
             if (invData.status !== 'pending') {
-                setJoining(false);
-                return alert("Link này đã hết hạn!");
+                alert("Mã này đã được sử dụng hoặc hết hạn!");
+                return;
             }
 
             if (invData.sender_id === auth.currentUser.uid) {
-                setJoining(false);
-                return navigate('/settings/pairing');
+                alert("Bạn không thể tự kết nối với chính mình!");
+                return;
             }
 
-            await updateDoc(doc(db, 'invites', invId), {
-                status: 'accepted',
-                receiver_id: auth.currentUser.uid
+            const batch = writeBatch(db);
+            const coupleId = `${invData.sender_id}_${auth.currentUser.uid}`;
+
+            // 1. Create Couple
+            batch.set(doc(db, 'couples', coupleId), {
+                uids: [invData.sender_id, auth.currentUser.uid],
+                anniversary_date: serverTimestamp(),
+                created_at: serverTimestamp()
             });
 
-            await updateDoc(doc(db, 'profiles', auth.currentUser.uid), {
-                link_status: 'pending',
+            // 2. Update Invite
+            batch.update(doc(db, 'invites', invId), {
+                status: 'paired',
+                receiver_id: auth.currentUser.uid,
+                paired_at: serverTimestamp()
+            });
+
+            // 3. Update Sender Profile
+            batch.update(doc(db, 'profiles', invData.sender_id), {
+                link_status: 'paired',
+                partner_id: auth.currentUser.uid,
+                couple_id: coupleId
+            });
+
+            // 4. Update Receiver Profile
+            batch.update(doc(db, 'profiles', auth.currentUser.uid), {
+                link_status: 'paired',
+                partner_id: invData.sender_id,
+                couple_id: coupleId,
                 invite_id: invId
             });
 
+            await batch.commit();
             onUpdate();
-        } catch (error) {
-            console.error("Join error:", error);
-            alert("Lỗi khi tham gia kết nối!");
-        } finally {
-            setJoining(false);
-        }
-    };
-
-    const handleApprovePartner = async () => {
-        if (!inviteData || !inviteData.receiver_id) return;
-        setLoading(true);
-
-        try {
-            const coupleId = `${inviteData.sender_id}_${inviteData.receiver_id}`;
-            
-            await setDoc(doc(db, 'couples', coupleId), {
-                uids: [inviteData.sender_id, inviteData.receiver_id],
-                anniversary_date: serverTimestamp()
-            });
-
-            await updateDoc(doc(db, 'invites', inviteData.id), {
-                status: 'approved'
-            });
-
-            await updateDoc(doc(db, 'profiles', inviteData.sender_id), {
-                link_status: 'paired',
-                partner_id: inviteData.receiver_id,
-                couple_id: coupleId
-            });
-
-            await updateDoc(doc(db, 'profiles', inviteData.receiver_id), {
-                link_status: 'paired',
-                partner_id: inviteData.sender_id,
-                couple_id: coupleId
-            });
-
-            onUpdate();
+            // Receiver goes straight to dashboard or success screen
             navigate('/');
         } catch (error) {
-            console.error("Approve Error:", error);
-            alert("Lỗi khi phê duyệt!");
+            console.error("Join error:", error);
+            alert("Lỗi khi kết nối!");
         } finally {
             setLoading(false);
+            setJoining(false);
         }
     };
 
@@ -162,135 +143,114 @@ const Pairing = ({ profile, onUpdate }) => {
         <div className="relative min-h-screen bg-background-light pb-32">
             <div className="px-6 pt-16 pb-8">
                 <h1 className="text-3xl font-bold text-slate-800">Kết nối cặp đôi</h1>
-                <p className="text-slate-500">Mối quan hệ vĩnh viễn (No-Unpair)</p>
+                <p className="text-slate-500 text-sm">Cùng nhau tạo nên những kỷ niệm đẹp</p>
             </div>
 
-            <div className="px-6">
+            <div className="px-6 space-y-6">
                 {(loading || joining) && (
-                    <div className="flex flex-col items-center justify-center p-20">
+                    <div className="flex flex-col items-center justify-center p-20 bg-white/50 rounded-[3rem] glass">
                         <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
                         <p className="text-slate-400 text-sm font-medium">Đang xử lý kết nối...</p>
                     </div>
                 )}
 
                 {!loading && !joining && profile?.link_status === 'none' && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="glass p-8 rounded-[3rem] text-center"
-                    >
-                        <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <span className="material-symbols-outlined text-4xl text-blue-500">link</span>
-                        </div>
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">Tạo link mời độc bản</h3>
-                        <p className="text-sm text-slate-500 mb-8">
-                            Gửi link này cho "người ấy" để bắt đầu hành trình đếm ngày của hai bạn.
-                        </p>
-                        <button
-                            onClick={handleCreateLink}
-                            disabled={loading}
-                            className="w-full bg-blue-500 text-white font-bold py-4 rounded-full shadow-lg shadow-blue-500/30 active:scale-95 transition-transform"
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="glass p-8 rounded-[3rem] text-center"
                         >
-                            {loading ? "Đang xử lý..." : "Tạo link ngay"}
-                        </button>
-                    </motion.div>
+                            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <span className="material-symbols-outlined text-4xl text-blue-500">link</span>
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2">Tạo mã kết nối</h3>
+                            <p className="text-sm text-slate-500 mb-8">
+                                Gửi mã cho "người ấy" để bắt đầu hành trình của hai bạn.
+                            </p>
+                            <button
+                                onClick={handleCreateLink}
+                                className="w-full bg-blue-500 text-white font-bold py-4 rounded-full shadow-lg shadow-blue-500/30 active:scale-95 transition-transform"
+                            >
+                                Tạo mã ngay
+                            </button>
+                        </motion.div>
+
+                        <div className="relative py-4">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-slate-200"></div>
+                            </div>
+                            <div className="relative flex justify-center text-xs">
+                                <span className="px-4 bg-background-light text-slate-400 font-bold uppercase tracking-widest">Hoặc</span>
+                            </div>
+                        </div>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="glass p-8 rounded-[3rem]"
+                        >
+                            <h3 className="text-lg font-bold text-slate-800 mb-4 text-center">Nhập mã từ nửa kia</h3>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Ví dụ: AB12CD"
+                                    value={manualCode}
+                                    onChange={(e) => setManualCode(e.target.value.toUpperCase())}
+                                    className="flex-1 bg-slate-50 border-none rounded-2xl px-6 py-4 text-center font-mono font-bold text-lg text-slate-700 outline-none ring-2 ring-transparent focus:ring-blue-100 transition-all uppercase"
+                                    maxLength={6}
+                                />
+                                <button
+                                    onClick={() => handleJoinInvite(manualCode)}
+                                    disabled={manualCode.length !== 6 || loading}
+                                    className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${manualCode.length === 6 ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 text-slate-300'}`}
+                                >
+                                    <span className="material-symbols-outlined">arrow_forward</span>
+                                </button>
+                            </div>
+                        </motion.div>
+                    </>
                 )}
 
-                {profile?.link_status === 'pending' && (() => {
-                    const isSender = inviteData?.sender_id === profile.id;
+                {profile?.link_status === 'pending' && (
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="glass p-8 rounded-[3rem] text-center border-2 border-blue-200"
+                    >
+                        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                            <span className="material-symbols-outlined text-blue-400">hourglass_empty</span>
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-800">Đang chờ nửa kia...</h3>
+                        <p className="text-xs text-slate-400 mb-6 uppercase tracking-widest font-bold">Chia sẻ mã bên dưới</p>
 
-                    return (
-                        <div className="space-y-6">
-                            <motion.div
-                                initial={{ scale: 0.9, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                className="glass p-8 rounded-[3rem] text-center border-2 border-blue-200"
+                        <div className="bg-slate-50 p-6 rounded-[2rem] mb-4 border border-blue-50">
+                            <h2 className="text-4xl font-black text-blue-500 tracking-[0.2em] mb-4 font-mono">
+                                {profile.invite_id}
+                            </h2>
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(profile.invite_id);
+                                    alert("Đã sao chép mã!");
+                                }}
+                                className="text-blue-500 font-bold text-xs uppercase flex items-center justify-center gap-2 mx-auto"
                             >
-                                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                                    <span className="material-symbols-outlined text-blue-400">hourglass_empty</span>
-                                </div>
-                                <h3 className="text-lg font-bold text-slate-800">Phòng chờ kết nối</h3>
-                                <p className="text-xs text-slate-400 mb-6 uppercase tracking-widest font-bold">
-                                    {inviteData?.status === 'accepted' ? 'Đã có người tham gia' : 'Đang chờ đối phương'}
-                                </p>
-
-                                {isSender && (
-                                    <>
-                                        <div className="bg-slate-100 p-4 rounded-2xl flex items-center gap-3 mb-4">
-                                            <input
-                                                readOnly
-                                                value={inviteLink}
-                                                className="bg-transparent border-none text-[10px] text-slate-500 flex-1 outline-none truncate"
-                                                onClick={(e) => e.target.select()}
-                                            />
-                                            <button
-                                                onClick={() => {
-                                                    navigator.clipboard.writeText(inviteLink);
-                                                    alert("Đã sao chép!");
-                                                }}
-                                                className="text-blue-500 font-bold text-xs uppercase"
-                                            >
-                                                Sao chép
-                                            </button>
-                                        </div>
-                                        <p className="text-[10px] text-slate-400">Gửi link này cho partner của bạn.</p>
-                                    </>
-                                )}
-
-                                {!isSender && inviteData?.status === 'accepted' && (
-                                    <p className="text-sm text-slate-500">
-                                        Bạn đã chấp nhận lời mời. Đang chờ {partnerProfile?.nickname || 'đối phương'} phê duyệt để hoàn tất kết nối.
-                                    </p>
-                                )}
-                            </motion.div>
-
-                            {inviteData?.status === 'accepted' && partnerProfile && (
-                                <div className="glass p-5 rounded-3xl">
-                                    <h4 className="text-sm font-bold text-slate-800 mb-4">
-                                        {isSender ? "Yêu cầu đang chờ duyệt" : "Thông tin đối phương"}
-                                    </h4>
-                                    <div className="flex items-center gap-3 bg-white/50 p-3 rounded-2xl">
-                                        <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
-                                            <img src={partnerProfile.avatar_url || "/api/placeholder/50/50"} alt="Avatar" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="text-sm font-bold text-slate-700">{partnerProfile.nickname}</p>
-                                            <p className="text-[10px] text-slate-400">
-                                                {isSender ? "Vừa nhấn vào link của bạn" : "Người gửi lời mời cho bạn"}
-                                            </p>
-                                        </div>
-                                        {isSender && (
-                                            <button
-                                                onClick={handleApprovePartner}
-                                                disabled={loading}
-                                                className="bg-blue-500 text-white text-[10px] font-bold px-4 py-2 rounded-full shadow-md"
-                                            >
-                                                {loading ? "..." : "DUYỆT"}
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
+                                <span className="material-symbols-outlined text-sm">content_copy</span>
+                                Sao chép mã
+                            </button>
                         </div>
-                    );
-                })()}
-
-                {profile?.link_status === 'paired' && (
-                    <div className="glass p-8 rounded-[3rem] text-center">
-                        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <span className="material-symbols-outlined text-4xl text-green-500">verified</span>
-                        </div>
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">Đã kết nối thành công!</h3>
-                        <p className="text-sm text-slate-500 mb-8">
-                            Hai bạn hiện đang trong trạng thái "Gắn bó vĩnh viễn".
-                        </p>
+                        
                         <button
-                            onClick={() => navigate('/')}
-                            className="w-full bg-slate-800 text-white font-bold py-4 rounded-full shadow-lg active:scale-95 transition-transform"
+                            onClick={() => {
+                                navigator.clipboard.writeText(inviteLink);
+                                alert("Đã sao chép link!");
+                            }}
+                            className="w-full bg-blue-100 text-blue-600 font-bold py-3 rounded-2xl text-xs uppercase"
                         >
-                            Về Dashboard
+                            Sao chép link kết nối
                         </button>
-                    </div>
+                    </motion.div>
                 )}
             </div>
 
@@ -318,10 +278,9 @@ const Pairing = ({ profile, onUpdate }) => {
                             <div className="flex flex-col gap-3">
                                 <button
                                     onClick={confirmCreateLink}
-                                    disabled={loading}
                                     className="w-full bg-blue-500 text-white font-bold py-4 rounded-full shadow-lg shadow-blue-500/20"
                                 >
-                                    {loading ? "Đang tạo..." : "Tôi đã hiểu và tiếp tục"}
+                                    Tôi đã hiểu và tiếp tục
                                 </button>
                                 <button
                                     onClick={() => setShowWarning(false)}
@@ -335,7 +294,45 @@ const Pairing = ({ profile, onUpdate }) => {
                 )}
             </AnimatePresence>
 
-            <Navbar />
+            {/* Success Success Modal (Sender Only) */}
+            <AnimatePresence>
+                {showSuccessModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="fixed inset-0 z-[101] flex items-center justify-center p-6 bg-blue-600/90 backdrop-blur-md"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.8, y: 50 }}
+                            animate={{ scale: 1, y: 0 }}
+                            className="bg-white rounded-[3.5rem] p-10 w-full max-w-md shadow-2xl text-center relative overflow-hidden"
+                        >
+                            <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-blue-400 via-blue-600 to-blue-400" />
+                            
+                            <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
+                                <span className="material-symbols-outlined text-6xl text-blue-500 fill-1">celebration</span>
+                            </div>
+                            
+                            <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter">CHÚC MỪNG</h2>
+                            <p className="text-lg text-slate-600 leading-relaxed mb-10 font-medium">
+                                Tình yêu đời bạn đã tìm thấy được bạn!!
+                            </p>
+                            
+                            <button
+                                onClick={() => {
+                                    onUpdate();
+                                    navigate('/');
+                                }}
+                                className="w-full bg-blue-500 text-white font-black py-5 rounded-full shadow-xl shadow-blue-500/40 hover:scale-[1.02] active:scale-95 transition-all text-lg tracking-widest uppercase"
+                            >
+                                Bắt đầu ngay
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <Navbar profile={profile} />
         </div>
     );
 };
