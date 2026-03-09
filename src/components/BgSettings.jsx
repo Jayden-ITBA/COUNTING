@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { db } from '../services/firebase';
-import { doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { uploadMedia } from '../services/cloudinary';
 import Navbar from './Navbar';
 
@@ -11,6 +11,13 @@ const BgSettings = ({ profile }) => {
     const [loading, setLoading] = useState(false);
     const [daysTogether, setDaysTogether] = useState(0);
 
+    const calculateDays = (anniversaryDate) => {
+        if (!anniversaryDate) return;
+        const anniversary = anniversaryDate.toDate ? anniversaryDate.toDate() : new Date(anniversaryDate);
+        const diffDays = Math.floor(Math.abs(new Date() - anniversary) / (1000 * 60 * 60 * 24));
+        setDaysTogether(diffDays);
+    };
+
     useEffect(() => {
         if (profile?.couple_id) {
             const unsubscribe = onSnapshot(doc(db, 'couples', profile.couple_id), (docSnap) => {
@@ -18,12 +25,10 @@ const BgSettings = ({ profile }) => {
                     const data = docSnap.data();
                     if (data.background_url) setCurrentBg(data.background_url);
                     if (data.blur_level !== undefined) setBlur(data.blur_level);
-
-                    const anniversary = data.anniversary_date.toDate();
-                    const diffDays = Math.floor(Math.abs(new Date() - anniversary) / (1000 * 60 * 60 * 24));
-                    setDaysTogether(diffDays);
+                    calculateDays(data.anniversary_date);
                 }
             });
+
             return () => unsubscribe();
         }
     }, [profile]);

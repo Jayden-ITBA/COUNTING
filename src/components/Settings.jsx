@@ -7,6 +7,10 @@ import Navbar from './Navbar';
 const Settings = ({ profile }) => {
     const navigate = useNavigate();
 
+    const handleLogout = () => {
+        auth.signOut();
+    };
+
     const settingsItems = [
         { icon: 'wallpaper', title: 'Cài đặt ảnh nền', description: 'Đổi ảnh Dashboard & độ mờ', path: '/settings/background' },
         { icon: 'widgets', title: 'Giao diện Widget', description: 'Xem các mẫu Widget (S, M, L)', path: '/settings/widgets' },
@@ -50,7 +54,7 @@ const Settings = ({ profile }) => {
             {/* Danger Zone */}
             <div className="px-6 pt-10 pb-20">
                 <button
-                    onClick={() => auth.signOut()}
+                    onClick={handleLogout}
                     className="w-full bg-white/50 backdrop-blur-md border border-red-100 text-red-500 font-bold py-4 rounded-3xl shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                     <span className="material-symbols-outlined text-xl">logout</span>

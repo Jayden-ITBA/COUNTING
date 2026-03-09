@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { db, auth } from '../services/firebase';
-import { doc, getDoc, onSnapshot, collection, query, where } from 'firebase/firestore';
+import { doc, onSnapshot, getDoc, collection, query, where } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 
@@ -12,24 +12,26 @@ const Dashboard = ({ profile }) => {
     const [daysTogether, setDaysTogether] = useState(0);
     const [unreadCount, setUnreadCount] = useState(0);
 
+    const calculateDays = (anniversaryDate) => {
+        if (!anniversaryDate) return;
+        const anniversary = anniversaryDate.toDate ? anniversaryDate.toDate() : new Date(anniversaryDate);
+        const diffTime = Math.abs(new Date() - anniversary);
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        setDaysTogether(diffDays);
+    };
+
     useEffect(() => {
         if (profile?.couple_id) {
-            const unsubscribe = onSnapshot(doc(db, 'couples', profile.couple_id), async (docSnap) => {
+            const unsubscribeCouple = onSnapshot(doc(db, 'couples', profile.couple_id), async (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     setCoupleData(data);
+                    calculateDays(data.anniversary_date);
 
-                    // Calculate days
-                    const anniversary = data.anniversary_date.toDate();
-                    const diffTime = Math.abs(new Date() - anniversary);
-                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                    setDaysTogether(diffDays);
-
-                    // Fetch partner profile
-                    const pId = data.uids.find(id => id !== profile.uid);
+                    const pId = data.uids.find(id => id !== auth.currentUser.uid);
                     if (pId) {
-                        const pSnap = await getDoc(doc(db, 'profiles', pId));
-                        if (pSnap.exists()) setPartnerProfile(pSnap.data());
+                        const partnerSnap = await getDoc(doc(db, 'profiles', pId));
+                        if (partnerSnap.exists()) setPartnerProfile(partnerSnap.data());
                     }
                 }
             });
@@ -40,11 +42,14 @@ const Dashboard = ({ profile }) => {
                 where('recipient_id', '==', auth.currentUser.uid),
                 where('read', '==', false)
             );
-            const unsubNotif = onSnapshot(q, (snap) => setUnreadCount(snap.size));
+
+            const unsubscribeNotifs = onSnapshot(q, (snapshot) => {
+                setUnreadCount(snapshot.size);
+            });
 
             return () => {
-                unsubscribe();
-                unsubNotif();
+                unsubscribeCouple();
+                unsubscribeNotifs();
             };
         }
     }, [profile]);
@@ -129,7 +134,7 @@ const Dashboard = ({ profile }) => {
                         <p className="text-white/80 font-bold uppercase tracking-[0.2em] text-sm mt-1">Days Together</p>
 
                         <p className="mt-8 text-white font-bold bg-white/20 px-6 py-2 rounded-full inline-block backdrop-blur-md border border-white/30 text-xs">
-                            Since {coupleData?.anniversary_date.toDate().toLocaleDateString('vi-VN')}
+                            Since {coupleData?.anniversary_date ? new Date(coupleData.anniversary_date).toLocaleDateString('vi-VN') : '...'}
                         </p>
                     </div>
                 ) : (

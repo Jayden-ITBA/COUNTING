@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { db } from '../services/firebase';
-import { doc, onSnapshot, collection, query, where, orderBy, limit } from 'firebase/firestore';
+import { doc, onSnapshot, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import Navbar from './Navbar';
 
 const Widgets = ({ profile }) => {
@@ -10,52 +10,55 @@ const Widgets = ({ profile }) => {
     const [nextMilestone, setNextMilestone] = useState({});
     const [latestEntry, setLatestEntry] = useState(null);
 
+    const calculateDays = (anniversaryDate) => {
+        if (!anniversaryDate) return;
+        const anniversary = anniversaryDate.toDate ? anniversaryDate.toDate() : new Date(anniversaryDate);
+        const now = new Date();
+        const diff = Math.floor(Math.abs(now - anniversary) / (1000 * 60 * 60 * 24));
+        setDaysTogether(diff);
+        setAnniversaryStr(anniversary.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
+
+        // Calculate next milestone
+        const targets = [100, 200, 300, 365, 500, 1000];
+        const next = targets.find(t => {
+            const tDate = new Date(anniversary);
+            tDate.setDate(anniversary.getDate() + t);
+            return tDate > now;
+        });
+        if (next) {
+            const nDate = new Date(anniversary);
+            nDate.setDate(anniversary.getDate() + next);
+            setNextMilestone({
+                title: next === 365 ? "1 Year" : `Mốc ${next} Ngày`,
+                date: nDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            });
+        }
+    };
+
     useEffect(() => {
         if (profile?.couple_id) {
-            // Fetch Couple Data
-            const unsubCouple = onSnapshot(doc(db, 'couples', profile.couple_id), (docSnap) => {
+            const unsubscribeCouple = onSnapshot(doc(db, 'couples', profile.couple_id), (docSnap) => {
                 if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    const anniversary = data.anniversary_date.toDate();
-                    const now = new Date();
-                    const diff = Math.floor(Math.abs(now - anniversary) / (1000 * 60 * 60 * 24));
-                    setDaysTogether(diff);
-                    setAnniversaryStr(anniversary.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
-
-                    // Calculate next milestone
-                    const targets = [100, 200, 300, 365, 500, 1000];
-                    const next = targets.find(t => {
-                        const tDate = new Date(anniversary);
-                        tDate.setDate(anniversary.getDate() + t);
-                        return tDate > now;
-                    });
-                    if (next) {
-                        const nDate = new Date(anniversary);
-                        nDate.setDate(anniversary.getDate() + next);
-                        setNextMilestone({
-                            title: next === 365 ? "1 Year" : `${next} Days`,
-                            date: nDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                        });
-                    }
+                    calculateDays(docSnap.data().anniversary_date);
                 }
             });
 
-            // Fetch Latest Diary Entry
             const q = query(
-                collection(db, 'diary'),
+                collection(db, 'diaries'),
                 where('couple_id', '==', profile.couple_id),
                 orderBy('created_at', 'desc'),
                 limit(1)
             );
-            const unsubDiary = onSnapshot(q, (snapshot) => {
+
+            const unsubscribeDiary = onSnapshot(q, (snapshot) => {
                 if (!snapshot.empty) {
                     setLatestEntry(snapshot.docs[0].data());
                 }
             });
 
             return () => {
-                unsubCouple();
-                unsubDiary();
+                unsubscribeCouple();
+                unsubscribeDiary();
             };
         }
     }, [profile]);

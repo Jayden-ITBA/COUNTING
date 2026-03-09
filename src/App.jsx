@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { auth, db } from './services/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -49,7 +49,7 @@ function App() {
     try {
       const docSnap = await getDoc(doc(db, 'profiles', uid));
       if (docSnap.exists()) {
-        setProfile(docSnap.data());
+        setProfile({ id: docSnap.id, ...docSnap.data() });
       } else {
         setProfile(null);
       }
@@ -71,6 +71,7 @@ function App() {
         setIsVerified(false);
       }
     });
+
     return () => unsubscribe();
   }, []);
 
@@ -80,7 +81,9 @@ function App() {
 
   const handleSetPin = async (newPin) => {
     try {
-      await updateDoc(doc(db, 'profiles', user.uid), { pin: newPin });
+      await updateDoc(doc(db, 'profiles', user.uid), {
+        pin: newPin
+      });
       handleProfileComplete();
       setIsVerified(true);
     } catch (error) {

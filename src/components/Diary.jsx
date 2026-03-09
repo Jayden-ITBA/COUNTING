@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../services/firebase';
-import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, addDoc, updateDoc, doc, deleteDoc, serverTimestamp, getDoc, orderBy } from 'firebase/firestore';
 import { uploadMedia } from '../services/cloudinary';
 import Navbar from './Navbar';
 import { createNotification } from '../services/notifications';
@@ -20,17 +20,17 @@ const Diary = ({ profile }) => {
     useEffect(() => {
         if (profile?.couple_id) {
             const q = query(
-                collection(db, 'diary'),
+                collection(db, 'diaries'),
                 where('couple_id', '==', profile.couple_id),
                 orderBy('created_at', 'desc')
             );
 
             const unsubscribe = onSnapshot(q, (snapshot) => {
-                const results = snapshot.docs.map(doc => ({
+                const data = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }));
-                setEntries(results);
+                setEntries(data);
                 setLoading(false);
             });
 
@@ -56,7 +56,7 @@ const Diary = ({ profile }) => {
                 mediaUrls.push({ url, type: file.type.startsWith('video') ? 'video' : 'image' });
             }
 
-            await addDoc(collection(db, 'diary'), {
+            await addDoc(collection(db, 'diaries'), {
                 couple_id: profile.couple_id,
                 author_id: auth.currentUser.uid,
                 author_name: profile.nickname,
@@ -71,7 +71,8 @@ const Diary = ({ profile }) => {
             // Send Notification to Partner
             const coupleSnap = await getDoc(doc(db, 'couples', profile.couple_id));
             if (coupleSnap.exists()) {
-                const partnerId = coupleSnap.data().uids.find(id => id !== auth.currentUser.uid);
+                const coupleData = coupleSnap.data();
+                const partnerId = coupleData.uids.find(id => id !== auth.currentUser.uid);
                 if (partnerId) {
                     await createNotification(
                         profile.couple_id,
@@ -86,6 +87,7 @@ const Diary = ({ profile }) => {
             setSelectedFiles([]);
             setIsExpanded(false);
         } catch (error) {
+            console.error("Post error:", error);
             alert("Lỗi khi đăng bài: " + error.message);
         } finally {
             setUploading(false);
@@ -100,7 +102,9 @@ const Diary = ({ profile }) => {
                 ? currentLikes.filter(id => id !== uid)
                 : [...currentLikes, uid];
 
-            await updateDoc(doc(db, 'diary', entryId), { likes: newLikes });
+            await updateDoc(doc(db, 'diaries', entryId), {
+                likes: newLikes
+            });
 
             // Notify partner if it's a new like
             if (!isLiked) {
@@ -135,7 +139,9 @@ const Diary = ({ profile }) => {
             };
 
             const updatedComments = [...(entry.comments || []), newComment];
-            await updateDoc(doc(db, 'diary', entryId), { comments: updatedComments });
+            await updateDoc(doc(db, 'diaries', entryId), {
+                comments: updatedComments
+            });
 
             // Notify partner
             if (entry.author_id !== auth.currentUser.uid) {
@@ -157,7 +163,7 @@ const Diary = ({ profile }) => {
     const handleDelete = async (entryId) => {
         if (!confirm("Bạn có chắc chắn muốn xóa kỷ niệm này?")) return;
         try {
-            await deleteDoc(doc(db, 'diary', entryId));
+            await deleteDoc(doc(db, 'diaries', entryId));
         } catch (error) {
             alert("Lỗi khi xóa: " + error.message);
         }
@@ -270,19 +276,19 @@ const Diary = ({ profile }) => {
                                         <div>
                                             <h4 className="font-bold text-sm text-slate-800">{entry.author_name}</h4>
                                             <p className="text-[10px] text-slate-400 uppercase font-bold">
-                                                {entry.created_at?.toDate().toLocaleDateString('vi-VN', {
+                                                {entry.created_at ? new Date(entry.created_at).toLocaleDateString('vi-VN', {
                                                     weekday: 'long',
                                                     year: 'numeric',
                                                     month: 'long',
                                                     day: 'numeric',
                                                     hour: '2-digit',
                                                     minute: '2-digit'
-                                                })}
+                                                }) : '...'}
                                             </p>
                                         </div>
                                     </div>
 
-                                    {entry.author_id === auth.currentUser.uid && (
+                                    {entry.author_id === profile.id && (
                                         <button
                                             onClick={() => handleDelete(entry.id)}
                                             className="text-slate-300 hover:text-red-500 transition-colors"

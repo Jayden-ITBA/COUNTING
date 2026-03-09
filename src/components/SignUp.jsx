@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { auth, db } from '../services/firebase';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 
@@ -11,6 +11,7 @@ const SignUp = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const location = useLocation();
 
     const handleSignUp = async (e) => {
         e.preventDefault();
@@ -19,22 +20,19 @@ const SignUp = () => {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Update Auth Profile
-            await updateProfile(user, { displayName: nickname });
+            if (user) {
+                // Create Profile in Firestore
+                await setDoc(doc(db, 'profiles', user.uid), {
+                    uid: user.uid,
+                    nickname: nickname,
+                    email: email,
+                    link_status: 'none',
+                    created_at: serverTimestamp()
+                });
 
-            // Create Firestore Profile
-            await setDoc(doc(db, 'profiles', user.uid), {
-                uid: user.uid,
-                nickname: nickname,
-                email: email,
-                avatar_url: '',
-                link_status: 'none',
-                created_at: serverTimestamp()
-            });
-
-            const location = useLocation();
-            const from = location.state?.from || "/";
-            navigate('/onboarding', { state: { from } });
+                const from = location.state?.from || "/";
+                navigate('/onboarding', { state: { from } });
+            }
         } catch (error) {
             console.error("Sign Up Error:", error);
             alert("Đăng ký thất bại! " + error.message);

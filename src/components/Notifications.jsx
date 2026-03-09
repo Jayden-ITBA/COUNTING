@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../services/firebase';
-import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, writeBatch } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, orderBy, updateDoc, doc, writeBatch } from 'firebase/firestore';
 import Navbar from './Navbar';
 
 const Notifications = ({ profile }) => {
@@ -18,11 +18,14 @@ const Notifications = ({ profile }) => {
             );
 
             const unsubscribe = onSnapshot(q, (snapshot) => {
-                const results = snapshot.docs.map(doc => ({
+                const data = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }));
-                setNotifications(results);
+                setNotifications(data);
+                setLoading(false);
+            }, (error) => {
+                console.error("Error listening to notifications:", error);
                 setLoading(false);
             });
 
@@ -31,14 +34,19 @@ const Notifications = ({ profile }) => {
     }, [profile]);
 
     const markAllAsRead = async () => {
-        const unread = notifications.filter(n => !n.read);
-        if (unread.length === 0) return;
+        const unreadDocs = notifications.filter(n => !n.read);
+        if (unreadDocs.length === 0) return;
 
-        const batch = writeBatch(db);
-        unread.forEach(n => {
-            batch.update(doc(db, 'notifications', n.id), { read: true });
-        });
-        await batch.commit();
+        try {
+            const batch = writeBatch(db);
+            unreadDocs.forEach(n => {
+                const ref = doc(db, 'notifications', n.id);
+                batch.update(ref, { read: true });
+            });
+            await batch.commit();
+        } catch (error) {
+            console.error("Error marking all as read:", error);
+        }
     };
 
     const getIcon = (type) => {
@@ -100,7 +108,7 @@ const Notifications = ({ profile }) => {
                                         {notification.message}
                                     </p>
                                     <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">
-                                        {notification.created_at?.toDate().toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                                        {notification.created_at ? (notification.created_at.toDate ? notification.created_at.toDate().toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : new Date(notification.created_at).toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit' })) : '...'}
                                     </p>
                                 </div>
                             </motion.div>

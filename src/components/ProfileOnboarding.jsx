@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { db, auth } from '../services/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const ProfileOnboarding = ({ onComplete }) => {
     const [nickname, setNickname] = useState('');
@@ -17,13 +17,13 @@ const ProfileOnboarding = ({ onComplete }) => {
             const user = auth.currentUser;
             if (user) {
                 await setDoc(doc(db, 'profiles', user.uid), {
-                    uid: user.uid,
+                    id: user.uid,
                     nickname,
                     birthday,
                     avatar_url: user.photoURL || '',
                     link_status: 'none',
                     partner_id: null,
-                    created_at: new Date()
+                    created_at: serverTimestamp()
                 });
                 onComplete();
             }

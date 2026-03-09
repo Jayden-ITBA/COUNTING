@@ -8,38 +8,39 @@ const Anniversary = ({ profile }) => {
     const [milestones, setMilestones] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const calculateMilestones = (anniversaryDate) => {
+        if (!anniversaryDate) return [];
+        const anniversary = anniversaryDate.toDate ? anniversaryDate.toDate() : new Date(anniversaryDate);
+        const now = new Date();
+        const targets = [100, 200, 300, 365, 500, 1000];
+        
+        return targets.map(target => {
+            const targetDate = new Date(anniversary);
+            targetDate.setDate(anniversary.getDate() + target);
+
+            const diffTime = targetDate - now;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const completed = diffDays <= 0;
+
+            return {
+                title: target === 365 ? "1 Năm" : `${target} Ngày`,
+                date: targetDate.toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' }),
+                daysLeft: completed ? 0 : diffDays,
+                completed,
+                progress: completed ? 100 : Math.max(0, 100 - (diffDays / target * 100))
+            };
+        });
+    };
+
     useEffect(() => {
         if (profile?.couple_id) {
             const unsubscribe = onSnapshot(doc(db, 'couples', profile.couple_id), (docSnap) => {
                 if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    const anniversary = data.anniversary_date.toDate();
-                    const now = new Date();
-
-                    const calculateMilestones = () => {
-                        const targets = [100, 200, 300, 365, 500, 1000];
-                        return targets.map(target => {
-                            const targetDate = new Date(anniversary);
-                            targetDate.setDate(anniversary.getDate() + target);
-
-                            const diffTime = targetDate - now;
-                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                            const completed = diffDays <= 0;
-
-                            return {
-                                title: target === 365 ? "1 Năm" : `${target} Ngày`,
-                                date: targetDate.toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' }),
-                                daysLeft: completed ? 0 : diffDays,
-                                completed,
-                                progress: completed ? 100 : Math.max(0, 100 - (diffDays / target * 100))
-                            };
-                        });
-                    };
-
-                    setMilestones(calculateMilestones());
+                    setMilestones(calculateMilestones(docSnap.data().anniversary_date));
                     setLoading(false);
                 }
             });
+
             return () => unsubscribe();
         }
     }, [profile]);

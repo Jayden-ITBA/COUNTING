@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { db } from '../services/firebase';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import Navbar from './Navbar';
 
 const Album = ({ profile }) => {
@@ -11,33 +11,41 @@ const Album = ({ profile }) => {
 
     useEffect(() => {
         if (profile?.couple_id) {
-            const q = query(
-                collection(db, 'diary'),
-                where('couple_id', '==', profile.couple_id),
-                orderBy('created_at', 'desc')
-            );
-
-            const unsubscribe = onSnapshot(q, (snapshot) => {
-                const results = [];
-                snapshot.docs.forEach(doc => {
-                    const data = doc.data();
-                    if (data.media && Array.isArray(data.media)) {
-                        data.media.forEach((item, index) => {
-                            results.push({
-                                id: `${doc.id}-${index}`,
-                                url: item.url,
-                                type: item.type,
-                                title: data.content ? data.content.substring(0, 30) : 'Moment',
-                                date: data.created_at?.toDate()
+            const fetchPhotos = async () => {
+                try {
+                    const q = query(
+                        collection(db, 'diaries'),
+                        where('couple_id', '==', profile.couple_id),
+                        orderBy('created_at', 'desc')
+                    );
+                    
+                    const snapshot = await getDocs(q);
+                    const results = [];
+                    
+                    snapshot.forEach(doc => {
+                        const entry = doc.data();
+                        if (entry.media && Array.isArray(entry.media)) {
+                            entry.media.forEach((item, index) => {
+                                results.push({
+                                    id: `${doc.id}-${index}`,
+                                    url: item.url,
+                                    type: item.type,
+                                    title: entry.content ? entry.content.substring(0, 30) : 'Moment',
+                                    date: entry.created_at?.toDate ? entry.created_at.toDate() : (entry.created_at ? new Date(entry.created_at) : null)
+                                });
                             });
-                        });
-                    }
-                });
-                setMediaList(results);
-                setLoading(false);
-            });
-
-            return () => unsubscribe();
+                        }
+                    });
+                    setMediaList(results);
+                } catch (error) {
+                    console.error("Error fetching album:", error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchPhotos();
+        } else {
+            setLoading(false);
         }
     }, [profile]);
 

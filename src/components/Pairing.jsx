@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db, auth } from '../services/firebase';
-import { doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp, collection, query, where, limit } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, updateDoc, collection, query, where, getDoc, serverTimestamp } from 'firebase/firestore';
 import Navbar from './Navbar';
 
 const Pairing = ({ profile, onUpdate }) => {
@@ -12,11 +12,11 @@ const Pairing = ({ profile, onUpdate }) => {
     const [joining, setJoining] = useState(!!urlInviteId);
     const [inviteData, setInviteData] = useState(null);
     const [partnerProfile, setPartnerProfile] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     // Initial check for join URL
     useEffect(() => {
         if (urlInviteId && profile) {
-            // Even if link_status is pending, if the URL invite ID is different, we want to switch
             if (profile.link_status === 'none' || (profile.link_status === 'pending' && profile.invite_id !== urlInviteId)) {
                 handleJoinInvite(urlInviteId);
             } else {
@@ -33,17 +33,19 @@ const Pairing = ({ profile, onUpdate }) => {
             const unsubscribe = onSnapshot(doc(db, 'invites', profile.invite_id), async (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    setInviteData(data);
+                    setInviteData({ id: docSnap.id, ...data });
+
                     if (data.status === 'accepted' && data.receiver_id) {
                         const partnerId = data.sender_id === auth.currentUser.uid ? data.receiver_id : data.sender_id;
-                        const pSnap = await getDoc(doc(db, 'profiles', partnerId));
-                        if (pSnap.exists()) setPartnerProfile(pSnap.data());
+                        const partnerSnap = await getDoc(doc(db, 'profiles', partnerId));
+                        if (partnerSnap.exists()) setPartnerProfile(partnerSnap.data());
                     } else if (data.status === 'approved') {
-                        onUpdate(); // Refresh profile in parent
+                        onUpdate();
                         navigate('/');
                     }
                 }
             });
+
             return () => unsubscribe();
         }
     }, [profile, onUpdate, navigate]);
@@ -53,11 +55,9 @@ const Pairing = ({ profile, onUpdate }) => {
     const confirmCreateLink = async () => {
         setLoading(true);
         const inviteId = Math.random().toString(36).substring(2, 10);
-        const link = `${window.location.origin}/join/${inviteId}`;
-
+        
         try {
             await setDoc(doc(db, 'invites', inviteId), {
-                id: inviteId,
                 sender_id: auth.currentUser.uid,
                 status: 'pending',
                 receiver_id: null,
@@ -72,6 +72,7 @@ const Pairing = ({ profile, onUpdate }) => {
             setShowWarning(false);
             onUpdate();
         } catch (error) {
+            console.error("Invite Creation Error:", error);
             alert("Lỗi khi tạo link mời!");
         } finally {
             setLoading(false);
@@ -81,19 +82,19 @@ const Pairing = ({ profile, onUpdate }) => {
     const handleJoinInvite = async (invId) => {
         setJoining(true);
         try {
-            const iSnap = await getDoc(doc(db, 'invites', invId));
-            if (!iSnap.exists()) {
+            const invSnap = await getDoc(doc(db, 'invites', invId));
+            if (!invSnap.exists()) {
                 setJoining(false);
                 return alert("Link không tồn tại!");
             }
 
-            const data = iSnap.data();
-            if (data.status !== 'pending') {
+            const invData = invSnap.data();
+            if (invData.status !== 'pending') {
                 setJoining(false);
                 return alert("Link này đã hết hạn!");
             }
 
-            if (data.sender_id === auth.currentUser.uid) {
+            if (invData.sender_id === auth.currentUser.uid) {
                 setJoining(false);
                 return navigate('/settings/pairing');
             }
@@ -123,15 +124,15 @@ const Pairing = ({ profile, onUpdate }) => {
 
         try {
             const coupleId = `${inviteData.sender_id}_${inviteData.receiver_id}`;
-            const now = new Date();
-
+            
             await setDoc(doc(db, 'couples', coupleId), {
                 uids: [inviteData.sender_id, inviteData.receiver_id],
-                anniversary_date: now,
-                created_at: serverTimestamp()
+                anniversary_date: serverTimestamp()
             });
 
-            await updateDoc(doc(db, 'invites', inviteData.id), { status: 'approved' });
+            await updateDoc(doc(db, 'invites', inviteData.id), {
+                status: 'approved'
+            });
 
             await updateDoc(doc(db, 'profiles', inviteData.sender_id), {
                 link_status: 'paired',
@@ -148,6 +149,7 @@ const Pairing = ({ profile, onUpdate }) => {
             onUpdate();
             navigate('/');
         } catch (error) {
+            console.error("Approve Error:", error);
             alert("Lỗi khi phê duyệt!");
         } finally {
             setLoading(false);
@@ -195,7 +197,7 @@ const Pairing = ({ profile, onUpdate }) => {
                 )}
 
                 {profile?.link_status === 'pending' && (() => {
-                    const isSender = inviteData?.sender_id === auth.currentUser.uid;
+                    const isSender = inviteData?.sender_id === profile.id;
 
                     return (
                         <div className="space-y-6">
