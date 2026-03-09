@@ -11,19 +11,45 @@ const Pairing = ({ profile, onUpdate }) => {
     const navigate = useNavigate();
     const [showWarning, setShowWarning] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [joining, setJoining] = useState(!!urlInviteId);
+    const [joining, setJoining] = useState(false);
     const [manualCode, setManualCode] = useState('');
     const [loading, setLoading] = useState(false);
+    
+    // New states for confirmation flow
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [senderInfo, setSenderInfo] = useState(null);
+    const [activeInviteId, setActiveInviteId] = useState(null);
 
-    // Initial check for join URL
+    // Initial check for join URL - Fetch sender info instead of auto-joining
     useEffect(() => {
-        if (urlInviteId && profile) {
-            if (profile.link_status === 'none') {
-                handleJoinInvite(urlInviteId.toUpperCase());
-            } else if (profile.link_status === 'paired') {
+        const fetchSenderForLink = async () => {
+            if (urlInviteId && profile && profile.link_status === 'none') {
+                setLoading(true);
+                const invId = urlInviteId.toUpperCase();
+                try {
+                    const invSnap = await getDoc(doc(db, 'invites', invId));
+                    if (invSnap.exists()) {
+                        const invData = invSnap.data();
+                        if (invData.status === 'pending' && invData.sender_id !== auth.currentUser.uid) {
+                            const senderSnap = await getDoc(doc(db, 'profiles', invData.sender_id));
+                            if (senderSnap.exists()) {
+                                setSenderInfo(senderSnap.data());
+                                setActiveInviteId(invId);
+                                setShowConfirmModal(true);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching sender info:", error);
+                } finally {
+                    setLoading(false);
+                }
+            } else if (urlInviteId && profile?.link_status === 'paired') {
                 navigate('/');
             }
-        }
+        };
+
+        fetchSenderForLink();
     }, [urlInviteId, profile]);
 
     // Real-time listener for current user's invite to show success modal to sender
@@ -71,7 +97,7 @@ const Pairing = ({ profile, onUpdate }) => {
         }
     };
 
-    const handleJoinInvite = async (invId) => {
+    const handlePrepareJoin = async (invId) => {
         if (!invId) return;
         setLoading(true);
         try {
@@ -92,25 +118,49 @@ const Pairing = ({ profile, onUpdate }) => {
                 return;
             }
 
+            // Fetch sender info for confirmation modal
+            const senderSnap = await getDoc(doc(db, 'profiles', invData.sender_id));
+            if (senderSnap.exists()) {
+                setSenderInfo(senderSnap.data());
+                setActiveInviteId(invId);
+                setShowConfirmModal(true);
+            } else {
+                alert("Không tìm thấy thông tin người gửi!");
+            }
+        } catch (error) {
+            console.error("Prepare join error:", error);
+            alert("Lỗi khi kiểm tra mã!");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const confirmJoinInvite = async () => {
+        if (!activeInviteId || !senderInfo) return;
+        setLoading(true);
+        setJoining(true);
+        try {
             const batch = writeBatch(db);
-            const coupleId = `${invData.sender_id}_${auth.currentUser.uid}`;
+            const coupleId = `${senderInfo.uid}_${auth.currentUser.uid}`;
 
             // 1. Create Couple
             batch.set(doc(db, 'couples', coupleId), {
-                uids: [invData.sender_id, auth.currentUser.uid],
+                uids: [senderInfo.uid, auth.currentUser.uid],
                 anniversary_date: serverTimestamp(),
-                created_at: serverTimestamp()
+                created_at: serverTimestamp(),
+                background_url: '',
+                blur_level: 0
             });
 
             // 2. Update Invite
-            batch.update(doc(db, 'invites', invId), {
+            batch.update(doc(db, 'invites', activeInviteId), {
                 status: 'paired',
                 receiver_id: auth.currentUser.uid,
                 paired_at: serverTimestamp()
             });
 
             // 3. Update Sender Profile
-            batch.update(doc(db, 'profiles', invData.sender_id), {
+            batch.update(doc(db, 'profiles', senderInfo.uid), {
                 link_status: 'paired',
                 partner_id: auth.currentUser.uid,
                 couple_id: coupleId
@@ -119,14 +169,13 @@ const Pairing = ({ profile, onUpdate }) => {
             // 4. Update Receiver Profile
             batch.update(doc(db, 'profiles', auth.currentUser.uid), {
                 link_status: 'paired',
-                partner_id: invData.sender_id,
+                partner_id: senderInfo.uid,
                 couple_id: coupleId,
-                invite_id: invId
+                invite_id: activeInviteId
             });
 
             await batch.commit();
             onUpdate();
-            // Receiver goes straight to dashboard or success screen
             navigate('/');
         } catch (error) {
             console.error("Join error:", error);
@@ -134,6 +183,7 @@ const Pairing = ({ profile, onUpdate }) => {
         } finally {
             setLoading(false);
             setJoining(false);
+            setShowConfirmModal(false);
         }
     };
 
@@ -202,7 +252,7 @@ const Pairing = ({ profile, onUpdate }) => {
                                     maxLength={6}
                                 />
                                 <button
-                                    onClick={() => handleJoinInvite(manualCode)}
+                                    onClick={() => handlePrepareJoin(manualCode)}
                                     disabled={manualCode.length !== 6 || loading}
                                     className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${manualCode.length === 6 ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 text-slate-300'}`}
                                 >
@@ -254,7 +304,58 @@ const Pairing = ({ profile, onUpdate }) => {
                 )}
             </div>
 
-            {/* Warning Popup */}
+            {/* Confirm Join Modal (From Link or Code) */}
+            <AnimatePresence>
+                {showConfirmModal && senderInfo && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            className="bg-white rounded-[3rem] p-8 w-full max-w-sm shadow-2xl text-center"
+                        >
+                            <div className="w-20 h-20 rounded-full border-4 border-blue-100 overflow-hidden mx-auto mb-6">
+                                <img src={senderInfo.avatar_url || "/api/placeholder/100/100"} alt={senderInfo.nickname} className="w-full h-full object-cover" />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2">Kết nối với {senderInfo.nickname}?</h3>
+                            <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 mb-8">
+                                <p className="text-xs text-orange-600 font-bold uppercase tracking-widest mb-1 flex items-center justify-center gap-1">
+                                    <span className="material-symbols-outlined text-sm">warning</span> Lưu ý quan trọng
+                                </p>
+                                <p className="text-xs text-orange-700 leading-relaxed font-medium">
+                                    Đây là ghép đôi **vĩnh viễn**. Bạn sẽ không thể thay đổi người kết nối sau khi xác nhận.
+                                </p>
+                            </div>
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={confirmJoinInvite}
+                                    disabled={loading}
+                                    className="w-full bg-blue-500 text-white font-bold py-4 rounded-full shadow-lg shadow-blue-500/20 active:scale-95 transition-all uppercase tracking-widest"
+                                >
+                                    {loading ? 'Đang kết nối...' : 'Xác nhận kết nối'}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowConfirmModal(false);
+                                        setSenderInfo(null);
+                                        setActiveInviteId(null);
+                                        setJoining(false);
+                                    }}
+                                    className="w-full bg-slate-100 text-slate-500 font-bold py-4 rounded-full transition-colors"
+                                >
+                                    Hủy
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Warning Popup (For Sender creating link) */}
             <AnimatePresence>
                 {showWarning && (
                     <motion.div
@@ -273,7 +374,7 @@ const Pairing = ({ profile, onUpdate }) => {
                             </div>
                             <h3 className="text-xl font-bold text-slate-800 mb-4">Lưu ý quan trọng</h3>
                             <p className="text-sm text-slate-500 leading-relaxed mb-8">
-                                Bạn chỉ có thể kết nối với **một người duy nhất** và không thể thay đổi sau này. Bạn có chắc chắn muốn tiếp tục?
+                                Bạn chỉ có thể kết nối với **một người duy nhất**. Khi người ấy xác nhận, mối liên kết này sẽ không thể thay đổi.
                             </p>
                             <div className="flex flex-col gap-3">
                                 <button
@@ -294,13 +395,13 @@ const Pairing = ({ profile, onUpdate }) => {
                 )}
             </AnimatePresence>
 
-            {/* Success Success Modal (Sender Only) */}
+            {/* Success Success Modal (Sender Only - When Partner confirmed) */}
             <AnimatePresence>
                 {showSuccessModal && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="fixed inset-0 z-[101] flex items-center justify-center p-6 bg-blue-600/90 backdrop-blur-md"
+                        className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-blue-600/90 backdrop-blur-md"
                     >
                         <motion.div
                             initial={{ scale: 0.8, y: 50 }}
