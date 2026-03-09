@@ -140,10 +140,16 @@ const Dashboard = ({ profile }) => {
         setLoading(true);
         try {
             const batch = writeBatch(db);
-            const coupleId = `${senderInfo.uid}_${auth.currentUser.uid}`;
+            const senderUid = senderInfo.uid || senderInfo.id;
+
+            if (!senderUid) {
+                throw new Error("Không tìm thấy UID người gửi");
+            }
+
+            const coupleId = `${senderUid}_${auth.currentUser.uid}`;
 
             batch.set(doc(db, 'couples', coupleId), {
-                uids: [senderInfo.uid, auth.currentUser.uid],
+                uids: [senderUid, auth.currentUser.uid],
                 anniversary_date: serverTimestamp(),
                 created_at: serverTimestamp(),
                 background_url: '',
@@ -156,7 +162,7 @@ const Dashboard = ({ profile }) => {
                 paired_at: serverTimestamp()
             });
 
-            batch.update(doc(db, 'profiles', senderInfo.uid), {
+            batch.update(doc(db, 'profiles', senderUid), {
                 link_status: 'paired',
                 partner_id: auth.currentUser.uid,
                 couple_id: coupleId
@@ -164,7 +170,7 @@ const Dashboard = ({ profile }) => {
 
             batch.update(doc(db, 'profiles', auth.currentUser.uid), {
                 link_status: 'paired',
-                partner_id: senderInfo.uid,
+                partner_id: senderUid,
                 couple_id: coupleId,
                 invite_id: activeInviteId
             });
@@ -172,7 +178,7 @@ const Dashboard = ({ profile }) => {
             await batch.commit();
         } catch (error) {
             console.error("Join error:", error);
-            alert("Lỗi khi kết nối!");
+            alert("Lỗi khi kết nối: " + error.message);
         } finally {
             setLoading(false);
             setShowConfirmModal(false);

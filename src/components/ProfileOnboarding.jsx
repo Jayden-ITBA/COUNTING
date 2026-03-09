@@ -17,14 +17,14 @@ const ProfileOnboarding = ({ onComplete }) => {
             const user = auth.currentUser;
             if (user) {
                 await setDoc(doc(db, 'profiles', user.uid), {
-                    id: user.uid,
+                    uid: user.uid,
                     nickname,
                     birthday,
                     avatar_url: user.photoURL || '',
                     link_status: 'none',
                     partner_id: null,
                     created_at: serverTimestamp()
-                });
+                }, { merge: true });
                 onComplete();
             }
         } catch (error) {

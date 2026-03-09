@@ -141,11 +141,17 @@ const Pairing = ({ profile, onUpdate }) => {
         setJoining(true);
         try {
             const batch = writeBatch(db);
-            const coupleId = `${senderInfo.uid}_${auth.currentUser.uid}`;
+            const senderUid = senderInfo.uid || senderInfo.id;
+            
+            if (!senderUid) {
+                throw new Error("Không tìm thấy UID người gửi");
+            }
+
+            const coupleId = `${senderUid}_${auth.currentUser.uid}`;
 
             // 1. Create Couple
             batch.set(doc(db, 'couples', coupleId), {
-                uids: [senderInfo.uid, auth.currentUser.uid],
+                uids: [senderUid, auth.currentUser.uid],
                 anniversary_date: serverTimestamp(),
                 created_at: serverTimestamp(),
                 background_url: '',
@@ -160,7 +166,7 @@ const Pairing = ({ profile, onUpdate }) => {
             });
 
             // 3. Update Sender Profile
-            batch.update(doc(db, 'profiles', senderInfo.uid), {
+            batch.update(doc(db, 'profiles', senderUid), {
                 link_status: 'paired',
                 partner_id: auth.currentUser.uid,
                 couple_id: coupleId
@@ -169,7 +175,7 @@ const Pairing = ({ profile, onUpdate }) => {
             // 4. Update Receiver Profile
             batch.update(doc(db, 'profiles', auth.currentUser.uid), {
                 link_status: 'paired',
-                partner_id: senderInfo.uid,
+                partner_id: senderUid,
                 couple_id: coupleId,
                 invite_id: activeInviteId
             });
@@ -179,7 +185,7 @@ const Pairing = ({ profile, onUpdate }) => {
             navigate('/');
         } catch (error) {
             console.error("Join error:", error);
-            alert("Lỗi khi kết nối!");
+            alert("Lỗi khi kết nối: " + error.message);
         } finally {
             setLoading(false);
             setJoining(false);
