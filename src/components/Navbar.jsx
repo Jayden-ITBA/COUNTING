@@ -24,32 +24,50 @@ const Navbar = ({ profile }) => {
     }, [profile]);
 
     return (
-        <nav className="fixed bottom-6 left-6 right-6 glass rounded-full px-6 py-4 z-50 flex items-center justify-between shadow-2xl border border-white/20">
-            <NavLink to="/" className={({ isActive }) => isActive ? "text-blue-500 fill-1" : "text-slate-400"}>
-                <span className="material-symbols-outlined">home</span>
-            </NavLink>
-            <NavLink to="/anniversary" className={({ isActive }) => isActive ? "text-blue-500 fill-1" : "text-slate-400"}>
-                <span className="material-symbols-outlined">calendar_month</span>
-            </NavLink>
-            <NavLink to="/notifications" className={({ isActive }) => isActive ? "text-blue-500 fill-1" : "text-slate-400"}>
-                <div className="relative">
-                    <span className="material-symbols-outlined">notifications</span>
-                    {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-white">
-                            {unreadCount > 9 ? '9+' : unreadCount}
-                        </span>
+        <nav className="fixed bottom-0 inset-x-0 bg-white/80 backdrop-blur-xl border-t border-neutral-100 pb-safe pt-2 px-6 z-50">
+            <div className="flex justify-between items-center h-16 max-w-sm mx-auto relative">
+                <NavLink to="/" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-rose-500' : 'text-neutral-400'}`}>
+                    {({ isActive }) => (
+                        <>
+                            {isActive && <div className="absolute -top-3 left-[12.5%] w-1 h-1 bg-rose-500 rounded-full"></div>}
+                            <iconify-icon icon="solar:home-smile-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
+                        </>
                     )}
+                </NavLink>
+
+                <NavLink to="/anniversary" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-rose-500' : 'text-neutral-400'}`}>
+                    {({ isActive }) => (
+                        <>
+                            {isActive && <div className="absolute -top-3 left-[37.5%] w-1 h-1 bg-rose-500 rounded-full"></div>}
+                            <iconify-icon icon="solar:calendar-date-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
+                        </>
+                    )}
+                </NavLink>
+
+                <div className="w-16 h-full flex items-center justify-center -mt-6">
+                    <NavLink to="/diary" className="w-12 h-12 bg-neutral-900 rounded-full shadow-lg shadow-neutral-900/20 flex items-center justify-center text-white hover:scale-105 active:scale-95 transition-transform">
+                        <iconify-icon icon="solar:add-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
+                    </NavLink>
                 </div>
-            </NavLink>
-            <NavLink to="/diary" className={({ isActive }) => isActive ? "text-blue-500 fill-1" : "text-slate-400"}>
-                <span className="material-symbols-outlined">auto_stories</span>
-            </NavLink>
-            <NavLink to="/album" className={({ isActive }) => isActive ? "text-blue-500 fill-1" : "text-slate-400"}>
-                <span className="material-symbols-outlined">photo_library</span>
-            </NavLink>
-            <NavLink to="/settings/background" className={({ isActive }) => isActive ? "text-blue-500 fill-1" : "text-slate-400"}>
-                <span className="material-symbols-outlined">settings</span>
-            </NavLink>
+
+                <NavLink to="/album" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-rose-500' : 'text-neutral-400'}`}>
+                    {({ isActive }) => (
+                        <>
+                            {isActive && <div className="absolute -top-3 left-[62.5%] w-1 h-1 bg-rose-500 rounded-full"></div>}
+                            <iconify-icon icon="solar:gallery-wide-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
+                        </>
+                    )}
+                </NavLink>
+
+                <NavLink to="/settings/background" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-rose-500' : 'text-neutral-400'}`}>
+                    {({ isActive }) => (
+                        <>
+                            {isActive && <div className="absolute -top-3 left-[87.5%] w-1 h-1 bg-rose-500 rounded-full"></div>}
+                            <iconify-icon icon="solar:user-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
+                        </>
+                    )}
+                </NavLink>
+            </div>
         </nav>
     );
 };

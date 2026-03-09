@@ -19,6 +19,7 @@ const Pairing = ({ profile, onUpdate }) => {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [senderInfo, setSenderInfo] = useState(null);
     const [activeInviteId, setActiveInviteId] = useState(null);
+    const [showReceiverSuccess, setShowReceiverSuccess] = useState(false);
 
     // Initial check for join URL - Fetch sender info instead of auto-joining
     useEffect(() => {
@@ -181,8 +182,7 @@ const Pairing = ({ profile, onUpdate }) => {
             });
 
             await batch.commit();
-            onUpdate();
-            navigate('/');
+            setShowReceiverSuccess(true);
         } catch (error) {
             console.error("Join error:", error);
             alert("Lỗi khi kết nối: " + error.message);
@@ -440,6 +440,41 @@ const Pairing = ({ profile, onUpdate }) => {
             </AnimatePresence>
 
             <Navbar profile={profile} />
+            {/* Receiver Success Modal */}
+            <AnimatePresence>
+                {showReceiverSuccess && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="fixed inset-0 z-[130] flex items-center justify-center p-6 bg-rose-500/90 backdrop-blur-md"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.8, y: 50 }}
+                            animate={{ scale: 1, y: 0 }}
+                            className="bg-white rounded-[3.5rem] p-10 w-full max-w-md shadow-2xl text-center"
+                        >
+                            <div className="w-24 h-24 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
+                                <iconify-icon icon="solar:magic-stick-3-linear" width="64" height="64" class="text-rose-500"></iconify-icon>
+                            </div>
+
+                            <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter uppercase">CHÚC MỪNG</h2>
+                            <p className="text-lg text-slate-600 leading-relaxed mb-10 font-medium">
+                                Bạn chuẩn bị lên xe bông với tình yêu của mình. <br /> Hãy đợi xe tới nhé {'<3 <3'}
+                            </p>
+
+                            <button
+                                onClick={() => {
+                                    onUpdate();
+                                    navigate('/');
+                                }}
+                                className="w-full bg-rose-500 text-white font-black py-5 rounded-full shadow-xl shadow-rose-500/40 hover:scale-[1.02] active:scale-95 transition-all text-lg tracking-widest uppercase"
+                            >
+                                Bắt đầu ngay
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
