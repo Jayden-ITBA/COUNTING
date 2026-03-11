@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { db } from '../services/firebase';
 import { doc, onSnapshot, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { getDashboardLabel } from '../utils/ui_helpers';
 import Navbar from './Navbar';
 
 const Widgets = ({ profile }) => {
@@ -111,7 +112,7 @@ const Widgets = ({ profile }) => {
                                 {daysTogether} <span className="text-sm text-blue-500 font-bold tracking-normal uppercase ml-1">Days</span>
                             </h2>
                             <p className="text-[10px] text-rose-500 font-bold uppercase tracking-widest mt-1">
-                                {profile?.dashboard_label || 'Days Together'}
+                                {getDashboardLabel(profile)}
                             </p>
                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">{profile?.nickname || 'Jayden'} & Partner</p>
                         </div>
@@ -146,7 +147,7 @@ const Widgets = ({ profile }) => {
                                     </div>
                                     <div>
                                         <div className="text-rose-500 text-[8px] font-black uppercase tracking-widest mb-1">
-                                            {profile?.dashboard_label || 'Days Together'}
+                                            {getDashboardLabel(profile)}
                                         </div>
                                         <span className="text-[10px] font-extrabold text-blue-500 uppercase tracking-widest block">Next Goal</span>
                                         <span className="text-xs font-bold text-slate-700">{nextMilestone.title} ({nextMilestone.date})</span>

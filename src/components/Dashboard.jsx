@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../services/firebase';
-import { doc, onSnapshot, getDoc, collection, query, where, setDoc, updateDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, writeBatch, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { generatePairingCode } from '../utils/pairing_utils';
+import { getDashboardLabel } from '../utils/ui_helpers';
 import Navbar from './Navbar';
 
 const Dashboard = ({ profile }) => {
@@ -229,7 +230,7 @@ const Dashboard = ({ profile }) => {
                                 </div>
                             </div>
                             <p className="text-xs font-medium text-rose-500 uppercase tracking-[0.2em] mt-6">
-                                {profile?.dashboard_label || 'Days Together'}
+                                {getDashboardLabel(profile)}
                             </p>
                         </section>
 

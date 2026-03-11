@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { db } from '../services/firebase';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { getDashboardLabel } from '../utils/ui_helpers';
 import { uploadMedia } from '../services/cloudinary';
 import Navbar from './Navbar';
 
@@ -86,7 +87,7 @@ const BgSettings = ({ profile }) => {
                         <span className="material-symbols-outlined text-white text-3xl mb-1 fill-1 opacity-80">favorite</span>
                         <h2 className="text-white text-4xl font-extrabold tracking-tighter drop-shadow-lg">{daysTogether}</h2>
                             <p className="text-[6px] font-bold text-rose-500 uppercase tracking-[0.2em] mt-2">
-                                {profile?.dashboard_label || 'Days Together'}
+                                {getDashboardLabel(profile)}
                             </p>
                     </div>
                     {loading && (
