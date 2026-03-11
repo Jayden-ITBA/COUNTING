@@ -72,9 +72,10 @@ const Login = () => {
                         <span className="material-symbols-outlined text-primary text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
                     </div>
                     <h1 className="text-3xl font-extrabold text-slate-800 mb-1 tracking-tight">Our Little Corner</h1>
-                    <p className="text-slate-500 text-center text-sm leading-relaxed">
-                        Mỗi giây chúng ta bên nhau là mỗi giây hạnh phúc.<br />Cám ơn và Thương em
-                    </p>
+                    <div className="text-slate-500 text-center text-sm leading-relaxed flex flex-col items-center">
+                        <span>Mỗi giây chúng ta bên nhau là mỗi giây hạnh phúc.</span>
+                        <span>Cám ơn và Thương em</span>
+                    </div>
                 </motion.div>
 
                 <form onSubmit={handleLogin} className="w-full space-y-5 px-2">
