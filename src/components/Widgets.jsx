@@ -110,7 +110,10 @@ const Widgets = ({ profile }) => {
                             <h2 className="text-4xl font-black text-slate-800 tracking-tighter leading-none">
                                 {daysTogether} <span className="text-sm text-blue-500 font-bold tracking-normal uppercase ml-1">Days</span>
                             </h2>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">{profile?.nickname || 'Jayden'} & Partner</p>
+                            <p className="text-[10px] text-rose-500 font-bold uppercase tracking-widest mt-1">
+                                {profile?.dashboard_label || 'Days Together'}
+                            </p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">{profile?.nickname || 'Jayden'} & Partner</p>
                         </div>
                     </motion.div>
                 </div>
@@ -142,6 +145,9 @@ const Widgets = ({ profile }) => {
                                         <span className="material-symbols-outlined">celebration</span>
                                     </div>
                                     <div>
+                                        <div className="text-rose-500 text-[8px] font-black uppercase tracking-widest mb-1">
+                                            {profile?.dashboard_label || 'Days Together'}
+                                        </div>
                                         <span className="text-[10px] font-extrabold text-blue-500 uppercase tracking-widest block">Next Goal</span>
                                         <span className="text-xs font-bold text-slate-700">{nextMilestone.title} ({nextMilestone.date})</span>
                                     </div>

@@ -149,7 +149,7 @@ const Diary = ({ profile }) => {
                     profile.couple_id,
                     entry.author_id,
                     'comment',
-                    `${profile.nickname} đã bình luận: "${commentText.substring(0, 20)}..."`
+                    `${profile.nickname} có ý kiến: "${commentText.substring(0, 20)}..."`
                 );
             }
 
@@ -161,7 +161,7 @@ const Diary = ({ profile }) => {
     };
 
     const handleDelete = async (entryId) => {
-        if (!confirm("Bạn có chắc chắn muốn xóa kỷ niệm này?")) return;
+        if (!confirm("Xóa ư. Tiếc lắm ó !!!")) return;
         try {
             await deleteDoc(doc(db, 'diaries', entryId));
         } catch (error) {
@@ -184,8 +184,8 @@ const Diary = ({ profile }) => {
         <div className="relative min-h-screen bg-background-light pb-32">
             <div className="px-6 pt-16 pb-8 flex justify-between items-end">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800">Nhật ký tình yêu</h1>
-                    <p className="text-slate-500 text-sm">Lưu giữ từng khoảnh khắc</p>
+                    <h1 className="text-3xl font-bold text-slate-800">Góc tâm tình</h1>
+                    <p className="text-slate-500 text-sm">Nơi mà chúng ta gửi cho nhau những ngọt ngào và tâm tình</p>
                 </div>
                 <motion.button
                     whileTap={{ scale: 0.9 }}
@@ -209,7 +209,7 @@ const Diary = ({ profile }) => {
                             <textarea
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
-                                placeholder="Hôm nay của hai bạn thế nào?"
+                                placeholder="Hôm nay chúng ta yêu thương nhau như thế nào?"
                                 className="w-full bg-slate-50/50 rounded-2xl p-4 text-sm outline-none resize-none min-h-[120px] text-slate-700"
                             />
 
@@ -361,7 +361,7 @@ const Diary = ({ profile }) => {
                                                 <input
                                                     value={commentText}
                                                     onChange={(e) => setCommentText(e.target.value)}
-                                                    placeholder="Viết bình luận..."
+                                                    placeholder="Ý kiến giề !!"
                                                     className="flex-1 bg-slate-100 rounded-full px-4 py-2 text-xs outline-none"
                                                 />
                                                 <button type="submit" className="text-blue-500 material-symbols-outlined">send</button>

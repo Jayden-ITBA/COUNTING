@@ -85,7 +85,9 @@ const BgSettings = ({ profile }) => {
                     <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center text-center p-4">
                         <span className="material-symbols-outlined text-white text-3xl mb-1 fill-1 opacity-80">favorite</span>
                         <h2 className="text-white text-4xl font-extrabold tracking-tighter drop-shadow-lg">{daysTogether}</h2>
-                        <p className="text-white/80 text-[10px] font-bold uppercase tracking-widest">Days</p>
+                            <p className="text-[6px] font-bold text-rose-500 uppercase tracking-[0.2em] mt-2">
+                                {profile?.dashboard_label || 'Days Together'}
+                            </p>
                     </div>
                     {loading && (
                         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center">

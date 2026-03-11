@@ -11,6 +11,7 @@ const ProfileSettings = ({ profile, onUpdate }) => {
     const [nickname, setNickname] = useState(profile?.nickname || '');
     const [birthday, setBirthday] = useState(profile?.birthday || '');
     const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '');
+    const [dashboardLabel, setDashboardLabel] = useState(profile?.dashboard_label || '');
     const [uploading, setUploading] = useState(false);
     const [saving, setSaving] = useState(false);
 
@@ -36,7 +37,8 @@ const ProfileSettings = ({ profile, onUpdate }) => {
             await updateDoc(doc(db, 'profiles', auth.currentUser.uid), {
                 nickname,
                 birthday,
-                avatar_url: avatarUrl
+                avatar_url: avatarUrl,
+                dashboard_label: dashboardLabel.trim() || null
             });
             onUpdate();
             navigate('/settings');
@@ -72,7 +74,7 @@ const ProfileSettings = ({ profile, onUpdate }) => {
                             <span className="material-symbols-outlined text-sm">photo_camera</span>
                         </label>
                     </div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-4">Chạm để đổi ảnh</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-4 text-center">Chạm để đổi ảnh</p>
                 </div>
 
                 <form onSubmit={handleSave} className="space-y-4">
@@ -97,6 +99,35 @@ const ProfileSettings = ({ profile, onUpdate }) => {
                                 onChange={(e) => setBirthday(e.target.value)}
                                 className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none text-sm focus:ring-2 focus:ring-blue-100"
                             />
+                        </div>
+
+                        <div className="text-left">
+                            <div className="flex justify-between items-center mb-1">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-4 block">Nhãn Dashboard</label>
+                                <span className="text-[10px] font-medium text-slate-300 mr-4">{dashboardLabel.length}/30</span>
+                            </div>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    maxLength={30}
+                                    value={dashboardLabel}
+                                    onChange={(e) => setDashboardLabel(e.target.value)}
+                                    placeholder="Ví dụ: Ngày bên nhau ❤️"
+                                    className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none text-sm focus:ring-2 focus:ring-blue-100 pr-12"
+                                />
+                                {dashboardLabel && (
+                                    <button 
+                                        type="button"
+                                        onClick={() => setDashboardLabel('')}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                                    >
+                                        <span className="material-symbols-outlined text-sm">close</span>
+                                    </button>
+                                )}
+                            </div>
+                            <p className="text-[9px] text-slate-400 ml-4 mt-2 font-medium">
+                                * Lưu ý: Nhãn này chỉ hiển thị trên thiết bị của bạn.
+                            </p>
                         </div>
                     </div>
 

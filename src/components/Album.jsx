@@ -53,7 +53,7 @@ const Album = ({ profile }) => {
         <div className="relative min-h-screen bg-background-light pb-32">
             <div className="px-6 pt-16 pb-8">
                 <h1 className="text-3xl font-bold text-slate-800">Album kỷ niệm</h1>
-                <p className="text-slate-500 text-sm">Khoảnh khắc đáng nhớ</p>
+                <p className="text-slate-500 text-sm">Tình yêu trong mắt của chúng ta</p>
             </div>
 
             {loading ? (

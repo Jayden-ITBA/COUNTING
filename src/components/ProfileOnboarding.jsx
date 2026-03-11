@@ -45,7 +45,7 @@ const ProfileOnboarding = ({ onComplete }) => {
                 <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <span className="material-symbols-outlined text-4xl text-blue-500 fill-1">person</span>
                 </div>
-                <h2 className="text-2xl font-bold text-slate-800 mb-2">Chào mừng bạn!</h2>
+                <h2 className="text-2xl font-bold text-slate-800 mb-2">Mến chào bạn thân yêu!</h2>
                 <p className="text-sm text-slate-500 mb-8">Hãy cho chúng mình biết một chút về bạn nhé.</p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -54,7 +54,7 @@ const ProfileOnboarding = ({ onComplete }) => {
                         <input
                             required
                             type="text"
-                            placeholder="Ví dụ: Jayden"
+                            placeholder="Ở nhà cục cưng gọi bạn là gì nhỉ?"
                             value={nickname}
                             onChange={(e) => setNickname(e.target.value)}
                             className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none text-sm focus:ring-2 focus:ring-blue-100"
@@ -62,7 +62,7 @@ const ProfileOnboarding = ({ onComplete }) => {
                     </div>
 
                     <div className="text-left">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-4 mb-1 block">Ngày sinh của bạn</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-4 mb-1 block">Ngày bạn khóc oe oe</label>
                         <input
                             required
                             type="date"
@@ -78,7 +78,7 @@ const ProfileOnboarding = ({ onComplete }) => {
                     >
                         {loading ? (
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        ) : "Bắt đầu ngay"}
+                        ) : "Kết nối với cục cưng nào!!"}
                     </button>
                 </form>
             </motion.div>

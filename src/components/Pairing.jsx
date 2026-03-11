@@ -198,8 +198,8 @@ const Pairing = ({ profile, onUpdate }) => {
     return (
         <div className="relative min-h-screen bg-background-light pb-32">
             <div className="px-6 pt-16 pb-8">
-                <h1 className="text-3xl font-bold text-slate-800">Kết nối cặp đôi</h1>
-                <p className="text-slate-500 text-sm">Cùng nhau tạo nên những kỷ niệm đẹp</p>
+                <h1 className="text-3xl font-bold text-slate-800">Kết nối cục cưng</h1>
+                <p className="text-slate-500 text-sm">Hãy tìm cục cưng của bạn giữa muôn vạn người nhé !!</p>
             </div>
 
             <div className="px-6 space-y-6">
@@ -220,15 +220,15 @@ const Pairing = ({ profile, onUpdate }) => {
                             <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <span className="material-symbols-outlined text-4xl text-blue-500">link</span>
                             </div>
-                            <h3 className="text-xl font-bold text-slate-800 mb-2">Tạo mã kết nối</h3>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2">Tìm cục cưng</h3>
                             <p className="text-sm text-slate-500 mb-8">
-                                Gửi mã cho "người ấy" để bắt đầu hành trình của hai bạn.
+                                Gửi tín hiệu kết nối cho cục cưng để bắt đầu hành trình nhé !!!
                             </p>
                             <button
                                 onClick={handleCreateLink}
                                 className="w-full bg-blue-500 text-white font-bold py-4 rounded-full shadow-lg shadow-blue-500/30 active:scale-95 transition-transform"
                             >
-                                Tạo mã ngay
+                                Tạo tín hiệu kết nối
                             </button>
                         </motion.div>
 
@@ -247,7 +247,7 @@ const Pairing = ({ profile, onUpdate }) => {
                             transition={{ delay: 0.1 }}
                             className="glass p-8 rounded-[3rem]"
                         >
-                            <h3 className="text-lg font-bold text-slate-800 mb-4 text-center">Nhập mã từ nửa kia</h3>
+                            <h3 className="text-lg font-bold text-slate-800 mb-4 text-center">Cục cưng đã gửi tín hiệu gì cho bạn !</h3>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
@@ -278,7 +278,7 @@ const Pairing = ({ profile, onUpdate }) => {
                         <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
                             <span className="material-symbols-outlined text-blue-400">hourglass_empty</span>
                         </div>
-                        <h3 className="text-lg font-bold text-slate-800">Đang chờ nửa kia...</h3>
+                        <h3 className="text-lg font-bold text-slate-800">Đang đợi cục cưng kết nối giữa muôn vạn người...</h3>
                         <p className="text-xs text-slate-400 mb-6 uppercase tracking-widest font-bold">Chia sẻ mã bên dưới</p>
 
                         <div className="bg-slate-50 p-6 rounded-[2rem] mb-4 border border-blue-50">
@@ -327,13 +327,13 @@ const Pairing = ({ profile, onUpdate }) => {
                             <div className="w-20 h-20 rounded-full border-4 border-blue-100 overflow-hidden mx-auto mb-6">
                                 <img src={senderInfo.avatar_url || "/api/placeholder/100/100"} alt={senderInfo.nickname} className="w-full h-full object-cover" />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-800 mb-2">Kết nối với {senderInfo.nickname}?</h3>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2">Đã tìm thấy cục cưng {senderInfo.nickname}?</h3>
                             <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 mb-8">
                                 <p className="text-xs text-orange-600 font-bold uppercase tracking-widest mb-1 flex items-center justify-center gap-1">
                                     <span className="material-symbols-outlined text-sm">warning</span> Lưu ý quan trọng
                                 </p>
                                 <p className="text-xs text-orange-700 leading-relaxed font-medium">
-                                    Đây là ghép đôi **vĩnh viễn**. Bạn sẽ không thể thay đổi người kết nối sau khi xác nhận.
+                                    Tìm được nhau là không rời nhau được. Chắc chưa hở cục cưng ???
                                 </p>
                             </div>
                             <div className="flex flex-col gap-3">
@@ -342,7 +342,7 @@ const Pairing = ({ profile, onUpdate }) => {
                                     disabled={loading}
                                     className="w-full bg-blue-500 text-white font-bold py-4 rounded-full shadow-lg shadow-blue-500/20 active:scale-95 transition-all uppercase tracking-widest"
                                 >
-                                    {loading ? 'Đang kết nối...' : 'Xác nhận kết nối'}
+                                    {loading ? 'Đang kết nối...' : 'Đặt bút ký đơn'}
                                 </button>
                                 <button
                                     onClick={() => {
@@ -353,7 +353,7 @@ const Pairing = ({ profile, onUpdate }) => {
                                     }}
                                     className="w-full bg-slate-100 text-slate-500 font-bold py-4 rounded-full transition-colors"
                                 >
-                                    Hủy
+                                    Bye
                                 </button>
                             </div>
                         </motion.div>
@@ -422,7 +422,7 @@ const Pairing = ({ profile, onUpdate }) => {
                             
                             <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter">CHÚC MỪNG</h2>
                             <p className="text-lg text-slate-600 leading-relaxed mb-10 font-medium">
-                                Tình yêu đời bạn đã tìm thấy được bạn!!
+                                Giữa muôn vạn người, tình yêu đã tìm thấy được bạn!!
                             </p>
                             
                             <button
@@ -432,7 +432,7 @@ const Pairing = ({ profile, onUpdate }) => {
                                 }}
                                 className="w-full bg-blue-500 text-white font-black py-5 rounded-full shadow-xl shadow-blue-500/40 hover:scale-[1.02] active:scale-95 transition-all text-lg tracking-widest uppercase"
                             >
-                                Bắt đầu ngay
+                                Bắt đầu sang trang mới nhé
                             </button>
                         </motion.div>
                     </motion.div>
@@ -459,7 +459,7 @@ const Pairing = ({ profile, onUpdate }) => {
 
                             <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter uppercase">CHÚC MỪNG</h2>
                             <p className="text-lg text-slate-600 leading-relaxed mb-10 font-medium">
-                                Bạn chuẩn bị lên xe bông với tình yêu của mình. <br /> Hãy đợi xe tới nhé {'<3 <3'}
+                                Xe bông đã ở trước cửa. Đợi tay bạn mở cửa
                             </p>
 
                             <button
@@ -469,7 +469,7 @@ const Pairing = ({ profile, onUpdate }) => {
                                 }}
                                 className="w-full bg-rose-500 text-white font-black py-5 rounded-full shadow-xl shadow-rose-500/40 hover:scale-[1.02] active:scale-95 transition-all text-lg tracking-widest uppercase"
                             >
-                                Bắt đầu ngay
+                                Lên xe nào
                             </button>
                         </motion.div>
                     </motion.div>

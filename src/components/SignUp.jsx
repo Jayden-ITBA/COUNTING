@@ -61,8 +61,8 @@ const SignUp = () => {
                     <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-4 border-4 border-primary/20 shadow-sm">
                         <span className="material-symbols-outlined text-primary text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
                     </div>
-                    <h1 className="text-3xl font-extrabold text-slate-800 mb-1 tracking-tight">Tham gia LoveDays</h1>
-                    <p className="text-slate-500 text-center text-sm px-4">Bắt đầu hành trình lưu giữ kỷ niệm tình yêu của riêng bạn</p>
+                    <h1 className="text-3xl font-extrabold text-slate-800 mb-1 tracking-tight">Our Little Corner</h1>
+                    <p className="text-slate-500 text-center text-sm px-4">Nhật ký góc nhỏ của hai bạn đã bắt đầu rồi đấy</p>
                 </motion.div>
 
                 <form onSubmit={handleSignUp} className="w-full space-y-5 px-2">
@@ -75,7 +75,7 @@ const SignUp = () => {
                                 value={nickname}
                                 onChange={(e) => setNickname(e.target.value)}
                                 className="w-full bg-white border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-primary rounded-full py-4 pl-14 pr-6 text-slate-900 transition-all outline-none"
-                                placeholder="Bạn tên là gì nhỉ?"
+                                placeholder="Cục cưng gọi bạn là gì nhỉ ?"
                                 type="text"
                             />
                         </div>

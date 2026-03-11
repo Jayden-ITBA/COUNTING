@@ -209,7 +209,7 @@ const Dashboard = ({ profile }) => {
                             )}
                         </button>
                     </div>
-                    <div className="font-semibold text-base tracking-tight text-neutral-800 uppercase tracking-[0.15em] text-xs">Our Story</div>
+                    <div className="font-semibold text-base tracking-tight text-neutral-800 uppercase tracking-[0.15em] text-xs">OUR LITTLE CORNER</div>
                     <button onClick={() => navigate('/settings/background')} className="p-2 -mr-2 text-neutral-500 hover:text-neutral-900 transition-colors rounded-full hover:bg-neutral-50">
                         <iconify-icon icon="solar:settings-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
                     </button>
@@ -228,7 +228,9 @@ const Dashboard = ({ profile }) => {
                                     <span className="text-xs font-semibold text-neutral-700">Streak</span>
                                 </div>
                             </div>
-                            <p className="text-xs font-medium text-rose-500 uppercase tracking-[0.2em] mt-6">Days Together</p>
+                            <p className="text-xs font-medium text-rose-500 uppercase tracking-[0.2em] mt-6">
+                                {profile?.dashboard_label || 'Days Together'}
+                            </p>
                         </section>
 
                         {/* Couple Avatars */}
@@ -283,7 +285,7 @@ const Dashboard = ({ profile }) => {
                         {/* Upcoming Timeline */}
                         <section className="px-6 mt-10">
                             <div className="flex justify-between items-end mb-5">
-                                <h2 className="text-lg font-semibold text-neutral-900 tracking-tight">Upcoming</h2>
+                                <h2 className="text-lg font-semibold text-neutral-900 tracking-tight">Sự kiện sắp tới</h2>
                                 <button onClick={() => navigate('/anniversary')} className="text-xs font-medium text-rose-500 hover:text-rose-600 transition-colors">See all</button>
                             </div>
                             
