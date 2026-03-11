@@ -59,7 +59,7 @@ const Navbar = ({ profile }) => {
                     )}
                 </NavLink>
 
-                <NavLink to="/settings/background" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-rose-500' : 'text-neutral-400'}`}>
+                <NavLink to="/settings" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-rose-500' : 'text-neutral-400'}`}>
                     {({ isActive }) => (
                         <>
                             {isActive && <div className="absolute -top-3 left-[87.5%] w-1 h-1 bg-rose-500 rounded-full"></div>}

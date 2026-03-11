@@ -31,7 +31,7 @@ const ProfileSettings = ({ profile, onUpdate }) => {
     };
 
     const handleSave = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         setSaving(true);
         try {
             await updateDoc(doc(db, 'profiles', auth.currentUser.uid), {
@@ -51,94 +51,118 @@ const ProfileSettings = ({ profile, onUpdate }) => {
     };
 
     return (
-        <div className="relative min-h-screen bg-background-light pb-32">
-            <div className="px-6 pt-16 pb-8">
-                <h1 className="text-3xl font-bold text-slate-800">Thông tin cá nhân</h1>
-                <p className="text-slate-500 text-sm">Chỉnh sửa hồ sơ của bạn</p>
-            </div>
+        <div className="relative min-h-screen bg-[#f0f7ff] pb-32">
+            <header className="flex items-center bg-transparent p-4 justify-between sticky top-0 z-10 backdrop-blur-md">
+                <button 
+                    onClick={() => navigate('/settings')}
+                    className="text-blue-400 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-blue-100 transition-colors"
+                >
+                    <span className="material-symbols-outlined">arrow_back_ios_new</span>
+                </button>
+                <h2 className="text-slate-900 text-lg font-bold leading-tight tracking-tight flex-1 text-center">Thông tin cá nhân</h2>
+                <button onClick={handleSave} disabled={saving} className="flex w-10 items-center justify-end">
+                    <p className="text-blue-400 text-base font-bold leading-normal tracking-wide hover:opacity-80 transition-opacity">
+                        {saving ? "..." : "Lưu"}
+                    </p>
+                </button>
+            </header>
 
-            <div className="px-6 space-y-6">
-                <div className="flex flex-col items-center py-6">
-                    <div className="relative group">
-                        <div className="w-24 h-24 rounded-full border-4 border-white shadow-xl overflow-hidden bg-slate-100">
-                            {uploading ? (
-                                <div className="w-full h-full flex items-center justify-center bg-black/10">
-                                    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <main className="max-w-lg mx-auto w-full px-4 pb-12">
+                <section className="flex py-8">
+                    <div className="flex w-full flex-col gap-6 items-center">
+                        <div className="flex gap-4 flex-col items-center">
+                            <div className="relative group">
+                                <div 
+                                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32 ring-4 ring-blue-100 shadow-xl overflow-hidden bg-white flex items-center justify-center"
+                                >
+                                    {uploading ? (
+                                        <div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <img src={avatarUrl || "/api/placeholder/128/128"} className="w-full h-full object-cover" />
+                                    )}
                                 </div>
-                            ) : (
-                                <img src={avatarUrl || "/api/placeholder/100/100"} alt="Avatar" className="w-full h-full object-cover" />
-                            )}
-                        </div>
-                        <label className="absolute bottom-0 right-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white border-2 border-white cursor-pointer shadow-lg active:scale-90 transition-transform">
-                            <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-                            <span className="material-symbols-outlined text-sm">photo_camera</span>
-                        </label>
-                    </div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-4 text-center">Chạm để đổi ảnh</p>
-                </div>
-
-                <form onSubmit={handleSave} className="space-y-4">
-                    <div className="glass p-6 rounded-[2.5rem] space-y-4">
-                        <div className="text-left">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-4 mb-1 block">Biệt danh</label>
-                            <input
-                                required
-                                type="text"
-                                value={nickname}
-                                onChange={(e) => setNickname(e.target.value)}
-                                className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none text-sm focus:ring-2 focus:ring-blue-100"
-                            />
-                        </div>
-
-                        <div className="text-left">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-4 mb-1 block">Ngày sinh</label>
-                            <input
-                                required
-                                type="date"
-                                value={birthday}
-                                onChange={(e) => setBirthday(e.target.value)}
-                                className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none text-sm focus:ring-2 focus:ring-blue-100"
-                            />
-                        </div>
-
-                        <div className="text-left">
-                            <div className="flex justify-between items-center mb-1">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-4 block">Nhãn Dashboard</label>
-                                <span className="text-[10px] font-medium text-slate-300 mr-4">{dashboardLabel.length}/30</span>
+                                <label className="absolute bottom-1 right-1 bg-blue-500 text-white p-2 rounded-full shadow-lg border-2 border-white cursor-pointer hover:scale-110 active:scale-95 transition-all">
+                                    <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+                                    <span className="material-symbols-outlined text-sm">photo_camera</span>
+                                </label>
                             </div>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    maxLength={30}
+                            <div className="flex flex-col items-center justify-center">
+                                <h3 className="text-slate-900 text-xl font-bold leading-tight text-center">Ảnh của bạn</h3>
+                                <p className="text-blue-400 text-sm font-normal leading-normal text-center">Nơi lưu giữ nét đẹp riêng của bạn</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div className="bg-white/60 backdrop-blur-md border border-blue-100/20 rounded-3xl p-6 space-y-6 shadow-sm">
+                    <h4 className="text-slate-800 text-base font-bold leading-tight tracking-tight border-b border-blue-100 pb-3">Chi tiết tài khoản</h4>
+                    
+                    <div className="space-y-5">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-slate-600 text-sm font-medium px-1">Biệt danh</label>
+                            <div className="bg-white flex w-full items-center rounded-xl border border-blue-100 focus-within:border-blue-300 transition-all">
+                                <input 
+                                    className="flex w-full border-none bg-transparent h-12 text-slate-900 focus:ring-0 px-4 text-base font-normal"
+                                    placeholder="Nhập biệt danh của bạn"
+                                    value={nickname}
+                                    onChange={(e) => setNickname(e.target.value)}
+                                />
+                                <div className="text-blue-300 pr-4">
+                                    <span className="material-symbols-outlined">favorite</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-slate-600 text-sm font-medium px-1">Ngày sinh</label>
+                            <div className="bg-white flex w-full items-center rounded-xl border border-blue-100 focus-within:border-blue-300 transition-all">
+                                <input 
+                                    className="flex w-full border-none bg-transparent h-12 text-slate-900 focus:ring-0 px-4 text-base font-normal"
+                                    type="date"
+                                    value={birthday}
+                                    onChange={(e) => setBirthday(e.target.value)}
+                                />
+                                <div className="text-blue-300 pr-4">
+                                    <span className="material-symbols-outlined">wb_sunny</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-slate-600 text-sm font-medium px-1">Nhãn Dashboard</label>
+                            <div className="bg-white flex w-full items-center rounded-xl border border-blue-100 focus-within:border-blue-300 transition-all">
+                                <input 
+                                    className="flex w-full border-none bg-transparent h-12 text-slate-900 focus:ring-0 px-4 text-base font-normal"
+                                    placeholder="Tên hiển thị trên Dashboard"
                                     value={dashboardLabel}
                                     onChange={(e) => setDashboardLabel(e.target.value)}
-                                    placeholder="Ví dụ: Ngày bên nhau ❤️"
-                                    className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none text-sm focus:ring-2 focus:ring-blue-100 pr-12"
                                 />
-                                {dashboardLabel && (
-                                    <button 
-                                        type="button"
-                                        onClick={() => setDashboardLabel('')}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
-                                    >
-                                        <span className="material-symbols-outlined text-sm">close</span>
-                                    </button>
-                                )}
+                                <div className="text-blue-300 pr-4">
+                                    <span className="material-symbols-outlined">label_important</span>
+                                </div>
                             </div>
-                            <p className="text-[9px] text-slate-400 ml-4 mt-2 font-medium">
-                                * Lưu ý: Nhãn này chỉ hiển thị trên thiết bị của bạn.
-                            </p>
+                            <p className="text-xs text-blue-400/70 px-1 italic">* Tên này sẽ xuất hiện trên màn hình chính của ứng dụng.</p>
                         </div>
                     </div>
+                </div>
 
-                    <button
+                <div className="mt-8 px-2 space-y-4">
+                    <button 
+                        onClick={handleSave}
                         disabled={saving || uploading}
-                        className="w-full bg-blue-500 text-white font-bold py-4 rounded-full shadow-lg shadow-blue-500/30 active:scale-95 transition-transform disabled:opacity-50"
+                        className="w-full bg-gradient-to-r from-blue-400 to-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 active:scale-95 transition-transform"
                     >
-                        {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+                        {saving ? 'Đang cập nhật...' : 'Cập nhật hồ sơ'}
                     </button>
-                </form>
-            </div>
+                    <button 
+                        onClick={() => navigate('/settings')}
+                        className="w-full bg-transparent border-2 border-blue-200 text-blue-400 font-semibold py-3 rounded-xl hover:bg-blue-50 transition-colors"
+                    >
+                        Hủy thay đổi
+                    </button>
+                </div>
+                <div className="h-12"></div>
+            </main>
 
             <Navbar profile={profile} />
         </div>

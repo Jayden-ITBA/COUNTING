@@ -195,24 +195,17 @@ const Dashboard = ({ profile }) => {
                 {/* Subtle Background Glow */}
                 <div className="absolute top-0 inset-x-0 h-80 bg-gradient-to-b from-rose-50/80 via-rose-50/20 to-transparent pointer-events-none -z-10"></div>
 
-                {/* Header */}
                 <header className="flex justify-between items-center p-6 sticky top-0 bg-white/50 backdrop-blur-xl z-50 border-b border-transparent transition-all duration-300">
                     <div className="flex items-center gap-1">
-                        <button onClick={() => navigate('/settings')} className="p-2 -ml-2 text-neutral-500 hover:text-neutral-900 transition-colors rounded-full hover:bg-neutral-50">
-                            <iconify-icon icon="solar:hamburger-menu-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
-                        </button>
-                        <button onClick={() => navigate('/notifications')} className="p-2 text-neutral-500 hover:text-neutral-900 transition-colors rounded-full hover:bg-neutral-50 relative">
-                            <iconify-icon icon="solar:bell-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
-                            {unreadCount > 0 && (
-                                <span className="absolute top-2 right-2 w-4 h-4 bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-white">
-                                    {unreadCount > 9 ? '9+' : unreadCount}
-                                </span>
-                            )}
-                        </button>
+                        <div className="font-semibold text-base tracking-tight text-neutral-800 uppercase tracking-[0.15em] text-xs">OUR LITTLE CORNER</div>
                     </div>
-                    <div className="font-semibold text-base tracking-tight text-neutral-800 uppercase tracking-[0.15em] text-xs">OUR LITTLE CORNER</div>
-                    <button onClick={() => navigate('/settings/background')} className="p-2 -mr-2 text-neutral-500 hover:text-neutral-900 transition-colors rounded-full hover:bg-neutral-50">
-                        <iconify-icon icon="solar:settings-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
+                    <button onClick={() => navigate('/notifications')} className="p-2 text-neutral-500 hover:text-neutral-900 transition-colors rounded-full hover:bg-neutral-50 relative">
+                        <iconify-icon icon="solar:bell-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
+                        {unreadCount > 0 && (
+                            <span className="absolute top-2 right-2 w-4 h-4 bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-white">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                        )}
                     </button>
                 </header>
 

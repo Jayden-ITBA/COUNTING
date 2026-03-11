@@ -18,88 +18,117 @@ const Settings = ({ profile }) => {
         }
     };
 
-    const settingsItems = [
-        { icon: 'wallpaper', title: 'Cài đặt ảnh nền', description: 'Đổi ảnh Dashboard & độ mờ', path: '/settings/background' },
-        { icon: 'widgets', title: 'Giao diện Widget', description: 'Xem các mẫu Widget (S, M, L)', path: '/settings/widgets' },
-        { icon: 'link', title: 'Cài đặt kết nối', description: 'Link mời & Phòng chờ', path: '/settings/pairing' },
-        { icon: 'notifications', title: 'Thông báo', description: 'Nhắc nhở ngày kỷ niệm', path: '/settings/notifications' },
-        { icon: 'lock', title: 'Bảo mật', description: 'Cài đặt mã PIN khóa App', path: '/settings/security' },
-        { icon: 'person', title: 'Thông tin cá nhân', description: 'Biệt danh & Ngày sinh', path: '/settings/profile' },
+    const sections = [
+        {
+            group: "Tài khoản & Hồ sơ",
+            items: [
+                { icon: 'person', title: 'Thông tin cá nhân', desc: 'Biệt danh, Ngày sinh, Nhãn Dashboard', path: '/settings/profile', color: 'bg-blue-50 text-blue-500' },
+                { icon: 'link', title: 'Kết nối Partner', desc: 'Quản lý lời mời & liên kết', path: '/settings/pairing', color: 'bg-rose-50 text-rose-500' },
+            ]
+        },
+        {
+            group: "Giao diện & Trải nghiệm",
+            items: [
+                { icon: 'palette', title: 'Tùy chỉnh giao diện', desc: 'Ảnh nền & Widget', path: '/settings/background', color: 'bg-indigo-50 text-indigo-500' },
+                { icon: 'notifications', title: 'Cài đặt thông báo', desc: 'Nhắc nhở hàng ngày & Milestone', path: '/settings/notifications', color: 'bg-amber-50 text-amber-500' },
+            ]
+        },
+        {
+            group: "Quyền riêng tư",
+            items: [
+                { icon: 'security', title: 'Bảo mật & Dữ liệu', desc: 'Khóa ứng dụng & Quản lý dữ liệu', path: '/settings/security', color: 'bg-emerald-50 text-emerald-500' },
+            ]
+        }
     ];
 
     return (
-        <div className="relative min-h-screen bg-background-light pb-32">
-            <div className="px-6 pt-16 pb-8">
-                <h1 className="text-3xl font-bold text-slate-800">Cài đặt</h1>
-                <p className="text-slate-500">Tùy chỉnh không gian của bạn</p>
-            </div>
+        <div className="relative min-h-screen bg-[#f8fafc] pb-32">
+            {/* Header */}
+            <header className="flex items-center p-6 sticky top-0 bg-[#f8fafc]/80 backdrop-blur-md z-10">
+                <button onClick={() => navigate('/')} className="text-slate-400 p-2 -ml-2 hover:bg-slate-100 rounded-full transition-colors">
+                    <span className="material-symbols-outlined">arrow_back</span>
+                </button>
+                <h1 className="text-xl font-bold text-slate-800 ml-2">Cài đặt tổng</h1>
+            </header>
 
-            <div className="px-6 space-y-4">
-                {settingsItems.map((item, index) => (
-                    <motion.div
-                        key={index}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => navigate(item.path)}
-                        className="glass p-5 rounded-3xl flex items-center gap-4 cursor-pointer"
-                    >
-                        <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500">
-                            <span className="material-symbols-outlined">{item.icon}</span>
+            <main className="px-4 space-y-8">
+                {/* Profile Brief */}
+                <div onClick={() => navigate('/settings/profile')} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-all">
+                    <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-100 ring-4 ring-blue-50">
+                        <img src={profile?.avatar_url || "/api/placeholder/100/100"} alt="Avatar" className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-slate-800 text-lg">{profile?.nickname || 'Người dùng'}</h3>
+                        <p className="text-slate-400 text-sm">Chỉnh sửa hồ sơ của bạn</p>
+                    </div>
+                    <span className="material-symbols-outlined ml-auto text-slate-300">chevron_right</span>
+                </div>
+
+                {/* Settings list */}
+                {sections.map((section, sidx) => (
+                    <div key={sidx} className="space-y-3">
+                        <h3 className="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest">{section.group}</h3>
+                        <div className="space-y-2">
+                            {section.items.map((item, idx) => (
+                                <motion.div
+                                    key={idx}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => navigate(item.path)}
+                                    className="bg-white p-4 rounded-2xl flex items-center gap-4 cursor-pointer border border-slate-50 shadow-sm"
+                                >
+                                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${item.color}`}>
+                                        <span className="material-symbols-outlined text-[24px]">{item.icon}</span>
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-bold text-[15px] text-slate-800">{item.title}</h4>
+                                        <p className="text-[12px] text-slate-400 line-clamp-1">{item.desc}</p>
+                                    </div>
+                                    <span className="material-symbols-outlined text-slate-300 text-sm">chevron_right</span>
+                                </motion.div>
+                            ))}
                         </div>
-                        <div className="flex-1">
-                            <h4 className="font-bold text-sm text-slate-800">{item.title}</h4>
-                            <p className="text-xs text-slate-500">{item.description}</p>
-                        </div>
-                        <span className="material-symbols-outlined text-slate-300">chevron_right</span>
-                    </motion.div>
+                    </div>
                 ))}
 
-                <div className="pt-8 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                    LoveDays v1.0.0
+                {/* Logout Button */}
+                <div className="pt-4">
+                    <button
+                        onClick={() => setShowLogoutConfirm(true)}
+                        className="w-full bg-white text-red-500 font-bold py-4 rounded-2xl border border-red-50 shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all text-sm uppercase tracking-widest"
+                    >
+                        <span className="material-symbols-outlined">logout</span>
+                        Đăng xuất
+                    </button>
+                    <p className="text-center text-[10px] text-slate-300 mt-6 font-medium">VERSION 2.4.0 • LOVE DAYS APP</p>
                 </div>
-            </div>
-
-            {/* Danger Zone */}
-            <div className="px-6 pt-10 pb-20">
-                <button
-                    onClick={() => setShowLogoutConfirm(true)}
-                    className="w-full bg-white border border-red-100 text-red-500 font-bold py-4 rounded-3xl shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2"
-                >
-                    <span className="material-symbols-outlined text-xl">logout</span>
-                    Đăng xuất
-                </button>
-            </div>
+            </main>
 
             {/* Logout Confirm Modal */}
             <AnimatePresence>
                 {showLogoutConfirm && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm"
+                    >
                         <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
+                            initial={{ scale: 0.9 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0.9 }}
                             className="bg-white rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl text-center"
                         >
                             <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <span className="material-symbols-outlined text-3xl text-red-500">logout</span>
                             </div>
                             <h3 className="text-xl font-bold text-slate-800 mb-2">Đăng xuất?</h3>
-                            <p className="text-sm text-slate-500 mb-8">Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này không?</p>
+                            <p className="text-sm text-slate-500 leading-relaxed mb-8">Bạn có chắc chắn muốn rời khỏi ứng dụng không?</p>
                             <div className="flex flex-col gap-3">
-                                <button
-                                    onClick={handleLogout}
-                                    className="w-full bg-red-500 text-white font-bold py-4 rounded-full shadow-lg shadow-red-500/20"
-                                >
-                                    Đăng xuất
-                                </button>
-                                <button
-                                    onClick={() => setShowLogoutConfirm(false)}
-                                    className="w-full bg-slate-100 text-slate-500 font-bold py-4 rounded-full"
-                                >
-                                    Hủy
-                                </button>
+                                <button onClick={handleLogout} className="w-full bg-red-500 text-white font-bold py-4 rounded-full shadow-lg shadow-red-500/20 active:scale-95 transition-all">Xác nhận đăng xuất</button>
+                                <button onClick={() => setShowLogoutConfirm(false)} className="w-full bg-slate-100 text-slate-500 font-bold py-4 rounded-full active:scale-95 transition-all">Hủy</button>
                             </div>
                         </motion.div>
-                    </div>
+                    </motion.div>
                 )}
             </AnimatePresence>
 

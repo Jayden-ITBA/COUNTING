@@ -17,6 +17,7 @@ import ProfileOnboarding from './components/ProfileOnboarding';
 import Notifications from './components/Notifications';
 import ProfileSettings from './components/ProfileSettings';
 import NotificationSettings from './components/NotificationSettings';
+import SecuritySettings from './components/SecuritySettings';
 import AppLock from './components/AppLock';
 
 const ProtectedRoute = ({ children, user, profile, loading, isVerified, setIsVerified }) => {
@@ -113,9 +114,8 @@ function App() {
         <Route path="/settings/widgets" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Widgets profile={profile} /></ProtectedRoute>} />
         <Route path="/settings/profile" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><ProfileSettings profile={profile} onUpdate={handleProfileComplete} /></ProtectedRoute>} />
         <Route path="/settings/notifications" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><NotificationSettings profile={profile} /></ProtectedRoute>} />
-        <Route path="/settings/security" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}>
-          <AppLock mode="set" onVerified={handleSetPin} />
-        </ProtectedRoute>} />
+        <Route path="/settings/security" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><SecuritySettings profile={profile} /></ProtectedRoute>} />
+        <Route path="/settings/security/lock" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><AppLock mode="set" onVerified={handleSetPin} /></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Notifications profile={profile} /></ProtectedRoute>} />
       </Routes>
     </Router>
