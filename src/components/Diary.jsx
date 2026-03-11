@@ -16,6 +16,8 @@ const Diary = ({ profile }) => {
     const [activeComment, setActiveComment] = useState(null);
     const [commentText, setCommentText] = useState('');
     const [selectedMedia, setSelectedMedia] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deletingEntryId, setDeletingEntryId] = useState(null);
 
     useEffect(() => {
         if (profile?.couple_id) {
@@ -160,13 +162,20 @@ const Diary = ({ profile }) => {
         }
     };
 
-    const handleDelete = async (entryId) => {
-        if (!confirm("Xóa ư. Tiếc lắm ó !!!")) return;
+    const confirmDelete = async () => {
+        if (!deletingEntryId) return;
         try {
-            await deleteDoc(doc(db, 'diaries', entryId));
+            await deleteDoc(doc(db, 'diaries', deletingEntryId));
+            setShowDeleteModal(false);
+            setDeletingEntryId(null);
         } catch (error) {
             alert("Lỗi khi xóa: " + error.message);
         }
+    };
+
+    const handleDelete = (entryId) => {
+        setDeletingEntryId(entryId);
+        setShowDeleteModal(true);
     };
 
     const isEditable = (createdAt) => {
@@ -374,6 +383,50 @@ const Diary = ({ profile }) => {
                     ))
                 )}
             </div>
+
+            {/* Custom Delete Confirmation Modal */}
+            <AnimatePresence>
+                {showDeleteModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="bg-white rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl text-center"
+                        >
+                            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <span className="material-symbols-outlined text-3xl text-red-500">delete_forever</span>
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2">Xóa ư?</h3>
+                            <p className="text-sm text-slate-500 leading-relaxed mb-8">
+                                Tiếc lắm ó !!! Bạn có chắc chắn muốn xóa kỷ niệm này không?
+                            </p>
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={confirmDelete}
+                                    className="w-full bg-red-500 text-white font-bold py-4 rounded-full shadow-lg shadow-red-500/20 active:scale-95 transition-all uppercase tracking-widest text-sm"
+                                >
+                                    Xóa luôn
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowDeleteModal(false);
+                                        setDeletingEntryId(null);
+                                    }}
+                                    className="w-full bg-slate-100 text-slate-500 font-bold py-4 rounded-full transition-colors uppercase tracking-widest text-sm"
+                                >
+                                    Để lại đi
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Media Zoom Modal */}
             <AnimatePresence>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { auth } from '../services/firebase';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, FacebookAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult, FacebookAuthProvider } from 'firebase/auth';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { isInAppBrowser, isIOS, isAndroid } from '../utils/browser_detection';
+import { useEffect } from 'react';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -13,6 +15,24 @@ const Login = () => {
 
     const location = useLocation();
     const from = location.state?.from || "/";
+
+    useEffect(() => {
+        const checkRedirect = async () => {
+            try {
+                const result = await getRedirectResult(auth);
+                if (result?.user) {
+                    // Get saved redirect path or default to home
+                    const savedPath = localStorage.getItem('redirectPath') || "/";
+                    localStorage.removeItem('redirectPath');
+                    navigate(savedPath, { replace: true });
+                }
+            } catch (error) {
+                console.error("Redirect Result Error:", error);
+                localStorage.removeItem('redirectPath');
+            }
+        };
+        checkRedirect();
+    }, [navigate]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -31,8 +51,9 @@ const Login = () => {
     const handleGoogleLogin = async () => {
         try {
             const provider = new GoogleAuthProvider();
-            await signInWithPopup(auth, provider);
-            navigate(from, { replace: true });
+            // Store current "from" path to redirect back after login
+            localStorage.setItem('redirectPath', from);
+            await signInWithRedirect(auth, provider);
         } catch (error) {
             console.error("Google Login Error:", error);
             alert("Đăng nhập Google thất bại!");
@@ -42,13 +63,16 @@ const Login = () => {
     const handleFacebookLogin = async () => {
         try {
             const provider = new FacebookAuthProvider();
-            await signInWithPopup(auth, provider);
-            navigate(from, { replace: true });
+            // Store current "from" path to redirect back after login
+            localStorage.setItem('redirectPath', from);
+            await signInWithRedirect(auth, provider);
         } catch (error) {
             console.error("Facebook Login Error:", error);
             alert("Đăng nhập Facebook thất bại!");
         }
     };
+
+    const inApp = isInAppBrowser();
 
     return (
         <div className="relative min-h-screen flex flex-col items-center justify-center p-6 bg-background-light overflow-y-auto">
@@ -61,6 +85,24 @@ const Login = () => {
                 }}
             />
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
+
+            {inApp && (
+                <motion.div 
+                    initial={{ y: -50, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="fixed top-4 left-4 right-4 z-[100] bg-rose-500 text-white p-4 rounded-2xl shadow-xl flex items-start gap-3"
+                >
+                    <span className="material-symbols-outlined shrink-0 text-2xl">warning</span>
+                    <div className="text-sm">
+                        <p className="font-bold mb-1">Trình duyệt không hỗ trợ đăng nhập!</p>
+                        <p className="opacity-90">
+                            Bạn đang mở ứng dụng trong Facebook/Instagram. Vui lòng bấm vào 
+                            <span className="font-bold"> dấu 3 chấm </span> 
+                            và chọn <span className="font-bold">"Mở bằng trình duyệt"</span> (Chrome/Safari) để có thể đăng nhập nhé.
+                        </p>
+                    </div>
+                </motion.div>
+            )}
 
             <div className="w-full max-w-md z-20 flex flex-col items-center">
                 <motion.div
