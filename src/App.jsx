@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { auth, db } from './services/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
+import { useData } from './context/DataContext';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
 import Dashboard from './components/Dashboard';
@@ -20,14 +20,26 @@ import NotificationSettings from './components/NotificationSettings';
 import SecuritySettings from './components/SecuritySettings';
 import AppLock from './components/AppLock';
 
-const ProtectedRoute = ({ children, user, profile, loading, isVerified, setIsVerified }) => {
-  if (loading) return (
+const ProtectedRoute = ({ children, isVerified, setIsVerified }) => {
+  const { user, profile, loading } = useData();
+  const [showSpinner, setShowSpinner] = useState(true);
+
+  // Safety timeout: if loading takes > 3s, assume something is wrong and try to show content anyway if user/profile exists
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSpinner(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading && showSpinner) return (
     <div className="min-h-screen flex items-center justify-center bg-background-light">
       <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );
+  
   if (!user) return <Navigate to="/login" state={{ from: window.location.pathname }} />;
-  if (!profile && window.location.pathname !== '/onboarding') {
+  if (!profile && !loading && window.location.pathname !== '/onboarding') {
     return <Navigate to="/onboarding" state={{ from: window.location.pathname }} />;
   }
 
@@ -77,42 +89,8 @@ class ErrorBoundary extends React.Component {
 }
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, profile, loading } = useData();
   const [isVerified, setIsVerified] = useState(false);
-
-  useEffect(() => {
-    let unsubscribeProfile = () => {};
-
-    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        setLoading(true);
-        unsubscribeProfile = onSnapshot(doc(db, 'profiles', currentUser.uid), (docSnap) => {
-          if (docSnap.exists()) {
-            setProfile({ id: docSnap.id, ...docSnap.data() });
-          } else {
-            setProfile(null);
-          }
-          setLoading(false);
-        }, (error) => {
-          console.error("Profile listener error:", error);
-          setLoading(false);
-        });
-      } else {
-        setProfile(null);
-        setLoading(false);
-        setIsVerified(false);
-        unsubscribeProfile();
-      }
-    });
-
-    return () => {
-      unsubscribeAuth();
-      unsubscribeProfile();
-    };
-  }, []);
 
   const handleSetPin = async (newPin) => {
     try {
@@ -140,22 +118,23 @@ function App() {
           <Route path="/anniversary" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Anniversary profile={profile} /></ProtectedRoute>} />
           <Route path="/diary" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Diary profile={profile} /></ProtectedRoute>} />
           <Route path="/album" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Album profile={profile} /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Settings profile={profile} /></ProtectedRoute>} />
-          <Route path="/settings/background" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><BgSettings profile={profile} /></ProtectedRoute>} />
-          <Route path="/settings/pairing" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Pairing profile={profile} onUpdate={() => {}} /></ProtectedRoute>} />
-          <Route path="/settings/widgets" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Widgets profile={profile} /></ProtectedRoute>} />
-          <Route path="/settings/profile" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><ProfileSettings profile={profile} onUpdate={() => {}} /></ProtectedRoute>} />
-          <Route path="/settings/notifications" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><NotificationSettings profile={profile} /></ProtectedRoute>} />
-          <Route path="/settings/security" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><SecuritySettings profile={profile} /></ProtectedRoute>} />
-          <Route path="/settings/security/lock" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><AppLock mode="set" onVerified={handleSetPin} /></ProtectedRoute>} />
-          <Route path="/notifications" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Notifications profile={profile} /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute isVerified={isVerified} setIsVerified={setIsVerified}><Settings profile={profile} /></ProtectedRoute>} />
+          <Route path="/settings/background" element={<ProtectedRoute isVerified={isVerified} setIsVerified={setIsVerified}><BgSettings profile={profile} /></ProtectedRoute>} />
+          <Route path="/settings/pairing" element={<ProtectedRoute isVerified={isVerified} setIsVerified={setIsVerified}><Pairing profile={profile} onUpdate={() => {}} /></ProtectedRoute>} />
+          <Route path="/settings/widgets" element={<ProtectedRoute isVerified={isVerified} setIsVerified={setIsVerified}><Widgets profile={profile} /></ProtectedRoute>} />
+          <Route path="/settings/profile" element={<ProtectedRoute isVerified={isVerified} setIsVerified={setIsVerified}><ProfileSettings profile={profile} onUpdate={() => {}} /></ProtectedRoute>} />
+          <Route path="/settings/notifications" element={<ProtectedRoute isVerified={isVerified} setIsVerified={setIsVerified}><NotificationSettings profile={profile} /></ProtectedRoute>} />
+          <Route path="/settings/security" element={<ProtectedRoute isVerified={isVerified} setIsVerified={setIsVerified}><SecuritySettings profile={profile} /></ProtectedRoute>} />
+          <Route path="/settings/security/lock" element={<ProtectedRoute isVerified={isVerified} setIsVerified={setIsVerified}><AppLock mode="set" onVerified={handleSetPin} /></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute isVerified={isVerified} setIsVerified={setIsVerified}><Notifications profile={profile} /></ProtectedRoute>} />
         </Routes>
       </Router>
     </ErrorBoundary>
   );
 }
 
-const OnboardingWrapper = ({ user, profile, loading }) => {
+const OnboardingWrapper = () => {
+  const { user, profile, loading } = useData();
   const { state, pathname } = useLocation();
   const from = state?.from || "/";
 
