@@ -65,60 +65,60 @@ const Widgets = () => {
     }, [profile]);
 
     return (
-        <div className="relative min-h-screen bg-neutral-50 pb-32">
-            <header className="flex items-center bg-neutral-50/80 p-4 justify-between sticky top-0 z-10 backdrop-blur-md border-b border-neutral-100">
+        <div className="relative min-h-screen bg-[#f8faff] pb-32 font-sans">
+            <header className="flex items-center justify-between p-6 sticky top-0 bg-[#f8faff]/80 backdrop-blur-md z-10 border-b border-blue-50">
                 <button 
-                    onClick={() => navigate('/settings/background')}
-                    className="text-neutral-400 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100 transition-colors"
+                  onClick={() => navigate('/settings/background')}
+                  className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-100/50 border border-blue-50"
                 >
-                    <iconify-icon icon="solar:arrow-left-bold" width="24" height="24"></iconify-icon>
+                  <iconify-icon icon="solar:arrow-left-bold-duotone" width="24" height="24" class="text-slate-400"></iconify-icon>
                 </button>
-                <h2 className="text-neutral-800 text-lg font-bold leading-tight tracking-tight flex-1 text-center">Kiểu Widget</h2>
-                <div className="w-10"></div>
+                <h1 className="text-xl font-black text-slate-800 tracking-tight">Kiểu Widget</h1>
+                <div className="w-12" />
             </header>
 
             <main className="max-w-lg mx-auto px-6 pb-12 space-y-12 pt-8">
                 {/* Small Widget */}
-                <section className="space-y-4">
+                <section className="space-y-5">
                     <div className="flex items-center gap-3 px-2">
-                        <div className="w-1.5 h-6 rounded-full bg-rose-400 shadow-sm shadow-rose-200"></div>
-                        <h3 className="text-neutral-800 text-sm font-black uppercase tracking-widest">Widget Nhỏ (1x1)</h3>
+                        <div className="w-1.5 h-6 rounded-full bg-primary shadow-sm shadow-blue-200"></div>
+                        <h3 className="text-slate-800 text-sm font-black uppercase tracking-widest">Widget Nhỏ (1x1)</h3>
                     </div>
                     <div className="flex justify-center">
                         <motion.div
                             whileHover={{ scale: 1.05 }}
-                            className="w-40 h-40 bg-white rounded-[3rem] shadow-xl shadow-neutral-200/50 flex flex-col items-center justify-center p-6 border border-neutral-100"
+                            className="w-44 h-44 bg-white rounded-[3.5rem] shadow-2xl shadow-blue-100/30 flex flex-col items-center justify-center p-8 border border-blue-50"
                         >
-                            <iconify-icon icon="solar:heart-bold" class="text-rose-500 mb-2" width="36" height="36"></iconify-icon>
-                            <h2 className="text-4xl font-black text-neutral-800 tracking-tighter leading-none">{daysTogether}</h2>
-                            <p className="text-[10px] text-neutral-400 font-black uppercase tracking-[0.2em] mt-2">Ngày</p>
+                            <iconify-icon icon="solar:heart-bold-duotone" class="text-primary mb-3" width="44" height="44"></iconify-icon>
+                            <h2 className="text-5xl font-black text-slate-800 tracking-tighter leading-none">{daysTogether}</h2>
+                            <p className="text-[10px] text-primary font-black uppercase tracking-[0.3em] mt-3">Ngày</p>
                         </motion.div>
                     </div>
                 </section>
 
                 {/* Medium Widget */}
-                <section className="space-y-4">
+                <section className="space-y-5">
                     <div className="flex items-center gap-3 px-2">
-                        <div className="w-1.5 h-6 rounded-full bg-blue-400 shadow-sm shadow-blue-200"></div>
-                        <h3 className="text-neutral-800 text-sm font-black uppercase tracking-widest">Widget Vừa (2x1)</h3>
+                        <div className="w-1.5 h-6 rounded-full bg-primary shadow-sm shadow-blue-200"></div>
+                        <h3 className="text-slate-800 text-sm font-black uppercase tracking-widest">Widget Vừa (2x1)</h3>
                     </div>
                     <motion.div
                         whileHover={{ scale: 1.02 }}
-                        className="w-full h-40 bg-white rounded-[3rem] shadow-xl shadow-neutral-200/50 p-8 flex items-center justify-between border border-neutral-100"
+                        className="w-full h-44 bg-white rounded-[3.5rem] shadow-2xl shadow-blue-100/30 p-10 flex items-center justify-between border border-blue-50"
                     >
-                        <div className="flex -space-x-5">
-                            <div className="w-20 h-20 rounded-full border-4 border-white shadow-xl overflow-hidden bg-neutral-100 flex items-center justify-center">
-                                <iconify-icon icon="solar:user-bold-duotone" width="40" height="40" class="text-neutral-300"></iconify-icon>
+                        <div className="flex -space-x-6">
+                            <div className="w-22 h-22 rounded-[2.5rem] border-4 border-white shadow-xl overflow-hidden bg-slate-50 flex items-center justify-center">
+                                <iconify-icon icon="solar:user-bold-duotone" width="44" height="44" class="text-slate-200"></iconify-icon>
                             </div>
-                            <div className="w-20 h-20 rounded-full border-4 border-white shadow-xl overflow-hidden bg-rose-50 flex items-center justify-center">
-                                <iconify-icon icon="solar:heart-bold-duotone" width="40" height="40" class="text-rose-400"></iconify-icon>
+                            <div className="w-22 h-22 rounded-[2.5rem] border-4 border-white shadow-xl overflow-hidden bg-blue-50 flex items-center justify-center">
+                                <iconify-icon icon="solar:heart-bold-duotone" width="44" height="44" class="text-primary"></iconify-icon>
                             </div>
                         </div>
                         <div className="text-right">
-                            <h2 className="text-5xl font-black text-neutral-800 tracking-tighter leading-none">
-                                {daysTogether} <span className="text-sm text-rose-500 font-black tracking-normal uppercase ml-1">Ngày</span>
+                            <h2 className="text-6xl font-black text-slate-800 tracking-tighter leading-none">
+                                {daysTogether} <span className="text-base text-primary font-black tracking-normal uppercase ml-1">Ngày</span>
                             </h2>
-                            <p className="text-[10px] text-neutral-400 font-black uppercase tracking-[0.2em] mt-2">
+                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-3">
                                 {getDashboardLabel(profile)}
                             </p>
                         </div>
@@ -126,64 +126,64 @@ const Widgets = () => {
                 </section>
 
                 {/* Large Widget */}
-                <section className="space-y-4">
+                <section className="space-y-5">
                     <div className="flex items-center gap-3 px-2">
-                        <div className="w-1.5 h-6 rounded-full bg-emerald-400 shadow-sm shadow-emerald-200"></div>
-                        <h3 className="text-neutral-800 text-sm font-black uppercase tracking-widest">Widget Lớn (2x2)</h3>
+                        <div className="w-1.5 h-6 rounded-full bg-primary shadow-sm shadow-blue-200"></div>
+                        <h3 className="text-slate-800 text-sm font-black uppercase tracking-widest">Widget Lớn (2x2)</h3>
                     </div>
                     <motion.div
                         whileHover={{ scale: 1.01 }}
-                        className="w-full aspect-square bg-white rounded-[4rem] shadow-xl shadow-neutral-200/50 p-10 flex flex-col border border-neutral-100 relative overflow-hidden"
+                        className="w-full aspect-square bg-white rounded-[4rem] shadow-2xl shadow-blue-100/30 p-12 flex flex-col border border-blue-50 relative overflow-hidden"
                     >
-                        <div className="flex justify-between items-start mb-10">
+                        <div className="flex justify-between items-start mb-12">
                             <div>
-                                <h2 className="text-6xl font-black text-neutral-800 tracking-tighter leading-none">
-                                    {daysTogether} <span className="text-lg text-rose-500 font-black tracking-normal uppercase ml-1">Ngày</span>
+                                <h2 className="text-7xl font-black text-slate-800 tracking-tighter leading-none">
+                                    {daysTogether} <span className="text-xl text-primary font-black tracking-normal uppercase ml-1">Ngày</span>
                                 </h2>
-                                <p className="text-[11px] text-neutral-400 font-black uppercase tracking-widest mt-3 px-1 flex items-center gap-2">
-                                    <iconify-icon icon="solar:calendar-date-bold" width="14" height="14"></iconify-icon>
+                                <p className="text-[11px] text-slate-400 font-black uppercase tracking-[0.4em] mt-4 px-1 flex items-center gap-2">
+                                    <iconify-icon icon="solar:calendar-date-bold-duotone" width="16" height="16" class="text-primary/40"></iconify-icon>
                                     Từ {anniversaryStr}
                                 </p>
                             </div>
-                            <iconify-icon icon="solar:stars-minimalistic-bold-duotone" width="48" height="48" class="text-amber-300 animate-pulse"></iconify-icon>
+                            <iconify-icon icon="solar:stars-minimalistic-bold-duotone" width="56" height="56" class="text-blue-200 animate-pulse"></iconify-icon>
                         </div>
 
-                        <div className="flex-1 space-y-5">
+                        <div className="flex-1 space-y-6">
                             {nextMilestone.title && (
-                                <div className="bg-rose-50/50 p-6 rounded-[2rem] flex items-center gap-5 border border-rose-100/50">
-                                    <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-rose-500">
-                                        <iconify-icon icon="solar:cup-bold-duotone" width="32" height="32"></iconify-icon>
+                                <div className="bg-blue-50/50 p-8 rounded-[2.5rem] flex items-center gap-6 border border-blue-50">
+                                    <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center text-primary">
+                                        <iconify-icon icon="solar:cup-bold-duotone" width="36" height="36"></iconify-icon>
                                     </div>
                                     <div>
-                                        <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest block mb-1">Mục tiêu tiếp theo</span>
-                                        <span className="text-[15px] font-bold text-neutral-700">{nextMilestone.title} ({nextMilestone.date})</span>
+                                        <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest block mb-1">Mục tiêu tiếp theo</span>
+                                        <span className="text-base font-black text-slate-700">{nextMilestone.title} ({nextMilestone.date})</span>
                                     </div>
                                 </div>
                             )}
 
-                            <div className="bg-neutral-50/50 p-6 rounded-[2rem] flex items-center gap-5 border border-neutral-100/50">
-                                <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-neutral-300">
-                                    <iconify-icon icon="solar:pen-new-square-bold-duotone" width="32" height="32"></iconify-icon>
+                            <div className="bg-slate-50/50 p-8 rounded-[2.5rem] flex items-center gap-6 border border-slate-100">
+                                <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-300">
+                                    <iconify-icon icon="solar:pen-new-square-bold-duotone" width="36" height="36"></iconify-icon>
                                 </div>
                                 <div className="flex-1">
-                                    <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest block mb-1">Kỷ niệm gần nhất</span>
-                                    <span className="text-sm font-bold text-neutral-500 line-clamp-1 italic">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Kỷ niệm gần nhất</span>
+                                    <span className="text-[13px] font-bold text-slate-500 line-clamp-1 italic">
                                         "{latestEntry?.content || "Chưa có kỷ niệm..."}"
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="mt-8 pt-6 border-t border-neutral-50 flex justify-center">
-                            <span className="text-[10px] text-neutral-300 font-black tracking-[0.4em] uppercase">MÃI MÃI BÊN NHAU</span>
+                        <div className="mt-10 pt-8 border-t border-slate-50 flex justify-center">
+                            <span className="text-[10px] text-slate-200 font-black tracking-[0.6em] uppercase">MÃI MÃI BÊN NHAU</span>
                         </div>
                     </motion.div>
                 </section>
                 
-                <div className="pt-6">
+                <div className="pt-10">
                     <button 
                         onClick={() => navigate('/settings/background')}
-                        className="w-full bg-neutral-900 text-white font-black py-5 rounded-[2rem] shadow-xl active:scale-95 transition-all uppercase tracking-widest text-sm"
+                        className="w-full bg-primary text-white font-black py-6 rounded-full shadow-2xl shadow-blue-200 hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest text-[11px]"
                     >
                         Xác nhận thiết kế
                     </button>

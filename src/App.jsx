@@ -32,11 +32,11 @@ const ProtectedRoute = ({ children, isVerified, setIsVerified }) => {
   }, []);
 
   if (loading && showSpinner) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 p-6">
-      <div className="w-16 h-16 bg-white rounded-3xl shadow-xl shadow-neutral-200/50 flex items-center justify-center border border-neutral-100">
-        <div className="w-8 h-8 border-4 border-rose-500 border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8faff] p-6">
+      <div className="w-16 h-16 bg-white rounded-3xl shadow-xl shadow-blue-100/50 flex items-center justify-center border border-blue-50">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
-      <p className="mt-8 text-[10px] text-neutral-300 font-black uppercase tracking-[0.4em]">Đang tải yêu thương...</p>
+      <p className="mt-8 text-[10px] text-slate-300 font-black uppercase tracking-[0.4em]">Đang tải yêu thương...</p>
     </div>
   );
   
@@ -62,22 +62,18 @@ class ErrorBoundary extends React.Component {
     return { hasError: true };
   }
 
-  componentDidCatch(error, errorInfo) {
-    console.error("ErrorBoundary caught an error", error, errorInfo);
-  }
-
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 p-10 text-center font-sans">
-          <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center mb-8 shadow-xl shadow-neutral-200/50 border border-neutral-100 text-rose-500">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8faff] p-10 text-center font-sans">
+          <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center mb-8 shadow-xl shadow-blue-100/50 border border-blue-50 text-blue-500">
             <iconify-icon icon="solar:danger-triangle-bold-duotone" width="48" height="48"></iconify-icon>
           </div>
-          <h2 className="text-3xl font-black text-neutral-800 mb-3 tracking-tight">Úi, có lỗi nhỏ rồi!</h2>
-          <p className="text-neutral-400 font-bold mb-10 uppercase tracking-widest text-[11px]">Đừng lo, chúng mình sẽ khắc phục ngay</p>
+          <h2 className="text-3xl font-black text-slate-800 mb-3 tracking-tight">Úi, có lỗi nhỏ rồi!</h2>
+          <p className="text-slate-400 font-bold mb-10 uppercase tracking-widest text-[11px]">Đừng lo, chúng mình sẽ khắc phục ngay</p>
           <button 
             onClick={() => window.location.reload()}
-            className="bg-neutral-900 text-white px-10 py-5 rounded-full font-black shadow-2xl active:scale-95 transition-all text-xs uppercase tracking-widest"
+            className="bg-primary text-white px-10 py-5 rounded-full font-black shadow-lg shadow-blue-200 active:scale-95 transition-all text-xs uppercase tracking-widest"
           >
             Tải lại trang xem sao
           </button>

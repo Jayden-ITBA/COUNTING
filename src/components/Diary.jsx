@@ -182,41 +182,40 @@ const Diary = () => {
     };
 
     return (
-        <div className="relative min-h-screen bg-neutral-50 pb-32">
-            <header className="px-6 pt-16 pb-8 flex justify-between items-end">
+        <div className="relative min-h-screen bg-[#f8faff] pb-32 font-sans">
+            <header className="px-6 pt-16 pb-8 flex justify-between items-end border-b border-blue-50 bg-[#f8faff]/80 backdrop-blur-md sticky top-0 z-10">
                 <div>
-                    <h1 className="text-3xl font-bold text-neutral-800 tracking-tight">Góc tâm tình</h1>
-                    <p className="text-neutral-400 text-xs font-medium mt-1 uppercase tracking-widest">Nơi lưu giữ ngọt ngào</p>
+                    <h1 className="text-3xl font-black text-slate-800 tracking-tight">Góc tâm tình</h1>
+                    <p className="text-primary/60 text-[10px] font-black mt-1 uppercase tracking-[0.3em]">Lưu giữ khoảnh khắc yêu thương</p>
                 </div>
                 <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setIsExpanded(!isExpended)}
-                    className="w-12 h-12 bg-neutral-900 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-neutral-200"
+                    className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-100/50"
                 >
-                    <iconify-icon icon={isExpended ? "solar:close-circle-linear" : "solar:add-circle-linear"} width="24" height="24"></iconify-icon>
+                    <iconify-icon icon={isExpended ? "solar:close-circle-bold-duotone" : "solar:add-circle-bold-duotone"} width="24" height="24"></iconify-icon>
                 </motion.button>
             </header>
 
-            {/* Post Creation Area */}
             <AnimatePresence>
                 {isExpended && (
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="px-6 mb-8"
+                        className="px-6 mb-8 mt-6"
                     >
-                        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-[2.5rem] border border-neutral-100 shadow-xl space-y-4">
+                        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-[3rem] border border-blue-50 shadow-2xl shadow-blue-100/30 space-y-4">
                             <textarea
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
                                 placeholder="Hôm nay chúng ta yêu thương nhau như thế nào?"
-                                className="w-full bg-neutral-50 rounded-2xl p-4 text-sm outline-none resize-none min-h-[120px] text-neutral-700 border-none focus:ring-2 focus:ring-rose-100 transition-all"
+                                className="w-full bg-blue-50/30 rounded-[2rem] p-6 text-sm outline-none resize-none min-h-[140px] text-slate-700 border border-blue-50/50 focus:bg-white focus:border-primary/30 transition-all font-medium"
                             />
 
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-3">
                                 {selectedFiles.map((file, i) => (
-                                    <div key={i} className="w-16 h-16 rounded-xl bg-neutral-100 overflow-hidden relative group border border-neutral-100">
+                                    <div key={i} className="w-16 h-16 rounded-2xl bg-blue-50 overflow-hidden relative group border border-blue-50 shadow-sm">
                                         <img
                                             src={URL.createObjectURL(file)}
                                             className="w-full h-full object-cover"
@@ -225,39 +224,39 @@ const Diary = () => {
                                         <button
                                             type="button"
                                             onClick={() => setSelectedFiles(selectedFiles.filter((_, idx) => idx !== i))}
-                                            className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity"
+                                            className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity"
                                         >
                                             <iconify-icon icon="solar:close-circle-bold" width="20" height="20"></iconify-icon>
                                         </button>
                                     </div>
                                 ))}
-                                <label className="w-16 h-16 rounded-xl border-2 border-dashed border-neutral-200 flex items-center justify-center text-neutral-400 cursor-pointer hover:border-rose-400 hover:text-rose-400 transition-all bg-neutral-50">
+                                <label className="w-16 h-16 rounded-2xl border-2 border-dashed border-blue-100 flex items-center justify-center text-blue-300 cursor-pointer hover:border-primary hover:text-primary transition-all bg-blue-50/20">
                                     <input type="file" multiple accept="image/*,video/*" className="hidden" onChange={handleFileChange} />
-                                    <iconify-icon icon="solar:gallery-add-linear" width="24" height="24"></iconify-icon>
+                                    <iconify-icon icon="solar:gallery-add-bold-duotone" width="28" height="28"></iconify-icon>
                                 </label>
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={uploading || (!content.trim() && selectedFiles.length === 0)}
-                                className="w-full bg-neutral-900 text-white font-bold py-4 rounded-full shadow-lg active:scale-95 transition-all text-sm uppercase tracking-widest disabled:opacity-50"
+                                className="w-full bg-primary text-white font-black py-5 rounded-full shadow-lg shadow-blue-100 active:scale-95 transition-all text-[11px] uppercase tracking-widest disabled:opacity-50"
                             >
-                                {uploading ? 'Đang tàn tàn...' : 'Lưu lại nào'}
+                                {uploading ? 'Đang chuẩn bị...' : 'Lưu giữ kỉ niệm'}
                             </button>
                         </form>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            <div className="px-6 space-y-10">
+            <div className="px-6 space-y-10 pt-8">
                 {loading ? (
                     <div className="flex justify-center p-12">
-                        <div className="w-8 h-8 border-4 border-rose-500 border-t-transparent rounded-full animate-spin" />
+                        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
                     </div>
                 ) : entries.length === 0 ? (
-                    <div className="text-center py-20 bg-white border border-neutral-100 rounded-[3rem] shadow-sm">
-                        <iconify-icon icon="solar:ghost-linear" width="64" height="64" className="text-neutral-200 mb-6"></iconify-icon>
-                        <p className="text-neutral-400 font-medium text-sm">Trống trơn hà !! Viết gì đó đi</p>
+                    <div className="text-center py-20 bg-white border border-blue-50 rounded-[4rem] shadow-xl shadow-blue-100/20">
+                        <iconify-icon icon="solar:ghost-bold-duotone" width="64" height="64" className="text-blue-100 mb-6"></iconify-icon>
+                        <p className="text-slate-400 font-black text-[11px] uppercase tracking-[0.4em]">Kỉ niệm còn trống trơn...</p>
                     </div>
                 ) : (
                     entries.map((entry) => (
@@ -265,16 +264,16 @@ const Diary = () => {
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="bg-white p-6 rounded-[2rem] border border-neutral-100 shadow-sm group-hover:shadow-xl transition-shadow duration-500"
+                                className="bg-white p-7 rounded-[3rem] border border-blue-50/50 shadow-2xl shadow-blue-100/20 group-hover:shadow-blue-100/50 transition-all duration-500"
                             >
                                 <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full border-2 border-white shadow-sm overflow-hidden bg-neutral-100">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-[1.25rem] border-4 border-white shadow-lg overflow-hidden bg-blue-50">
                                             <img src={entry.author_avatar || "https://api.dicebear.com/7.x/avataaars/svg"} alt={entry.author_name} className="w-full h-full object-cover" />
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-sm text-neutral-800 tracking-tight">{entry.author_name}</h4>
-                                            <p className="text-[10px] text-neutral-400 uppercase font-black tracking-widest mt-0.5">
+                                            <h4 className="font-black text-sm text-slate-800 tracking-tight">{entry.author_name}</h4>
+                                            <p className="text-[9px] text-primary font-black uppercase tracking-[0.2em] mt-1 opacity-60">
                                                 {entry.created_at ? new Date(entry.created_at.seconds * 1000).toLocaleDateString('vi-VN', {
                                                     month: 'long',
                                                     day: 'numeric',
@@ -288,24 +287,24 @@ const Diary = () => {
                                     {entry.author_id === auth.currentUser.uid && (
                                         <button
                                             onClick={() => handleDelete(entry.id)}
-                                            className="text-neutral-200 hover:text-rose-500 transition-colors"
+                                            className="text-slate-200 hover:text-primary transition-colors"
                                         >
                                             <iconify-icon icon="solar:trash-bin-trash-linear" width="18" height="18"></iconify-icon>
                                         </button>
                                     )}
                                 </div>
 
-                                <p className="text-neutral-600 text-sm leading-[1.6] mb-5 whitespace-pre-wrap font-medium">
+                                <p className="text-slate-600 text-[15px] leading-relaxed mb-6 whitespace-pre-wrap font-medium">
                                     {entry.content}
                                 </p>
 
                                 {entry.media && entry.media.length > 0 && (
-                                    <div className={`grid gap-3 ${entry.media.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                                    <div className={`grid gap-4 ${entry.media.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
                                         {entry.media.map((item, i) => (
                                             <div
                                                 key={i}
                                                 onClick={() => setSelectedMedia(item)}
-                                                className="aspect-[4/3] rounded-3xl overflow-hidden shadow-sm bg-neutral-50 cursor-pointer hover:opacity-90 transition-opacity"
+                                                className="aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-lg border border-blue-50 bg-blue-50/20 cursor-pointer hover:opacity-90 transition-opacity"
                                             >
                                                 {item.type === 'video' ? (
                                                     <video src={item.url} className="w-full h-full object-cover" />
@@ -317,20 +316,20 @@ const Diary = () => {
                                     </div>
                                 )}
 
-                                <div className="mt-6 flex items-center gap-6 border-t border-neutral-50 pt-4">
+                                <div className="mt-8 flex items-center gap-8 border-t border-blue-50/50 pt-6">
                                     <button
                                         onClick={() => handleLike(entry.id, entry.likes)}
-                                        className={`flex items-center gap-2 transition-colors ${entry.likes?.includes(auth.currentUser.uid) ? 'text-rose-500' : 'text-neutral-400 hover:text-rose-500'}`}
+                                        className={`flex items-center gap-2.5 transition-all ${entry.likes?.includes(auth.currentUser.uid) ? 'text-primary scale-110' : 'text-slate-300 hover:text-primary'}`}
                                     >
-                                        <iconify-icon icon={entry.likes?.includes(auth.currentUser.uid) ? "solar:heart-bold" : "solar:heart-linear"} width="20" height="20"></iconify-icon>
-                                        <span className="text-[10px] font-black uppercase tracking-widest">{entry.likes?.length || 0}</span>
+                                        <iconify-icon icon={entry.likes?.includes(auth.currentUser.uid) ? "solar:heart-bold-duotone" : "solar:heart-linear"} width="22" height="22"></iconify-icon>
+                                        <span className="text-[11px] font-black uppercase tracking-wider">{entry.likes?.length || 0}</span>
                                     </button>
                                     <button
                                         onClick={() => setActiveComment(activeComment === entry.id ? null : entry.id)}
-                                        className={`flex items-center gap-2 transition-colors ${activeComment === entry.id ? 'text-neutral-900' : 'text-neutral-400 hover:text-neutral-900'}`}
+                                        className={`flex items-center gap-2.5 transition-all ${activeComment === entry.id ? 'text-slate-900 border-b-2 border-primary/20' : 'text-slate-300 hover:text-slate-900'}`}
                                     >
-                                        <iconify-icon icon="solar:chat-line-linear" width="20" height="20"></iconify-icon>
-                                        <span className="text-[10px] font-black uppercase tracking-widest">{entry.comments?.length || 0}</span>
+                                        <iconify-icon icon="solar:chat-line-bold-duotone" width="22" height="22"></iconify-icon>
+                                        <span className="text-[11px] font-black uppercase tracking-wider">{entry.comments?.length || 0}</span>
                                     </button>
                                 </div>
 
@@ -341,30 +340,30 @@ const Diary = () => {
                                             initial={{ opacity: 0, height: 0 }}
                                             animate={{ opacity: 1, height: 'auto' }}
                                             exit={{ opacity: 0, height: 0 }}
-                                            className="mt-6 space-y-4 overflow-hidden"
+                                            className="mt-6 space-y-5 overflow-hidden"
                                         >
-                                            <div className="space-y-4 pt-6 border-t border-neutral-50">
+                                            <div className="space-y-4 pt-6 border-t border-blue-50/30">
                                                 {entry.comments?.map(comment => (
-                                                    <div key={comment.id} className="flex gap-3">
-                                                        <img src={comment.author_avatar} className="w-7 h-7 rounded-full shadow-sm" alt="" />
-                                                        <div className="flex-1 bg-neutral-50 rounded-[1.25rem] px-4 py-3">
-                                                            <div className="flex justify-between items-center mb-1">
-                                                                <span className="text-[10px] font-black text-neutral-800 uppercase tracking-widest">{comment.author_name}</span>
+                                                    <div key={comment.id} className="flex gap-4">
+                                                        <img src={comment.author_avatar} className="w-8 h-8 rounded-xl shadow-md border-2 border-white" alt="" />
+                                                        <div className="flex-1 bg-blue-50/30 rounded-[1.5rem] px-5 py-4 border border-blue-50/50">
+                                                            <div className="flex justify-between items-center mb-1.5">
+                                                                <span className="text-[9px] font-black text-slate-800 uppercase tracking-[0.2em]">{comment.author_name}</span>
                                                             </div>
-                                                            <p className="text-xs text-neutral-600 leading-relaxed font-medium">{comment.text}</p>
+                                                            <p className="text-[13px] text-slate-600 leading-relaxed font-medium">{comment.text}</p>
                                                         </div>
                                                     </div>
                                                 ))}
                                             </div>
-                                            <form onSubmit={(e) => handleComment(e, entry.id)} className="flex gap-3 pt-2">
+                                            <form onSubmit={(e) => handleComment(e, entry.id)} className="flex gap-3 pt-3">
                                                 <input
                                                     value={commentText}
                                                     onChange={(e) => setCommentText(e.target.value)}
                                                     placeholder="Gõ gì đó tâm tình..."
-                                                    className="flex-1 bg-neutral-50 border border-neutral-100 focus:bg-white focus:border-rose-100 rounded-full px-6 py-3 text-xs outline-none transition-all font-medium"
+                                                    className="flex-1 bg-blue-50/30 border border-blue-50 shadow-inner rounded-full px-7 py-4 text-xs outline-none focus:bg-white focus:border-primary/40 transition-all font-medium"
                                                 />
-                                                <button type="submit" className="w-10 h-10 bg-neutral-900 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform">
-                                                    <iconify-icon icon="solar:send-bold" width="16" height="16"></iconify-icon>
+                                                <button type="submit" className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-100 active:scale-90 transition-all">
+                                                    <iconify-icon icon="solar:send-bold-duotone" width="20" height="20"></iconify-icon>
                                                 </button>
                                             </form>
                                         </motion.div>
@@ -379,18 +378,18 @@ const Diary = () => {
             {/* Confirm Delete Modal */}
             <AnimatePresence>
                 {showDeleteModal && (
-                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-[3rem] p-10 w-full max-w-sm shadow-2xl text-center">
-                            <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-8 text-rose-500 animate-pulse">
-                                <iconify-icon icon="solar:trash-bin-trash-bold" width="40" height="40"></iconify-icon>
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-8 bg-slate-900/60 backdrop-blur-md">
+                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-[4rem] p-12 w-full max-w-sm shadow-2xl text-center border-8 border-white/20">
+                            <div className="w-24 h-24 bg-blue-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 text-primary animate-bounce shadow-xl shadow-blue-100/50">
+                                <iconify-icon icon="solar:trash-bin-trash-bold-duotone" width="48" height="48"></iconify-icon>
                             </div>
-                            <h3 className="text-2xl font-black text-neutral-800 mb-2 tracking-tighter uppercase">XÓA SAO?</h3>
-                            <p className="text-sm text-neutral-500 leading-relaxed mb-10 font-medium">
-                                Tiếc lắm ó !!! Kỷ niệm này đẹp mà, bạn chắc chứ?
+                            <h3 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter uppercase">XÓA SAO?</h3>
+                            <p className="text-sm text-slate-500 leading-relaxed mb-12 font-medium">
+                                Tiếc lắm ó !!! Kỷ niệm này đẹp mà,<br/>bạn có chắc chắn muốn xóa không?
                             </p>
-                            <div className="flex flex-col gap-3">
-                                <button onClick={confirmDelete} className="w-full bg-rose-500 text-white font-black py-4 rounded-full shadow-xl active:scale-95 transition-all uppercase tracking-widest text-xs">Xóa luôn</button>
-                                <button onClick={() => { setShowDeleteModal(false); setDeletingEntryId(null); }} className="w-full py-4 text-neutral-300 font-bold text-xs uppercase tracking-widest">Tiếc, để lại</button>
+                            <div className="flex flex-col gap-4">
+                                <button onClick={confirmDelete} className="w-full bg-primary text-white font-black py-5 rounded-full shadow-2xl shadow-blue-100 active:scale-95 transition-all uppercase tracking-widest text-[11px]">Xóa vĩnh viễn</button>
+                                <button onClick={() => { setShowDeleteModal(false); setDeletingEntryId(null); }} className="w-full py-2 text-slate-300 font-black text-[10px] uppercase tracking-widest">Giữ lại kỉ niệm</button>
                             </div>
                         </motion.div>
                     </div>

@@ -10,19 +10,19 @@ import Navbar from './Navbar';
 const WheelPicker = ({ options, value, onChange, label }) => {
     return (
         <div className="flex flex-col items-center">
-            <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3">{label}</span>
-            <div className="h-44 w-20 overflow-y-auto scroll-smooth snap-y snap-mandatory hide-scrollbar bg-neutral-100/50 rounded-2xl border border-neutral-200">
-                <div className="h-20" /> {/* Padding top */}
+            <span className="text-[10px] font-black text-blue-400/60 uppercase tracking-[0.2em] mb-4">{label}</span>
+            <div className="h-48 w-24 overflow-y-auto scroll-smooth snap-y snap-mandatory hide-scrollbar bg-blue-50/30 rounded-[2rem] border border-blue-100/50 shadow-inner">
+                <div className="h-24" /> {/* Padding top */}
                 {options.map((opt) => (
                     <div
                         key={opt}
                         onClick={() => onChange(opt)}
-                        className={`h-8 flex items-center justify-center snap-center cursor-pointer transition-all ${value === opt ? 'text-rose-500 font-black text-lg scale-110' : 'text-neutral-300 text-sm font-bold'}`}
+                        className={`h-10 flex items-center justify-center snap-center cursor-pointer transition-all ${value === opt ? 'text-primary font-black text-xl scale-125' : 'text-blue-200 text-sm font-bold'}`}
                     >
                         {opt}
                     </div>
                 ))}
-                <div className="h-20" /> {/* Padding bottom */}
+                <div className="h-24" /> {/* Padding bottom */}
             </div>
         </div>
     );
@@ -230,22 +230,28 @@ const Pairing = () => {
     const inviteLink = profile?.invite_id ? `${window.location.origin}/join/${profile.invite_id}` : '';
 
     return (
-        <div className="relative min-h-screen bg-neutral-50 pb-32">
+        <div className="relative min-h-screen bg-[#f8faff] pb-32 font-sans overflow-hidden">
             <style>{`
                 .hide-scrollbar::-webkit-scrollbar { display: none; }
                 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
 
-            <header className="px-6 pt-16 pb-8">
-                <h1 className="text-3xl font-bold text-neutral-800 tracking-tight">Kết nối cục cưng</h1>
-                <p className="text-neutral-400 text-xs font-medium mt-1 uppercase tracking-widest leading-relaxed">Hãy tìm nửa kia giữa muôn vạn người nhé !!</p>
+            {/* Background elements */}
+            <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
+                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-100/40 blur-[120px] rounded-full animate-pulse" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-sky-50/30 blur-[120px] rounded-full" />
+            </div>
+
+            <header className="px-6 pt-16 pb-8 border-b border-blue-50 bg-[#f8faff]/80 backdrop-blur-md sticky top-0 z-10">
+                <h1 className="text-3xl font-black text-slate-800 tracking-tight">Kết nối cục cưng</h1>
+                <p className="text-primary/60 text-[10px] font-black mt-1 uppercase tracking-[0.3em]">Hãy tìm nửa kia giữa muôn vạn người nhé !!</p>
             </header>
 
-            <div className="px-6 space-y-8">
+            <div className="px-6 space-y-8 relative z-10">
                 {(loading || joining) && (
-                    <div className="flex flex-col items-center justify-center p-20 bg-white rounded-[3rem] border border-neutral-100 shadow-sm">
-                        <div className="w-12 h-12 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mb-6" />
-                        <p className="text-neutral-400 text-xs font-black uppercase tracking-widest">Đang kết nối...</p>
+                    <div className="flex flex-col items-center justify-center p-20 bg-white rounded-[4rem] border border-blue-50 shadow-2xl shadow-blue-100/20">
+                        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-8" />
+                        <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.4em]">Đang chuẩn bị...</p>
                     </div>
                 )}
 
@@ -255,18 +261,18 @@ const Pairing = () => {
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="bg-white p-10 rounded-[3.5rem] text-center border border-neutral-100 shadow-sm"
+                                className="bg-white p-12 rounded-[4rem] text-center border border-blue-50 shadow-2xl shadow-blue-100/20"
                             >
-                                <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-8 text-neutral-400">
-                                    <iconify-icon icon="solar:link-circle-bold" width="40" height="40"></iconify-icon>
+                                <div className="w-24 h-24 bg-blue-50/50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 text-primary shadow-inner">
+                                    <iconify-icon icon="solar:link-circle-bold-duotone" width="48" height="48"></iconify-icon>
                                 </div>
-                                <h3 className="text-xl font-bold text-neutral-800 mb-2">Gửi tín hiệu</h3>
-                                <p className="text-sm text-neutral-500 leading-relaxed mb-10 px-4">
+                                <h3 className="text-2xl font-black text-slate-800 mb-2 uppercase tracking-tight">Gửi tín hiệu</h3>
+                                <p className="text-sm text-slate-500 leading-relaxed mb-12 px-2 font-medium">
                                     Bắt đầu hành trình hạnh phúc bằng cách tạo tín hiệu kết nối ngay.
                                 </p>
                                 <button
                                     onClick={handleCreateLink}
-                                    className="w-full bg-neutral-900 text-white font-black py-5 rounded-full shadow-xl hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest text-sm"
+                                    className="w-full bg-primary text-white font-black py-6 rounded-full shadow-xl shadow-blue-100 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-[0.2em] text-[11px]"
                                 >
                                     Tạo tín hiệu kết nối
                                 </button>
@@ -277,11 +283,11 @@ const Pairing = () => {
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="bg-white p-10 rounded-[3.5rem] text-center border border-neutral-100 shadow-sm"
+                                className="bg-white p-12 rounded-[4rem] text-center border border-blue-50 shadow-2xl shadow-blue-100/20"
                             >
-                                <h3 className="text-xl font-black text-neutral-800 mb-8 tracking-tighter uppercase">Ngày định mệnh</h3>
+                                <h3 className="text-xl font-black text-slate-800 mb-10 tracking-tighter uppercase">Ngày định mệnh</h3>
                                 
-                                <div className="flex justify-center gap-4 mb-10">
+                                <div className="flex justify-center gap-6 mb-12">
                                     <WheelPicker label="Ngày" options={days} value={day} onChange={setDay} />
                                     <WheelPicker label="Tháng" options={months} value={month} onChange={setMonth} />
                                     <WheelPicker label="Năm" options={years} value={year} onChange={setYear} />
@@ -289,13 +295,13 @@ const Pairing = () => {
 
                                 <button
                                     onClick={confirmCreateLink}
-                                    className="w-full bg-neutral-900 text-white font-black py-5 rounded-full shadow-xl hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest text-sm"
+                                    className="w-full bg-primary text-white font-black py-6 rounded-full shadow-xl shadow-blue-100 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-[0.2em] text-[11px]"
                                 >
                                     Xác nhận & Tạo mã
                                 </button>
                                 <button
                                     onClick={() => setStep('none')}
-                                    className="w-full mt-6 text-neutral-400 font-black text-[10px] uppercase tracking-widest"
+                                    className="w-full mt-8 text-blue-300 font-black text-[10px] uppercase tracking-widest hover:text-primary transition-colors"
                                 >
                                     Quay lại
                                 </button>
@@ -303,11 +309,11 @@ const Pairing = () => {
                         )}
 
                         {profile?.link_status === 'none' && step === 'none' && (
-                            <div className="relative py-4 flex justify-center items-center">
+                            <div className="relative py-6 flex justify-center items-center">
                                 <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-neutral-100"></div>
+                                    <div className="w-full border-t border-blue-50"></div>
                                 </div>
-                                <span className="relative px-6 bg-neutral-50 text-[10px] font-black text-neutral-200 uppercase tracking-[0.3em]">Hoặc</span>
+                                <span className="relative px-8 bg-[#f8faff] text-[11px] font-black text-blue-200 uppercase tracking-[0.4em]">Hoặc</span>
                             </div>
                         )}
 
@@ -315,15 +321,15 @@ const Pairing = () => {
                             <motion.div
                                 initial={{ scale: 0.95, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
-                                className="bg-white p-10 rounded-[3.5rem] text-center border-2 border-rose-100 shadow-xl shadow-rose-100/20 mb-8"
+                                className="bg-white p-12 rounded-[4rem] text-center border-2 border-blue-50 shadow-2xl shadow-blue-100/10 mb-8"
                             >
-                                <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse text-rose-500">
-                                    <iconify-icon icon="solar:heart-angle-bold" width="32" height="32"></iconify-icon>
+                                <div className="w-20 h-20 bg-blue-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 animate-pulse text-primary shadow-lg shadow-blue-100/30">
+                                    <iconify-icon icon="solar:heart-angle-bold-duotone" width="40" height="40"></iconify-icon>
                                 </div>
-                                <h3 className="text-lg font-bold text-neutral-800 mb-8 tracking-tight">Đang đợi tín hiệu phản hồi...</h3>
+                                <h3 className="text-xl font-black text-slate-800 mb-10 uppercase tracking-tight">Đang đợi phản hồi...</h3>
 
-                                <div className="bg-neutral-50 p-8 rounded-[2.5rem] mb-6 border border-neutral-100">
-                                    <h2 className="text-4xl font-black text-rose-500 tracking-[0.2em] mb-6 font-mono">
+                                <div className="bg-blue-50/30 p-10 rounded-[3rem] mb-10 border border-blue-50/50 shadow-inner">
+                                    <h2 className="text-4xl font-black text-primary tracking-[0.25em] mb-8 font-mono">
                                         {profile.invite_id}
                                     </h2>
                                     <button
@@ -332,9 +338,9 @@ const Pairing = () => {
                                             setHasCopied(true);
                                             alert("Đã sao chép mã!");
                                         }}
-                                        className="bg-white text-rose-500 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 px-6 py-3 rounded-full shadow-sm mx-auto active:scale-95 transition-transform"
+                                        className="bg-white text-primary font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 px-8 py-4 rounded-full shadow-lg border border-blue-50 active:scale-95 transition-all mx-auto"
                                     >
-                                        <iconify-icon icon="solar:copy-bold" width="16" height="16"></iconify-icon>
+                                        <iconify-icon icon="solar:copy-bold-duotone" width="18" height="18"></iconify-icon>
                                         Sao chép mã
                                     </button>
                                 </div>
@@ -345,9 +351,9 @@ const Pairing = () => {
                                         setHasCopied(true);
                                         alert("Đã sao chép link!");
                                     }}
-                                    className="w-full bg-neutral-100 text-neutral-500 font-black py-4 rounded-2xl text-[10px] uppercase tracking-widest active:scale-95 transition-transform"
+                                    className="w-full bg-slate-900 text-white font-black py-5 rounded-[1.5rem] text-[10px] uppercase tracking-[0.2em] active:scale-95 transition-all shadow-xl"
                                 >
-                                    Sao chép link kết nối
+                                    Gửi link kết nối nhanh
                                 </button>
                             </motion.div>
                         )}
@@ -357,24 +363,24 @@ const Pairing = () => {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="bg-white p-10 rounded-[3.5rem] border border-neutral-100 shadow-sm"
+                                className="bg-white p-12 rounded-[4rem] border border-blue-50 shadow-2xl shadow-blue-100/10"
                             >
-                                <h3 className="text-base font-bold text-neutral-800 mb-8 text-center tracking-tight">Cục cưng đã gửi mã cho bạn ?</h3>
-                                <div className="flex gap-3">
+                                <h3 className="text-[15px] font-black text-slate-800 mb-10 text-center uppercase tracking-tighter">Bạn đã có mã định mệnh?</h3>
+                                <div className="flex gap-4">
                                     <input
                                         type="text"
-                                        placeholder="VÍ DỤ: AB12CD"
+                                        placeholder="AB12CD"
                                         value={manualCode}
                                         onChange={(e) => setManualCode(e.target.value.toUpperCase())}
-                                        className="flex-1 bg-neutral-50 border-2 border-transparent focus:border-rose-100 rounded-[1.5rem] px-6 py-5 text-center font-mono font-black text-xl text-neutral-700 outline-none transition-all uppercase"
+                                        className="flex-1 bg-blue-50/50 border-2 border-transparent focus:border-primary/30 rounded-[2rem] px-8 py-6 text-center font-mono font-black text-2xl text-primary outline-none transition-all uppercase tracking-widest shadow-inner"
                                         maxLength={6}
                                     />
                                     <button
                                         onClick={() => handlePrepareJoin(manualCode)}
                                         disabled={manualCode.length !== 6 || loading}
-                                        className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all shadow-xl ${manualCode.length === 6 ? 'bg-neutral-900 text-white scale-100' : 'bg-neutral-200 text-white scale-95 opacity-50'}`}
+                                        className={`w-20 h-20 rounded-[2rem] flex items-center justify-center transition-all shadow-2xl ${manualCode.length === 6 ? 'bg-primary text-white scale-100 shadow-blue-100' : 'bg-blue-100 text-white scale-95 opacity-50'}`}
                                     >
-                                        <iconify-icon icon="solar:arrow-right-bold" width="32" height="32"></iconify-icon>
+                                        <iconify-icon icon="solar:arrow-right-bold-duotone" width="36" height="36"></iconify-icon>
                                     </button>
                                 </div>
                             </motion.div>
@@ -386,33 +392,33 @@ const Pairing = () => {
             {/* Confirm Join Modal (From Link or Code) */}
             <AnimatePresence>
                 {showConfirmModal && senderInfo && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md" onClick={() => setShowConfirmModal(false)}>
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-8 bg-slate-900/60 backdrop-blur-md" onClick={() => setShowConfirmModal(false)}>
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white rounded-[4rem] p-10 w-full max-w-sm shadow-2xl text-center"
+                            className="bg-white rounded-[4.5rem] p-12 w-full max-w-sm shadow-2xl text-center border-8 border-white/20"
                             onClick={e => e.stopPropagation()}
                         >
-                            <div className="w-24 h-24 rounded-full border-4 border-rose-100 overflow-hidden mx-auto mb-8 shadow-xl">
+                            <div className="w-28 h-28 rounded-[2.5rem] border-4 border-white shadow-2xl overflow-hidden mx-auto mb-10 bg-blue-50">
                                 <img src={senderInfo.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + senderInfo.nickname} alt={senderInfo.nickname} className="w-full h-full object-cover" />
                             </div>
-                            <h3 className="text-xl font-bold text-neutral-800 mb-2">Tìm thấy {senderInfo.nickname} rồi?</h3>
-                            <div className="bg-rose-50 rounded-[2rem] p-6 mb-10 border border-rose-100">
-                                <p className="text-[10px] text-rose-500 font-black uppercase tracking-widest mb-2 flex items-center justify-center gap-2">
-                                    <iconify-icon icon="solar:danger-bold" width="14" height="14"></iconify-icon> Chắc chưa hở?
+                            <h3 className="text-2xl font-black text-slate-800 mb-2 uppercase tracking-tight">Tìm thấy {senderInfo.nickname} rồi?</h3>
+                            <div className="bg-blue-50/50 rounded-[2.5rem] p-8 mb-10 border border-blue-50">
+                                <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mb-3 flex items-center justify-center gap-2">
+                                    <iconify-icon icon="solar:shield-check-bold-duotone" width="16" height="16"></iconify-icon> Bảo mật tuyệt đối
                                 </p>
-                                <p className="text-xs text-neutral-600 leading-relaxed font-bold">
-                                    Tìm được nhau là không rời nhau được. Chắc chưa hở cục cưng ???
+                                <p className="text-xs text-slate-500 leading-relaxed font-bold">
+                                    Tìm được nhau là không rời nhau được. Chắc chắn kết nối với cục cưng này chứ?
                                 </p>
                             </div>
                             <div className="flex flex-col gap-4">
                                 <button
                                     onClick={confirmJoinInvite}
                                     disabled={loading}
-                                    className="w-full bg-neutral-900 text-white font-black py-5 rounded-full shadow-2xl active:scale-95 transition-all uppercase tracking-widest text-sm"
+                                    className="w-full bg-primary text-white font-black py-6 rounded-full shadow-2xl shadow-blue-100 active:scale-95 transition-all uppercase tracking-[0.2em] text-[11px]"
                                 >
-                                    {loading ? 'Đang kết nối...' : 'Đặt bút ký đơn'}
+                                    {loading ? 'Đang chuẩn bị...' : 'Xác nhận kết nối'}
                                 </button>
                                 <button
                                     onClick={() => {
@@ -421,9 +427,9 @@ const Pairing = () => {
                                         setActiveInviteId(null);
                                         setJoining(false);
                                     }}
-                                    className="w-full text-neutral-400 font-black text-[10px] uppercase tracking-widest py-2"
+                                    className="w-full text-blue-200 font-black text-[10px] uppercase tracking-widest py-2"
                                 >
-                                    Hủy bỏ
+                                    Để lát nữa nhé
                                 </button>
                             </div>
                         </motion.div>
@@ -434,19 +440,19 @@ const Pairing = () => {
             {/* Warning Popup (For Sender creating link) */}
             <AnimatePresence>
                 {showWarning && (
-                    <div className="fixed inset-0 z-[180] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md" onClick={() => setShowWarning(false)}>
+                    <div className="fixed inset-0 z-[180] flex items-center justify-center p-8 bg-slate-900/60 backdrop-blur-md" onClick={() => setShowWarning(false)}>
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white rounded-[4rem] p-10 w-full max-w-sm shadow-2xl text-center"
+                            className="bg-white rounded-[4rem] p-12 w-full max-w-sm shadow-2xl text-center border-8 border-white/20"
                             onClick={e => e.stopPropagation()}
                         >
-                            <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mb-8 mx-auto text-rose-500">
-                                <iconify-icon icon="solar:danger-triangle-bold" width="40" height="40"></iconify-icon>
+                            <div className="w-24 h-24 bg-rose-50 rounded-[2.5rem] flex items-center justify-center mb-10 mx-auto text-rose-500 shadow-xl shadow-rose-100/50">
+                                <iconify-icon icon="solar:danger_triangle-bold-duotone" width="48" height="48"></iconify-icon>
                             </div>
-                            <h3 className="text-xl font-black text-neutral-800 mb-4 uppercase tracking-tighter">Lưu ý quan trọng</h3>
-                            <p className="text-sm text-neutral-500 font-medium leading-[1.8] mb-10">
+                            <h3 className="text-2xl font-black text-slate-800 mb-4 uppercase tracking-tighter">Lưu ý quan trọng</h3>
+                            <p className="text-sm text-slate-500 font-bold leading-[1.8] mb-12 px-2">
                                 Bạn chỉ có thể kết nối với **một người duy nhất**. Khi người ấy xác nhận, mối liên kết này sẽ không thể thay đổi.
                             </p>
                             <div className="flex flex-col gap-4">
@@ -455,15 +461,15 @@ const Pairing = () => {
                                         setShowWarning(false);
                                         setStep('date_selection');
                                     }}
-                                    className="w-full bg-neutral-900 text-white font-black py-5 rounded-full shadow-2xl active:scale-95 transition-all text-sm uppercase tracking-widest"
+                                    className="w-full bg-primary text-white font-black py-6 rounded-full shadow-2xl shadow-blue-100 active:scale-95 transition-all text-[11px] uppercase tracking-[0.2em]"
                                 >
                                     Đã hiểu & Tiếp tục
                                 </button>
                                 <button
                                     onClick={() => setShowWarning(false)}
-                                    className="w-full text-neutral-400 font-black text-[10px] uppercase tracking-widest"
+                                    className="w-full text-blue-200 font-black text-[10px] uppercase tracking-widest mt-2"
                                 >
-                                    Hủy bỏ
+                                    Để tớ xem lại
                                 </button>
                             </div>
                         </motion.div>
@@ -474,18 +480,22 @@ const Pairing = () => {
             {/* Success Success Modal (Sender Only - When Partner confirmed) */}
             <AnimatePresence>
                 {showSuccessModal && (
-                    <div className="fixed inset-0 z-[250] flex items-center justify-center p-6 bg-white/95 backdrop-blur-3xl">
+                    <div className="fixed inset-0 z-[250] flex items-center justify-center p-8 bg-white/95 backdrop-blur-3xl overflow-hidden">
+                        <div className="fixed inset-0 pointer-events-none opacity-30">
+                            <div className="absolute top-0 right-0 w-[80%] h-[80%] bg-blue-100 blur-[150px] rounded-full" />
+                            <div className="absolute bottom-0 left-0 w-[60%] h-[60%] bg-sky-100 blur-[150px] rounded-full" />
+                        </div>
                         <motion.div
                             initial={{ scale: 0.8, y: 50, opacity: 0 }}
                             animate={{ scale: 1, y: 0, opacity: 1 }}
-                            className="text-center w-full max-w-md"
+                            className="text-center w-full max-w-lg relative z-10"
                         >
-                            <div className="w-40 h-40 bg-rose-50 rounded-[3rem] rotate-12 flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-rose-100">
-                                <iconify-icon icon="solar:star-bold-duotone" width="80" height="80" class="text-rose-500 -rotate-12"></iconify-icon>
+                            <div className="w-48 h-48 bg-blue-50/50 rounded-[4rem] rotate-12 flex items-center justify-center mx-auto mb-16 shadow-2xl shadow-blue-100/50 border-4 border-white/50 group">
+                                <iconify-icon icon="solar:star-bold-duotone" width="100" height="100" class="text-primary -rotate-12 group-hover:scale-110 transition-transform"></iconify-icon>
                             </div>
                             
-                            <h2 className="text-5xl font-black text-neutral-900 mb-6 tracking-tighter italic">CHÚC MỪNG</h2>
-                            <p className="text-xl text-neutral-400 leading-relaxed mb-16 font-medium px-8">
+                            <h2 className="text-6xl font-black text-slate-800 mb-8 tracking-tighter italic uppercase">CHÚC MỪNG</h2>
+                            <p className="text-xl text-slate-400 leading-relaxed mb-20 font-bold px-4 max-w-sm mx-auto">
                                 Giữa muôn vạn người, <br/> tình yêu đã tìm thấy được bạn!!
                             </p>
                             
@@ -494,7 +504,7 @@ const Pairing = () => {
                                     refreshData();
                                     navigate('/');
                                 }}
-                                className="w-full bg-neutral-900 text-white font-black py-7 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.2)] hover:scale-[1.05] active:scale-95 transition-all text-xl tracking-[0.2em] uppercase"
+                                className="w-full bg-slate-900 text-white font-black py-8 rounded-[2.5rem] shadow-2xl shadow-blue-100 hover:scale-[1.05] active:scale-95 transition-all text-xl tracking-[0.3em] uppercase"
                             >
                                 Bắt đầu ngay
                             </button>
@@ -506,18 +516,22 @@ const Pairing = () => {
             {/* Receiver Success Modal */}
             <AnimatePresence>
                 {showReceiverSuccess && (
-                    <div className="fixed inset-0 z-[250] flex items-center justify-center p-6 bg-white/95 backdrop-blur-3xl">
+                    <div className="fixed inset-0 z-[250] flex items-center justify-center p-8 bg-white/95 backdrop-blur-3xl overflow-hidden">
+                        <div className="fixed inset-0 pointer-events-none opacity-30">
+                            <div className="absolute top-0 left-0 w-[80%] h-[80%] bg-blue-100 blur-[150px] rounded-full" />
+                            <div className="absolute bottom-0 right-0 w-[60%] h-[60%] bg-sky-100 blur-[150px] rounded-full" />
+                        </div>
                         <motion.div
                             initial={{ scale: 0.8, y: 50, opacity: 0 }}
                             animate={{ scale: 1, y: 0, opacity: 1 }}
-                            className="text-center w-full max-w-md"
+                            className="text-center w-full max-w-lg relative z-10"
                         >
-                            <div className="w-40 h-40 bg-rose-50 rounded-[3rem] -rotate-12 flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-rose-100">
-                                <iconify-icon icon="solar:magic-stick-3-bold" width="80" height="80" class="text-rose-500 rotate-12"></iconify-icon>
+                            <div className="w-48 h-48 bg-blue-50/50 rounded-[4rem] -rotate-12 flex items-center justify-center mx-auto mb-16 shadow-2xl shadow-blue-100/50 border-4 border-white/50 group">
+                                <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="100" height="100" class="text-primary rotate-12 group-hover:scale-110 transition-transform"></iconify-icon>
                             </div>
 
-                            <h2 className="text-5xl font-black text-neutral-800 mb-6 tracking-tighter italic">CHÚC MỪNG</h2>
-                            <p className="text-xl text-neutral-400 leading-relaxed mb-16 font-medium px-8">
+                            <h2 className="text-6xl font-black text-slate-800 mb-8 tracking-tighter italic uppercase">CHÚC MỪNG</h2>
+                            <p className="text-xl text-slate-400 leading-relaxed mb-20 font-bold px-4 max-w-sm mx-auto">
                                 Xe bông đã ở trước cửa. <br/> Đợi tay bạn mở cửa
                             </p>
 
@@ -526,9 +540,9 @@ const Pairing = () => {
                                     refreshData();
                                     navigate('/');
                                 }}
-                                className="w-full bg-rose-500 text-white font-black py-7 rounded-full shadow-[0_20px_50px_rgba(244,63,94,0.3)] hover:scale-[1.05] active:scale-95 transition-all text-xl tracking-[0.2em] uppercase"
+                                className="w-full bg-primary text-white font-black py-8 rounded-[2.5rem] shadow-2xl shadow-blue-100 hover:scale-[1.05] active:scale-95 transition-all text-xl tracking-[0.3em] uppercase"
                             >
-                                Lên xe nào
+                                Lên xe ngay
                             </button>
                         </motion.div>
                     </div>

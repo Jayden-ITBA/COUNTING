@@ -9,19 +9,19 @@ const Navbar = () => {
     return (
         <nav className="fixed bottom-0 inset-x-0 bg-white/80 backdrop-blur-xl border-t border-neutral-100 pb-safe pt-2 px-6 z-50">
             <div className="flex justify-between items-center h-16 max-w-sm mx-auto relative">
-                <NavLink to="/" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-rose-500' : 'text-neutral-400'}`}>
+                <NavLink to="/" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-primary' : 'text-neutral-400'}`}>
                     {({ isActive }) => (
                         <>
-                            {isActive && <div className="absolute -top-3 left-[12.5%] w-1 h-1 bg-rose-500 rounded-full"></div>}
+                            {isActive && <div className="absolute -top-3 left-[12.5%] w-1.5 h-1.5 bg-primary rounded-full shadow-lg shadow-blue-200"></div>}
                             <iconify-icon icon="solar:home-smile-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
                         </>
                     )}
                 </NavLink>
 
-                <NavLink to="/anniversary" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-rose-500' : 'text-neutral-400'}`}>
+                <NavLink to="/anniversary" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-primary' : 'text-neutral-400'}`}>
                     {({ isActive }) => (
                         <>
-                            {isActive && <div className="absolute -top-3 left-[37.5%] w-1 h-1 bg-rose-500 rounded-full"></div>}
+                            {isActive && <div className="absolute -top-3 left-[37.5%] w-1.5 h-1.5 bg-primary rounded-full shadow-lg shadow-blue-200"></div>}
                             <iconify-icon icon="solar:calendar-date-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
                         </>
                     )}
@@ -33,19 +33,19 @@ const Navbar = () => {
                     </NavLink>
                 </div>
 
-                <NavLink to="/album" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-rose-500' : 'text-neutral-400'}`}>
+                <NavLink to="/album" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-primary' : 'text-neutral-400'}`}>
                     {({ isActive }) => (
                         <>
-                            {isActive && <div className="absolute -top-3 left-[62.5%] w-1 h-1 bg-rose-500 rounded-full"></div>}
+                            {isActive && <div className="absolute -top-3 left-[62.5%] w-1.5 h-1.5 bg-primary rounded-full shadow-lg shadow-blue-200"></div>}
                             <iconify-icon icon="solar:gallery-wide-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
                         </>
                     )}
                 </NavLink>
 
-                <NavLink to="/settings" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-rose-500' : 'text-neutral-400'}`}>
+                <NavLink to="/settings" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-full transition-colors ${isActive ? 'text-primary' : 'text-neutral-400'}`}>
                     {({ isActive }) => (
                         <>
-                            {isActive && <div className="absolute -top-3 left-[87.5%] w-1 h-1 bg-rose-500 rounded-full"></div>}
+                            {isActive && <div className="absolute -top-3 left-[87.5%] w-1.5 h-1.5 bg-primary rounded-full shadow-lg shadow-blue-200"></div>}
                             <iconify-icon icon="solar:user-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
                         </>
                     )}

@@ -28,7 +28,7 @@ const NotificationSettings = () => {
             await updateDoc(doc(db, 'profiles', auth.currentUser.uid), {
                 [key]: newValue
             });
-            refreshData();
+            await refreshData();
         } catch (error) {
             console.error(error);
             setter(currentVal);
@@ -38,37 +38,37 @@ const NotificationSettings = () => {
     };
 
     return (
-        <div className="relative min-h-screen bg-neutral-50 pb-32">
-            <header className="flex items-center bg-neutral-50/80 p-4 justify-between sticky top-0 z-10 backdrop-blur-md border-b border-neutral-100">
+        <div className="relative min-h-screen bg-[#f8faff] pb-32 font-sans">
+            <header className="flex items-center justify-between p-6 sticky top-0 bg-[#f8faff]/80 backdrop-blur-md z-10 border-b border-blue-50">
                 <button 
-                    onClick={() => navigate('/settings')}
-                    className="text-neutral-400 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100 transition-colors"
+                  onClick={() => navigate('/settings')}
+                  className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-100/50 border border-blue-50"
                 >
-                    <iconify-icon icon="solar:arrow-left-bold" width="24" height="24"></iconify-icon>
+                  <iconify-icon icon="solar:arrow-left-bold-duotone" width="24" height="24" class="text-slate-400"></iconify-icon>
                 </button>
-                <h2 className="text-neutral-800 text-lg font-bold leading-tight tracking-tight flex-1 text-center">Cài đặt thông báo</h2>
-                <div className="w-10"></div>
+                <h1 className="text-xl font-black text-slate-800 tracking-tight">Cài đặt thông báo</h1>
+                <div className="w-12" />
             </header>
 
-            <main className="max-w-lg mx-auto px-6 pt-10 space-y-8">
-                <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-neutral-100 space-y-10">
-                    <h4 className="text-neutral-400 text-[10px] font-black uppercase tracking-[0.2em] border-b border-neutral-50 pb-4">Nhắc nhở & Sự kiện</h4>
+            <main className="px-6 mt-8 space-y-10">
+                <div className="bg-white rounded-[3.5rem] p-10 shadow-xl shadow-blue-100/20 border border-blue-50 space-y-10">
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] border-b border-blue-50 pb-6">Nhắc nhở & Sự kiện</h4>
                     
                     {/* Item 1: Daily Reminder */}
                     <div className="flex items-center justify-between">
-                        <div className="flex gap-4 items-center">
-                            <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 shadow-sm">
-                                <iconify-icon icon="solar:calendar-bold-duotone" width="28" height="28"></iconify-icon>
+                        <div className="flex gap-5 items-center">
+                            <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center text-primary shadow-sm shadow-blue-100/50">
+                                <iconify-icon icon="solar:calendar-bold-duotone" width="32" height="32"></iconify-icon>
                             </div>
                             <div className="flex flex-col">
-                                <h4 className="text-neutral-800 text-[15px] font-bold leading-tight">Nhắc nhở hàng ngày</h4>
-                                <p className="text-neutral-400 text-xs font-medium mt-1">Viết nhật ký cho đối phương</p>
+                                <h4 className="text-slate-800 text-sm font-bold leading-tight">Nhắc nhở hàng ngày</h4>
+                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1.5">Viết nhật ký cho đối phương</p>
                             </div>
                         </div>
                         <button
                             onClick={() => handleToggle('daily_reminder', dailyReminder, setDailyReminder)}
                             disabled={loading}
-                            className={`w-14 h-8 rounded-full relative transition-all duration-300 ${dailyReminder ? 'bg-blue-400' : 'bg-neutral-200'}`}
+                            className={`w-14 h-8 rounded-full relative transition-all duration-300 ${dailyReminder ? 'bg-primary' : 'bg-slate-200'}`}
                         >
                             <motion.div
                                 animate={{ x: dailyReminder ? 28 : 4 }}
@@ -79,19 +79,19 @@ const NotificationSettings = () => {
 
                     {/* Item 2: Milestones */}
                     <div className="flex items-center justify-between">
-                        <div className="flex gap-4 items-center">
-                            <div className="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500 shadow-sm">
-                                <iconify-icon icon="solar:stars-bold-duotone" width="28" height="28"></iconify-icon>
+                        <div className="flex gap-5 items-center">
+                            <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center text-primary shadow-sm shadow-blue-100/50">
+                                <iconify-icon icon="solar:stars-bold-duotone" width="32" height="32"></iconify-icon>
                             </div>
                             <div className="flex flex-col">
-                                <h4 className="text-neutral-800 text-[15px] font-bold leading-tight">Mốc kỷ niệm</h4>
-                                <p className="text-neutral-400 text-xs font-medium mt-1">100, 365 ngày và hơn thế</p>
+                                <h4 className="text-slate-800 text-sm font-bold leading-tight">Mốc kỷ niệm</h4>
+                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1.5">100, 365 ngày và hơn thế</p>
                             </div>
                         </div>
                         <button
                             onClick={() => handleToggle('milestone_notifications', milestones, setMilestones)}
                             disabled={loading}
-                            className={`w-14 h-8 rounded-full relative transition-all duration-300 ${milestones ? 'bg-rose-400' : 'bg-neutral-200'}`}
+                            className={`w-14 h-8 rounded-full relative transition-all duration-300 ${milestones ? 'bg-primary' : 'bg-slate-200'}`}
                         >
                             <motion.div
                                 animate={{ x: milestones ? 28 : 4 }}
@@ -101,21 +101,21 @@ const NotificationSettings = () => {
                     </div>
                 </div>
 
-                <div className="p-4">
-                    <div className="bg-rose-50/30 border border-rose-100/50 rounded-3xl p-6 flex gap-4">
-                        <iconify-icon icon="solar:info-circle-bold" width="20" height="20" class="text-rose-400 mt-0.5 shrink-0"></iconify-icon>
-                        <p className="text-[11px] text-neutral-500 leading-relaxed font-medium italic">
+                <div className="px-2">
+                    <div className="bg-blue-50/50 border border-blue-50 rounded-3xl p-6 flex gap-4">
+                        <iconify-icon icon="solar:info-circle-bold-duotone" width="20" height="20" class="text-primary mt-0.5 shrink-0"></iconify-icon>
+                        <p className="text-[11px] text-slate-500 leading-relaxed font-medium italic">
                             Các thông báo này giúp hai bạn duy trì kết nối và không bỏ lỡ những khoảnh khắc đáng nhớ trong tình yêu.
                         </p>
                     </div>
                 </div>
 
-                <div className="pt-6">
+                <div className="space-y-4">
                     <button 
                         onClick={() => navigate('/settings')}
-                        className="w-full bg-neutral-900 text-white font-black py-5 rounded-[2rem] shadow-xl hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest text-sm"
+                        className="w-full bg-primary text-white font-black py-5 rounded-full shadow-lg shadow-blue-200 hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest text-[11px]"
                     >
-                        Hoàn tất
+                        Hoàn tất cài đặt
                     </button>
                 </div>
             </main>

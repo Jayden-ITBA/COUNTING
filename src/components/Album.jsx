@@ -49,22 +49,22 @@ const Album = () => {
     }, [profile]);
 
     return (
-        <div className="relative min-h-screen bg-neutral-50 pb-32">
-            <header className="px-6 pt-16 pb-8">
-                <h1 className="text-3xl font-bold text-neutral-800 tracking-tight">Album kỷ niệm</h1>
-                <p className="text-neutral-400 text-xs font-medium mt-1 uppercase tracking-widest">Tình yêu trong từng hơi thở</p>
+        <div className="relative min-h-screen bg-[#f8faff] pb-32 font-sans">
+            <header className="px-6 pt-16 pb-8 border-b border-blue-50 bg-[#f8faff]/80 backdrop-blur-md sticky top-0 z-10">
+                <h1 className="text-3xl font-black text-slate-800 tracking-tight">Album kỷ niệm</h1>
+                <p className="text-primary/60 text-[10px] font-black mt-1 uppercase tracking-[0.3em]">Kho lưu trữ tình yêu</p>
             </header>
 
             {loading ? (
-                <div className="flex justify-center p-12">
-                    <div className="w-8 h-8 border-4 border-rose-500 border-t-transparent rounded-full animate-spin" />
+                <div className="flex justify-center p-20">
+                    <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
                 </div>
             ) : mediaList.length === 0 ? (
-                <div className="flex flex-col items-center justify-center pt-20 px-10 text-center">
-                    <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-sm mb-8">
-                        <iconify-icon icon="solar:camera-square-linear" width="48" height="48" className="text-neutral-200"></iconify-icon>
+                <div className="flex flex-col items-center justify-center pt-32 px-10 text-center">
+                    <div className="w-28 h-28 bg-white rounded-[3rem] flex items-center justify-center shadow-2xl shadow-blue-100/50 mb-10 border border-blue-50">
+                        <iconify-icon icon="solar:camera-square-bold-duotone" width="56" height="56" className="text-blue-100"></iconify-icon>
                     </div>
-                    <p className="text-neutral-400 text-sm font-medium leading-relaxed">Chưa có ảnh nào trong album. Hãy chia sẻ khoảnh khắc đầu tiên trong Nhật ký nhé!</p>
+                    <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.4em] leading-relaxed">Chưa có ảnh nào ó...<br/>Hãy thêm kỉ niệm đầu tiên nhé!</p>
                 </div>
             ) : (
                 <div className="px-4 columns-2 gap-4 space-y-4">
@@ -75,18 +75,18 @@ const Album = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: index * 0.05 }}
                             onClick={() => setSelectedMedia(photo)}
-                            className="break-inside-avoid relative group cursor-pointer"
+                            className="break-inside-avoid relative group cursor-pointer mb-4"
                         >
-                            <div className="rounded-[2rem] overflow-hidden bg-white border border-neutral-100 shadow-sm group-hover:shadow-xl transition-all duration-500">
+                            <div className="rounded-[2.5rem] overflow-hidden bg-white border border-blue-50 shadow-xl shadow-blue-100/20 group-hover:shadow-blue-100/50 transition-all duration-500">
                                 {photo.type === 'video' ? (
                                     <video src={photo.url} className="w-full h-auto object-cover" />
                                 ) : (
                                     <img src={photo.url} alt={photo.title} className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-110" />
                                 )}
                             </div>
-                            <div className="absolute inset-x-2 bottom-2 p-4 bg-white/40 backdrop-blur-md border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-[1.5rem] text-neutral-800">
+                            <div className="absolute inset-x-3 bottom-3 p-5 bg-white/60 backdrop-blur-xl border border-white/20 opacity-0 group-hover:opacity-100 transition-all rounded-[2rem] text-slate-800">
                                 <p className="text-[10px] font-black uppercase tracking-widest truncate">{photo.title}</p>
-                                <p className="text-[8px] font-bold opacity-60 mt-0.5">{photo.date?.toLocaleDateString('vi-VN')}</p>
+                                <p className="text-[8px] font-black text-primary uppercase mt-1.5 opacity-60 tracking-[0.2em]">{photo.date?.toLocaleDateString('vi-VN')}</p>
                             </div>
                         </motion.div>
                     ))}
