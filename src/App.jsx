@@ -82,47 +82,43 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
 
-  const fetchProfile = async (uid) => {
-    setLoading(true);
-    try {
-      const docSnap = await getDoc(doc(db, 'profiles', uid));
-      if (docSnap.exists()) {
-        setProfile({ id: docSnap.id, ...docSnap.data() });
-      } else {
-        setProfile(null);
-      }
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    let unsubscribeProfile = () => {};
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        fetchProfile(currentUser.uid);
+        setLoading(true);
+        unsubscribeProfile = onSnapshot(doc(db, 'profiles', currentUser.uid), (docSnap) => {
+          if (docSnap.exists()) {
+            setProfile({ id: docSnap.id, ...docSnap.data() });
+          } else {
+            setProfile(null);
+          }
+          setLoading(false);
+        }, (error) => {
+          console.error("Profile listener error:", error);
+          setLoading(false);
+        });
       } else {
         setProfile(null);
         setLoading(false);
         setIsVerified(false);
+        unsubscribeProfile();
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      unsubscribeProfile();
+    };
   }, []);
-
-  const handleProfileComplete = () => {
-    if (user) fetchProfile(user.uid);
-  };
 
   const handleSetPin = async (newPin) => {
     try {
       await updateDoc(doc(db, 'profiles', user.uid), {
         pin: newPin
       });
-      handleProfileComplete();
       setIsVerified(true);
     } catch (error) {
       alert("Lỗi khi cài PIN: " + error.message);
@@ -136,11 +132,9 @@ function App() {
           <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
           <Route path="/signup" element={user ? <Navigate to="/" /> : <SignUp />} />
 
-          <Route path="/onboarding" element={
-            <OnboardingWrapper user={user} profile={profile} loading={loading} handleProfileComplete={handleProfileComplete} />
-          } />
+          <Route path="/onboarding" element={<OnboardingWrapper user={user} profile={profile} loading={loading} />} />
 
-          <Route path="/join/:inviteId" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Pairing profile={profile} onUpdate={handleProfileComplete} /></ProtectedRoute>} />
+          <Route path="/join/:inviteId" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Pairing profile={profile} onUpdate={() => {}} /></ProtectedRoute>} />
 
           <Route path="/" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Dashboard profile={profile} /></ProtectedRoute>} />
           <Route path="/anniversary" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Anniversary profile={profile} /></ProtectedRoute>} />
@@ -148,9 +142,9 @@ function App() {
           <Route path="/album" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Album profile={profile} /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Settings profile={profile} /></ProtectedRoute>} />
           <Route path="/settings/background" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><BgSettings profile={profile} /></ProtectedRoute>} />
-          <Route path="/settings/pairing" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Pairing profile={profile} onUpdate={handleProfileComplete} /></ProtectedRoute>} />
+          <Route path="/settings/pairing" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Pairing profile={profile} onUpdate={() => {}} /></ProtectedRoute>} />
           <Route path="/settings/widgets" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Widgets profile={profile} /></ProtectedRoute>} />
-          <Route path="/settings/profile" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><ProfileSettings profile={profile} onUpdate={handleProfileComplete} /></ProtectedRoute>} />
+          <Route path="/settings/profile" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><ProfileSettings profile={profile} onUpdate={() => {}} /></ProtectedRoute>} />
           <Route path="/settings/notifications" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><NotificationSettings profile={profile} /></ProtectedRoute>} />
           <Route path="/settings/security" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><SecuritySettings profile={profile} /></ProtectedRoute>} />
           <Route path="/settings/security/lock" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><AppLock mode="set" onVerified={handleSetPin} /></ProtectedRoute>} />
@@ -161,7 +155,7 @@ function App() {
   );
 }
 
-const OnboardingWrapper = ({ user, profile, loading, handleProfileComplete }) => {
+const OnboardingWrapper = ({ user, profile, loading }) => {
   const { state, pathname } = useLocation();
   const from = state?.from || "/";
 
@@ -174,7 +168,7 @@ const OnboardingWrapper = ({ user, profile, loading, handleProfileComplete }) =>
   if (!user) return <Navigate to="/login" state={{ from: pathname }} />;
   if (profile) return <Navigate to={from} replace />;
 
-  return <ProfileOnboarding onComplete={handleProfileComplete} />;
+  return <ProfileOnboarding onComplete={() => {}} />;
 };
 
 export default App;

@@ -17,6 +17,7 @@ const Dashboard = ({ profile }) => {
     const [manualCode, setManualCode] = useState('');
     const [showWarning, setShowWarning] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showWaitingAlert, setShowWaitingAlert] = useState(false);
 
     // New states for confirmation flow
     const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -322,64 +323,75 @@ const Dashboard = ({ profile }) => {
                         </section>
                     </>
                 ) : (
-                    <div className="px-6 flex flex-col items-center justify-center min-h-[60vh] text-center">
-                        {profile?.link_status === 'pending' ? (
-                            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-sm bg-neutral-50/50 border border-neutral-100 rounded-[2.5rem] p-8">
-                                <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <iconify-icon icon="solar:hourglass-linear" width="32" height="32" class="text-rose-400"></iconify-icon>
-                                </div>
-                                <h3 className="text-xl font-bold text-neutral-800">Đang chờ nửa kia...</h3>
-                                <div className="bg-white p-6 rounded-3xl my-6 border border-neutral-100 shadow-sm">
-                                    <h2 className="text-4xl font-black text-rose-500 tracking-[0.2em] font-mono">{profile.invite_id}</h2>
-                                </div>
+                    <div className="px-6 flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 py-12">
+                        {/* My Code Section (If pending) */}
+                        {profile?.invite_id && profile?.link_status === 'pending' && (
+                            <motion.div 
+                                initial={{ scale: 0.95, opacity: 0 }} 
+                                animate={{ scale: 1, opacity: 1 }} 
+                                className="w-full max-w-sm bg-rose-50/30 border border-rose-100/50 rounded-[2.5rem] p-8 shadow-sm"
+                            >
+                                <p className="text-[10px] font-bold text-rose-400 uppercase tracking-[0.2em] mb-4">Mã của bạn</p>
+                                <h2 className="text-4xl font-black text-rose-500 tracking-[0.2em] font-mono mb-6">{profile.invite_id}</h2>
                                 <button
                                     onClick={() => {
                                         navigator.clipboard.writeText(profile.invite_id);
-                                        alert("Đã sao chép mã!");
+                                        setShowWaitingAlert(true);
                                     }}
-                                    className="text-rose-500 font-bold text-xs uppercase flex items-center justify-center gap-2 mx-auto tracking-widest"
+                                    className="bg-white text-rose-500 font-bold text-xs uppercase py-3 px-6 rounded-2xl shadow-sm border border-rose-50 flex items-center justify-center gap-2 mx-auto active:scale-95 transition-all"
                                 >
                                     <iconify-icon icon="solar:copy-linear" width="16" height="16"></iconify-icon> Sao chép mã
                                 </button>
                             </motion.div>
-                        ) : (
-                            <div className="w-full max-w-sm space-y-6">
-                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-neutral-100 rounded-[2.5rem] p-8 shadow-sm">
-                                    <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                        <iconify-icon icon="solar:link-linear" width="32" height="32" class="text-rose-400"></iconify-icon>
-                                    </div>
-                                    <h3 className="text-xl font-bold text-neutral-800 mb-2">Bắt đầu hành trình</h3>
-                                    <p className="text-sm text-neutral-400 mb-8 px-4">Tạo mã để "người ấy" cùng tham gia nhé!</p>
-                                    <button onClick={() => setShowWarning(true)} className="w-full bg-neutral-900 text-white font-bold py-4 rounded-full shadow-lg hover:bg-neutral-800 transition-all">Tạo mã ngay</button>
-                                </motion.div>
-
-                                <div className="relative py-2">
-                                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-neutral-100"></div></div>
-                                    <div className="relative flex justify-center text-[10px]"><span className="px-4 bg-white text-neutral-300 font-bold uppercase tracking-widest">Hoặc</span></div>
-                                </div>
-
-                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white border border-neutral-100 rounded-[2.5rem] p-8 shadow-sm">
-                                    <h3 className="text-base font-bold text-neutral-800 mb-4">Kết nối bằng mã</h3>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            placeholder="AB12CD"
-                                            value={manualCode}
-                                            onChange={(e) => setManualCode(e.target.value.toUpperCase())}
-                                            className="flex-1 bg-neutral-50 border-none rounded-2xl px-4 py-4 text-center font-mono font-bold text-lg text-neutral-700 outline-none ring-2 ring-transparent focus:ring-rose-100 transition-all uppercase"
-                                            maxLength={6}
-                                        />
-                                        <button
-                                            onClick={() => handlePrepareJoin(manualCode)}
-                                            disabled={manualCode.length !== 6 || loading}
-                                            className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${manualCode.length === 6 ? 'bg-neutral-900 text-white shadow-lg' : 'bg-neutral-50 text-neutral-200'}`}
-                                        >
-                                            <iconify-icon icon="solar:alt-arrow-right-linear" width="24" height="24"></iconify-icon>
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            </div>
                         )}
+
+                        {/* Create Code Section (If no code) */}
+                        {(!profile?.invite_id || profile?.link_status === 'none') && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }} 
+                                animate={{ opacity: 1, y: 0 }} 
+                                className="w-full max-w-sm bg-white border border-neutral-100 rounded-[2.5rem] p-8 shadow-sm"
+                            >
+                                <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <iconify-icon icon="solar:link-linear" width="32" height="32" class="text-rose-400"></iconify-icon>
+                                </div>
+                                <h3 className="text-xl font-bold text-neutral-800 mb-2">Bắt đầu hành trình</h3>
+                                <p className="text-sm text-neutral-400 mb-8 px-4">Tạo mã để "người ấy" cùng tham gia nhé!</p>
+                                <button onClick={() => setShowWarning(true)} className="w-full bg-neutral-900 text-white font-bold py-4 rounded-full shadow-lg hover:bg-neutral-800 transition-all">Tạo mã ngay</button>
+                            </motion.div>
+                        )}
+
+                        <div className="w-full max-w-[200px] relative py-2">
+                            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-neutral-100"></div></div>
+                            <div className="relative flex justify-center text-[10px]"><span className="px-4 bg-neutral-50 text-neutral-300 font-bold uppercase tracking-widest italic">Kết nối</span></div>
+                        </div>
+
+                        {/* Force Input Field to ALWAYS show if unpaired */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }} 
+                            animate={{ opacity: 1, y: 0 }} 
+                            transition={{ delay: 0.1 }} 
+                            className="w-full max-w-sm bg-white border border-neutral-100 rounded-[2.5rem] p-8 shadow-sm"
+                        >
+                            <h3 className="text-base font-bold text-neutral-800 mb-4">Nhập mã đối phương</h3>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="AB12CD"
+                                    value={manualCode}
+                                    onChange={(e) => setManualCode(e.target.value.toUpperCase())}
+                                    className="flex-1 bg-neutral-50 border-none rounded-2xl px-4 py-4 text-center font-mono font-bold text-lg text-neutral-700 outline-none ring-2 ring-transparent focus:ring-rose-100 transition-all uppercase"
+                                    maxLength={6}
+                                />
+                                <button
+                                    onClick={() => handlePrepareJoin(manualCode)}
+                                    disabled={manualCode.length !== 6 || loading}
+                                    className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${manualCode.length === 6 ? 'bg-neutral-900 text-white shadow-lg' : 'bg-neutral-50 text-neutral-200'}`}
+                                >
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" width="24" height="24"></iconify-icon>
+                                </button>
+                            </div>
+                        </motion.div>
                     </div>
                 )}
             </main>
@@ -430,6 +442,30 @@ const Dashboard = ({ profile }) => {
                             <button onClick={() => window.location.reload()} className="w-full bg-blue-500 text-white font-black py-5 rounded-full shadow-xl shadow-blue-500/40 uppercase">Bắt đầu ngay</button>
                         </motion.div>
                     </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Waiting Alert Modal */}
+            <AnimatePresence>
+                {showWaitingAlert && (
+                    <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm">
+                        <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white rounded-[3rem] p-10 w-full max-w-sm shadow-2xl text-center">
+                            <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-8 animate-pulse text-rose-500">
+                                <iconify-icon icon="solar:hourglass-linear" width="40" height="40"></iconify-icon>
+                            </div>
+                            <h2 className="text-2xl font-bold text-slate-800 mb-4">Đang chờ nửa kia...</h2>
+                            <p className="text-sm text-slate-500 leading-relaxed mb-8">
+                                Mã đã được sao chép! Hãy gửi cho người ấy và đợi tín hiệu kết nối nhé. <br/>
+                                <span className="italic">Tìm được nhau khó lắm ó, đợi tý nha !!!</span>
+                            </p>
+                            <button 
+                                onClick={() => setShowWaitingAlert(false)} 
+                                className="w-full bg-rose-500 text-white font-black py-4 rounded-full shadow-lg shadow-rose-200 active:scale-95 transition-all uppercase"
+                            >
+                                Đã hiểu
+                            </button>
+                        </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
 
