@@ -39,6 +39,43 @@ const ProtectedRoute = ({ children, user, profile, loading, isVerified, setIsVer
   return children;
 };
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[#f0f7ff] p-6 text-center">
+          <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+            <span className="material-symbols-outlined text-4xl text-blue-400">error</span>
+          </div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Úi, có lỗi nhỏ xảy ra!</h2>
+          <p className="text-slate-500 mb-8 text-sm">Chúng tôi gặp một chút vấn đề khi tải trang này.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-blue-500 text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-blue-200"
+          >
+            Tải lại trang
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 function App() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -93,32 +130,34 @@ function App() {
   };
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-        <Route path="/signup" element={user ? <Navigate to="/" /> : <SignUp />} />
+    <ErrorBoundary>
+      <Router>
+        <Routes>
+          <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+          <Route path="/signup" element={user ? <Navigate to="/" /> : <SignUp />} />
 
-        <Route path="/onboarding" element={
-          <OnboardingWrapper user={user} profile={profile} loading={loading} handleProfileComplete={handleProfileComplete} />
-        } />
+          <Route path="/onboarding" element={
+            <OnboardingWrapper user={user} profile={profile} loading={loading} handleProfileComplete={handleProfileComplete} />
+          } />
 
-        <Route path="/join/:inviteId" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Pairing profile={profile} onUpdate={handleProfileComplete} /></ProtectedRoute>} />
+          <Route path="/join/:inviteId" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Pairing profile={profile} onUpdate={handleProfileComplete} /></ProtectedRoute>} />
 
-        <Route path="/" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Dashboard profile={profile} /></ProtectedRoute>} />
-        <Route path="/anniversary" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Anniversary profile={profile} /></ProtectedRoute>} />
-        <Route path="/diary" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Diary profile={profile} /></ProtectedRoute>} />
-        <Route path="/album" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Album profile={profile} /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Settings profile={profile} /></ProtectedRoute>} />
-        <Route path="/settings/background" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><BgSettings profile={profile} /></ProtectedRoute>} />
-        <Route path="/settings/pairing" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Pairing profile={profile} onUpdate={handleProfileComplete} /></ProtectedRoute>} />
-        <Route path="/settings/widgets" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Widgets profile={profile} /></ProtectedRoute>} />
-        <Route path="/settings/profile" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><ProfileSettings profile={profile} onUpdate={handleProfileComplete} /></ProtectedRoute>} />
-        <Route path="/settings/notifications" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><NotificationSettings profile={profile} /></ProtectedRoute>} />
-        <Route path="/settings/security" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><SecuritySettings profile={profile} /></ProtectedRoute>} />
-        <Route path="/settings/security/lock" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><AppLock mode="set" onVerified={handleSetPin} /></ProtectedRoute>} />
-        <Route path="/notifications" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Notifications profile={profile} /></ProtectedRoute>} />
-      </Routes>
-    </Router>
+          <Route path="/" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Dashboard profile={profile} /></ProtectedRoute>} />
+          <Route path="/anniversary" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Anniversary profile={profile} /></ProtectedRoute>} />
+          <Route path="/diary" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Diary profile={profile} /></ProtectedRoute>} />
+          <Route path="/album" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Album profile={profile} /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Settings profile={profile} /></ProtectedRoute>} />
+          <Route path="/settings/background" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><BgSettings profile={profile} /></ProtectedRoute>} />
+          <Route path="/settings/pairing" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Pairing profile={profile} onUpdate={handleProfileComplete} /></ProtectedRoute>} />
+          <Route path="/settings/widgets" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Widgets profile={profile} /></ProtectedRoute>} />
+          <Route path="/settings/profile" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><ProfileSettings profile={profile} onUpdate={handleProfileComplete} /></ProtectedRoute>} />
+          <Route path="/settings/notifications" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><NotificationSettings profile={profile} /></ProtectedRoute>} />
+          <Route path="/settings/security" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><SecuritySettings profile={profile} /></ProtectedRoute>} />
+          <Route path="/settings/security/lock" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><AppLock mode="set" onVerified={handleSetPin} /></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute user={user} profile={profile} loading={loading} isVerified={isVerified} setIsVerified={setIsVerified}><Notifications profile={profile} /></ProtectedRoute>} />
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

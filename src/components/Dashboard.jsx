@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../services/firebase';
-import { doc, onSnapshot, updateDoc, writeBatch, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, writeBatch, collection, query, where, orderBy, limit, getDocs, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { generatePairingCode } from '../utils/pairing_utils';
 import { getDashboardLabel } from '../utils/ui_helpers';
