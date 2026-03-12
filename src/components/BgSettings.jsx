@@ -1,44 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { db } from '../services/firebase';
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { getDashboardLabel } from '../utils/ui_helpers';
 import { uploadMedia } from '../services/cloudinary';
 import { useNavigate } from 'react-router-dom';
+import { useData } from '../context/DataContext';
 import Navbar from './Navbar';
 
-const BgSettings = ({ profile }) => {
+const BgSettings = () => {
+    const { profile, couple, refreshData } = useData();
     const navigate = useNavigate();
-    const [blur, setBlur] = useState(12);
-    const [currentBg, setCurrentBg] = useState('https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&q=80&w=2000');
+    const [blur, setBlur] = useState(couple?.blur_level || 12);
     const [loading, setLoading] = useState(false);
     const [daysTogether, setDaysTogether] = useState(0);
 
     const calculateDays = (anniversaryDate) => {
         if (!anniversaryDate) return;
         const anniversary = anniversaryDate.toDate ? anniversaryDate.toDate() : new Date(anniversaryDate);
-        const diffDays = Math.floor(Math.abs(new Date() - anniversary) / (1000 * 60 * 60 * 24));
+        const diffTime = Math.abs(new Date() - anniversary);
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
         setDaysTogether(diffDays);
     };
 
     useEffect(() => {
-        if (profile?.couple_id) {
-            const unsubscribe = onSnapshot(doc(db, 'couples', profile.couple_id), (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if (data.background_url) setCurrentBg(data.background_url);
-                    if (data.blur_level !== undefined) setBlur(data.blur_level);
-                    calculateDays(data.anniversary_date);
-                }
-            });
-
-            return () => unsubscribe();
+        if (couple?.anniversary_date) {
+            calculateDays(couple.anniversary_date);
         }
-    }, [profile]);
+        if (couple?.blur_level !== undefined) {
+            setBlur(couple.blur_level);
+        }
+    }, [couple]);
 
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
-        if (!file) return;
+        if (!file || !profile?.couple_id) return;
 
         setLoading(true);
         try {
@@ -46,6 +42,7 @@ const BgSettings = ({ profile }) => {
             await updateDoc(doc(db, 'couples', profile.couple_id), {
                 background_url: url
             });
+            await refreshData();
         } catch (error) {
             alert("Lỗi khi tải ảnh: " + error.message);
         } finally {
@@ -60,6 +57,7 @@ const BgSettings = ({ profile }) => {
             await updateDoc(doc(db, 'couples', profile.couple_id), {
                 blur_level: blur
             });
+            await refreshData();
         } catch (error) {
             alert("Lỗi khi lưu: " + error.message);
         } finally {
@@ -67,109 +65,127 @@ const BgSettings = ({ profile }) => {
         }
     };
 
+    const currentBg = couple?.background_url || 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&q=80&w=2000';
+
     return (
-        <div className="relative min-h-screen bg-[#f0f7ff] pb-32">
-            <header className="flex items-center bg-transparent p-4 justify-between sticky top-0 z-10 backdrop-blur-md">
+        <div className="relative min-h-screen bg-[#f8faff] pb-32 font-sans">
+            <header className="flex items-center justify-between p-6 sticky top-0 bg-[#f8faff]/80 backdrop-blur-md z-10 border-b border-blue-50">
                 <button 
-                    onClick={() => navigate('/settings')}
-                    className="text-blue-400 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-blue-100 transition-colors"
+                  onClick={() => navigate('/settings')}
+                  className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-100/50 border border-blue-50"
                 >
-                    <span className="material-symbols-outlined">arrow_back_ios_new</span>
+                  <iconify-icon icon="solar:arrow-left-bold-duotone" width="24" height="24" class="text-slate-400"></iconify-icon>
                 </button>
-                <h2 className="text-slate-900 text-lg font-bold leading-tight tracking-tight flex-1 text-center">Tùy chỉnh giao diện</h2>
-                <div className="w-10"></div>
+                <h1 className="text-xl font-black text-slate-800 tracking-tight">Giao diện & Hình nền</h1>
+                <div className="w-12" />
             </header>
 
-            <main className="max-w-lg mx-auto px-4 pb-12">
+            <main className="px-6 mt-8 space-y-10">
                 {/* Preview Area */}
-                <section className="py-6">
-                    <div className="relative aspect-[9/16] w-full max-w-[200px] mx-auto rounded-[2.5rem] overflow-hidden shadow-2xl ring-4 ring-white">
+                <section className="flex flex-col items-center">
+                    <div className="relative aspect-[9/16] w-full max-w-[220px] rounded-[3.5rem] overflow-hidden shadow-2xl ring-8 ring-white">
                         <div
-                            className="absolute inset-0 bg-cover bg-center transition-all duration-500"
+                            className="absolute inset-0 bg-cover bg-center transition-all duration-700 ease-out"
                             style={{
                                 backgroundImage: `url(${currentBg})`,
-                                filter: `blur(${blur}px) brightness(0.9)`
+                                filter: `blur(${blur}px) brightness(0.8)`
                             }}
                         />
-                        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center text-center p-4">
-                            <h2 className="text-white text-4xl font-extrabold tracking-tighter drop-shadow-lg">{daysTogether}</h2>
-                            <p className="text-[8px] font-bold text-blue-100 uppercase tracking-[0.2em] mt-2">
+                        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center text-center p-6 bg-black/5">
+                            <h2 className="text-white text-5xl font-black tracking-tighter drop-shadow-2xl italic">{daysTogether}</h2>
+                            <p className="text-[10px] font-black text-blue-100 uppercase tracking-[0.3em] mt-3 drop-shadow-md">
                                 {getDashboardLabel(profile)}
                             </p>
                         </div>
                         {loading && (
-                            <div className="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center">
-                                <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin" />
+                            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center">
+                                <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
                             </div>
                         )}
                     </div>
+                    <p className="text-center text-[10px] text-slate-400 font-black uppercase tracking-widest mt-6">Xem trước Dashboard</p>
                 </section>
 
-                <div className="space-y-6">
+                <div className="space-y-8">
                     {/* Background Picker */}
-                    <div className="bg-white/60 backdrop-blur-md border border-blue-100/20 rounded-3xl p-6 shadow-sm">
-                        <div className="flex items-center justify-between mb-4">
-                            <h4 className="text-slate-800 text-sm font-bold leading-tight tracking-tight">Hình nền của chúng mình</h4>
-                            <label className="text-blue-400 text-xs font-bold hover:underline cursor-pointer">
-                                Thêm mới
+                    <div className="bg-white rounded-[3.5rem] p-8 shadow-xl shadow-blue-100/20 border border-blue-50">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-3">
+                                <iconify-icon icon="solar:gallery-bold-duotone" width="24" height="24" class="text-primary"></iconify-icon>
+                                <h4 className="text-slate-800 text-sm font-black uppercase tracking-widest">Hình nền kỷ niệm</h4>
+                            </div>
+                            <label className="bg-blue-50 text-primary px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-primary hover:text-white transition-all">
+                                THAY ĐỔI
                                 <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
                             </label>
                         </div>
-                        <div className="grid grid-cols-3 gap-3">
-                            <label className="aspect-[3/4] rounded-xl border-2 border-dashed border-blue-200 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition-colors group">
+                        <div className="grid grid-cols-3 gap-5">
+                            <label className="aspect-[3/4] rounded-2xl border-2 border-dashed border-blue-100 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-blue-50/50 transition-all group overflow-hidden">
                                 <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-                                <span className="material-symbols-outlined text-blue-300 group-hover:scale-110 transition-transform">add_a_photo</span>
+                                <iconify-icon icon="solar:camera-add-bold" width="32" height="32" class="text-blue-100 group-hover:text-primary transition-colors"></iconify-icon>
                             </label>
-                            {/* Preset images could go here, or just show the current one */}
-                            <div className="aspect-[3/4] rounded-xl bg-cover bg-center ring-2 ring-blue-400" style={{ backgroundImage: `url(${currentBg})` }}></div>
+                            <div className="aspect-[3/4] col-span-2 rounded-[2.5rem] bg-cover bg-center ring-4 ring-blue-50 shadow-inner relative overflow-hidden" 
+                                style={{ backgroundImage: `url(${currentBg})` }}>
+                                <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-[1px]"></div>
+                                <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/50 shadow-sm">
+                                    <p className="text-[8px] font-black text-slate-800 uppercase tracking-widest">ĐANG DÙNG</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     {/* Opacity/Blur Slider */}
-                    <div className="bg-white/60 backdrop-blur-md border border-blue-100/20 rounded-3xl p-6 shadow-sm">
-                        <h4 className="text-slate-800 text-sm font-bold mb-4">Độ mờ Dashboard</h4>
-                        <div className="space-y-4">
-                            <input
-                                type="range"
-                                min="0"
-                                max="30"
-                                value={blur}
-                                onChange={(e) => setBlur(parseInt(e.target.value))}
-                                onMouseUp={saveBlur}
-                                onTouchEnd={saveBlur}
-                                className="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                            />
-                            <div className="flex justify-between text-[10px] font-bold text-blue-400 uppercase tracking-widest px-1">
-                                <span>Sắc nét</span>
-                                <span>Mờ ảo</span>
+                    <div className="bg-white rounded-[3.5rem] p-10 shadow-xl shadow-blue-100/20 border border-blue-50">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-primary">
+                                <iconify-icon icon="solar:mask-haze-bold-duotone" width="28" height="28"></iconify-icon>
+                            </div>
+                            <div>
+                                <h4 className="text-slate-800 text-sm font-black uppercase tracking-widest">Độ mờ Dashboard</h4>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Làm nổi bật kỷ niệm</p>
+                            </div>
+                        </div>
+                        <div className="space-y-8">
+                            <div className="relative pt-2">
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="30"
+                                    value={blur}
+                                    onChange={(e) => setBlur(parseInt(e.target.value))}
+                                    onMouseUp={saveBlur}
+                                    onTouchEnd={saveBlur}
+                                    className="w-full h-2 bg-blue-50 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
+                                />
+                                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-xl opacity-0 transition-opacity pointer-events-none group-active:opacity-100 shadow-xl">
+                                    {blur} PX
+                                </div>
+                            </div>
+                            <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">
+                                <span className="flex items-center gap-2">
+                                    <iconify-icon icon="solar:eye-bold-duotone" width="14" height="14"></iconify-icon>
+                                    Cực nét
+                                </span>
+                                <span className="flex items-center gap-2">
+                                    Mờ ảo
+                                    <iconify-icon icon="solar:eye-closed-bold-duotone" width="14" height="14"></iconify-icon>
+                                </span>
                             </div>
                         </div>
                     </div>
-
-                    {/* Widget Styles - Link to Widgets page */}
-                    <div 
-                        onClick={() => navigate('/settings/widgets')}
-                        className="bg-white/60 backdrop-blur-md border border-blue-100/20 rounded-3xl p-6 shadow-sm flex items-center justify-between cursor-pointer active:scale-[0.98] transition-all"
-                    >
-                        <div>
-                            <h4 className="text-slate-800 text-sm font-bold leading-tight tracking-tight">Kiểu Widget</h4>
-                            <p className="text-blue-400/80 text-xs mt-1">Chọn phong cách hiển thị kỷ niệm</p>
-                        </div>
-                        <span className="material-symbols-outlined text-blue-400">chevron_right</span>
-                    </div>
                 </div>
 
-                <div className="mt-8">
-                    <button 
-                        onClick={() => navigate('/settings')}
-                        className="w-full bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 active:scale-95 transition-transform"
-                    >
-                        Hoàn tất
-                    </button>
+                <div className="space-y-4">
+                  <button 
+                      onClick={() => navigate('/settings')}
+                      className="w-full bg-primary text-white font-black py-5 rounded-full shadow-lg shadow-blue-200 hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest text-[11px]"
+                  >
+                      Xác nhận thay đổi
+                  </button>
                 </div>
             </main>
 
-            <Navbar profile={profile} />
+            <Navbar />
         </div>
     );
 };

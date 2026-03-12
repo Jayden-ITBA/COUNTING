@@ -21,7 +21,6 @@ const SignUp = () => {
             const user = userCredential.user;
 
             if (user) {
-                // Create Profile in Firestore
                 await setDoc(doc(db, 'profiles', user.uid), {
                     uid: user.uid,
                     nickname: nickname,
@@ -42,8 +41,8 @@ const SignUp = () => {
     };
 
     return (
-        <div className="relative min-h-screen flex flex-col items-center justify-center p-6 bg-background-light overflow-y-auto">
-            {/* Soft Animated Background Pattern */}
+        <div className="relative min-h-screen flex flex-col items-center justify-center p-6 bg-[#f0f7ff] overflow-y-auto font-sans">
+            {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10 pointer-events-none"
                 style={{
                     backgroundImage: 'radial-gradient(#3B82F6 0.5px, transparent 0.5px), radial-gradient(#3B82F6 0.5px, #f0f7ff 0.5px)',
@@ -51,79 +50,88 @@ const SignUp = () => {
                     backgroundPosition: '0 0, 10px 10px'
                 }}
             />
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
 
             <div className="w-full max-w-md z-20 flex flex-col items-center">
                 <motion.div
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    className="mb-8 flex flex-col items-center"
+                    className="mb-12 flex flex-col items-center text-center"
                 >
-                    <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-4 border-4 border-primary/20 shadow-sm">
-                        <span className="material-symbols-outlined text-primary text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+                    <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center mb-6 shadow-xl shadow-blue-200/40 border border-white">
+                        <iconify-icon icon="solar:heart-bold-duotone" width="56" height="56" class="text-primary"></iconify-icon>
                     </div>
-                    <h1 className="text-3xl font-extrabold text-slate-800 mb-1 tracking-tight">Our Little Corner</h1>
-                    <p className="text-slate-500 text-center text-sm px-4">Nhật ký góc nhỏ của hai bạn đã bắt đầu rồi đấy</p>
+                    <h1 className="text-4xl font-black text-slate-800 mb-2 tracking-tighter">Bắt Đầu Nhật Ký</h1>
+                    <p className="text-slate-400 text-sm font-bold tracking-widest uppercase">Love is in the air</p>
                 </motion.div>
 
-                <form onSubmit={handleSignUp} className="w-full space-y-5 px-2">
-                    <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-slate-700 ml-5">Biệt danh</label>
-                        <div className="relative">
-                            <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">person</span>
-                            <input
-                                required
-                                value={nickname}
-                                onChange={(e) => setNickname(e.target.value)}
-                                className="w-full bg-white border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-primary rounded-full py-4 pl-14 pr-6 text-slate-900 transition-all outline-none"
-                                placeholder="Cục cưng gọi bạn là gì nhỉ ?"
-                                type="text"
-                            />
+                <div className="w-full bg-white rounded-[3.5rem] p-10 shadow-xl shadow-blue-100/50 border border-blue-50">
+                    <form onSubmit={handleSignUp} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Biệt danh</label>
+                            <div className="relative group">
+                                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">
+                                    <iconify-icon icon="solar:user-bold-duotone" width="24" height="24"></iconify-icon>
+                                </div>
+                                <input
+                                    required
+                                    value={nickname}
+                                    onChange={(e) => setNickname(e.target.value)}
+                                    className="w-full bg-slate-50 border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 rounded-full py-5 pl-16 pr-6 text-slate-900 font-bold transition-all outline-none placeholder:text-slate-300"
+                                    placeholder="Cục cưng gọi bạn là gì?"
+                                    type="text"
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-slate-700 ml-5">Email</label>
-                        <div className="relative">
-                            <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">mail</span>
-                            <input
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full bg-white border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-primary rounded-full py-4 pl-14 pr-6 text-slate-900 transition-all outline-none"
-                                placeholder="Nhập email của bạn"
-                                type="email"
-                            />
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Email</label>
+                            <div className="relative group">
+                                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">
+                                    <iconify-icon icon="solar:letter-bold-duotone" width="24" height="24"></iconify-icon>
+                                </div>
+                                <input
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full bg-slate-50 border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 rounded-full py-5 pl-16 pr-6 text-slate-900 font-bold transition-all outline-none placeholder:text-slate-300"
+                                    placeholder="yourname@gmail.com"
+                                    type="email"
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-slate-700 ml-5">Mật khẩu</label>
-                        <div className="relative">
-                            <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">lock</span>
-                            <input
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-white border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-primary rounded-full py-4 pl-14 pr-6 text-slate-900 transition-all outline-none"
-                                placeholder="Tạo mật khẩu bảo mật"
-                                type="password"
-                            />
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Mật khẩu</label>
+                            <div className="relative group">
+                                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">
+                                    <iconify-icon icon="solar:lock-keyhole-bold-duotone" width="24" height="24"></iconify-icon>
+                                </div>
+                                <input
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full bg-slate-50 border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 rounded-full py-5 pl-16 pr-6 text-slate-900 font-bold transition-all outline-none placeholder:text-slate-300"
+                                    placeholder="Tạo mật khẩu bảo mật"
+                                    type="password"
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-primary hover:brightness-105 text-white font-bold py-4 rounded-full shadow-lg shadow-primary/20 transition-all active:scale-[0.98] mt-2"
-                    >
-                        {loading ? "Đang tạo tài khoản..." : "Đăng ký ngay"}
-                    </button>
-                </form>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-primary hover:brightness-110 text-white font-black py-5 rounded-full shadow-lg shadow-blue-200 transition-all active:scale-[0.98] mt-4 uppercase tracking-[0.2em] text-xs"
+                        >
+                            {loading ? "Đang tạo tài khoản..." : "Đăng ký ngay"}
+                        </button>
+                    </form>
+                </div>
 
-                <div className="text-center mt-12 mb-8">
-                    <p className="text-slate-500 text-sm">
+                <div className="text-center mt-12 mb-12">
+                    <p className="text-slate-400 text-sm font-medium">
                         Đã có tài khoản?
-                        <Link to="/login" className="text-primary font-bold ml-1 hover:underline">Đăng nhập</Link>
+                        <Link to="/login" className="text-primary font-extrabold ml-2 hover:underline">Đăng nhập</Link>
                     </p>
                 </div>
             </div>

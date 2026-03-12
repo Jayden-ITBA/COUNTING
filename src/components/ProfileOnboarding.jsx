@@ -36,51 +36,69 @@ const ProfileOnboarding = ({ onComplete }) => {
     };
 
     return (
-        <div className="min-h-screen bg-background-light flex flex-col items-center justify-center p-6">
+        <div className="min-h-screen bg-[#f8faff] flex flex-col items-center justify-center p-6 font-sans">
+            {/* Background elements */}
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-100/20 rounded-full blur-[100px] -z-10 translate-x-1/4 -translate-y-1/4" />
+            
             <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-sm glass p-8 rounded-[3rem] text-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full max-w-sm"
             >
-                <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <span className="material-symbols-outlined text-4xl text-blue-500 fill-1">person</span>
+                <div className="bg-white p-10 rounded-[3.5rem] shadow-xl shadow-blue-100/50 border border-blue-50 text-center relative overflow-hidden">
+                    <div className="w-24 h-24 bg-blue-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-primary shadow-sm border border-blue-100/50">
+                        <iconify-icon icon="solar:user-speak-bold-duotone" width="48" height="48"></iconify-icon>
+                    </div>
+                    
+                    <h2 className="text-3xl font-black text-slate-800 mb-2 tracking-tight">Chào bạn yêu!</h2>
+                    <p className="text-sm text-slate-400 font-bold mb-10 uppercase tracking-widest">Một chút thông tin về bạn</p>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="text-left space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Biệt danh của bạn</label>
+                            <div className="relative group">
+                                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">
+                                    <iconify-icon icon="solar:star-bold-duotone" width="20" height="20"></iconify-icon>
+                                </div>
+                                <input
+                                    required
+                                    type="text"
+                                    placeholder="Ví dụ: Công chúa, Bé cưng..."
+                                    value={nickname}
+                                    onChange={(e) => setNickname(e.target.value)}
+                                    className="w-full pl-14 pr-6 py-5 rounded-full bg-slate-50 border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 text-sm font-bold text-slate-900 transition-all outline-none"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="text-left space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Ngày sinh nhật</label>
+                            <div className="relative group">
+                                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">
+                                    <iconify-icon icon="solar:calendar-bold-duotone" width="20" height="20"></iconify-icon>
+                                </div>
+                                <input
+                                    required
+                                    type="date"
+                                    value={birthday}
+                                    onChange={(e) => setBirthday(e.target.value)}
+                                    className="w-full pl-14 pr-6 py-5 rounded-full bg-slate-50 border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 text-sm font-bold text-slate-900 transition-all outline-none"
+                                />
+                            </div>
+                        </div>
+
+                        <button
+                            disabled={loading}
+                            className="w-full bg-primary text-white font-black py-5 rounded-full shadow-lg shadow-blue-200 hover:brightness-110 active:scale-95 transition-all mt-6 flex items-center justify-center uppercase tracking-widest text-xs"
+                        >
+                            {loading ? (
+                                <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                            ) : "Mở cửa trái tim nào!"}
+                        </button>
+                    </form>
                 </div>
-                <h2 className="text-2xl font-bold text-slate-800 mb-2">Mến chào bạn thân yêu!</h2>
-                <p className="text-sm text-slate-500 mb-8">Hãy cho chúng mình biết một chút về bạn nhé.</p>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="text-left">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-4 mb-1 block">Biệt danh của bạn</label>
-                        <input
-                            required
-                            type="text"
-                            placeholder="Ở nhà cục cưng gọi bạn là gì nhỉ?"
-                            value={nickname}
-                            onChange={(e) => setNickname(e.target.value)}
-                            className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none text-sm focus:ring-2 focus:ring-blue-100"
-                        />
-                    </div>
-
-                    <div className="text-left">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-4 mb-1 block">Ngày bạn khóc oe oe</label>
-                        <input
-                            required
-                            type="date"
-                            value={birthday}
-                            onChange={(e) => setBirthday(e.target.value)}
-                            className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none text-sm focus:ring-2 focus:ring-blue-100"
-                        />
-                    </div>
-
-                    <button
-                        disabled={loading}
-                        className="w-full bg-blue-500 text-white font-bold py-4 rounded-full shadow-lg shadow-blue-500/30 active:scale-95 transition-transform mt-4 flex items-center justify-center"
-                    >
-                        {loading ? (
-                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        ) : "Kết nối với cục cưng nào!!"}
-                    </button>
-                </form>
+                
+                <p className="mt-10 text-center text-[10px] text-slate-300 font-black uppercase tracking-[0.4em]">Connecting Hearts Since 2024</p>
             </motion.div>
         </div>
     );

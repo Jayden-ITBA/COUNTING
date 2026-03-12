@@ -3,31 +3,33 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db, auth } from '../services/firebase';
 import { doc, onSnapshot, setDoc, updateDoc, getDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { useData } from '../context/DataContext';
 import { generatePairingCode } from '../utils/pairing_utils';
 import Navbar from './Navbar';
 
 const WheelPicker = ({ options, value, onChange, label }) => {
     return (
         <div className="flex flex-col items-center">
-            <span className="text-[10px] font-bold text-slate-400 uppercase mb-2">{label}</span>
-            <div className="h-40 w-20 overflow-y-auto scroll-smooth snap-y snap-mandatory hide-scrollbar bg-slate-50/50 rounded-2xl border border-slate-100">
-                <div className="h-16" /> {/* Padding top */}
+            <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3">{label}</span>
+            <div className="h-44 w-20 overflow-y-auto scroll-smooth snap-y snap-mandatory hide-scrollbar bg-neutral-100/50 rounded-2xl border border-neutral-200">
+                <div className="h-20" /> {/* Padding top */}
                 {options.map((opt) => (
                     <div
                         key={opt}
                         onClick={() => onChange(opt)}
-                        className={`h-8 flex items-center justify-center snap-center cursor-pointer transition-all ${value === opt ? 'text-blue-500 font-bold text-lg' : 'text-slate-300 text-sm'}`}
+                        className={`h-8 flex items-center justify-center snap-center cursor-pointer transition-all ${value === opt ? 'text-rose-500 font-black text-lg scale-110' : 'text-neutral-300 text-sm font-bold'}`}
                     >
                         {opt}
                     </div>
                 ))}
-                <div className="h-16" /> {/* Padding bottom */}
+                <div className="h-20" /> {/* Padding bottom */}
             </div>
         </div>
     );
 };
 
-const Pairing = ({ profile, onUpdate }) => {
+const Pairing = () => {
+    const { profile, refreshData } = useData();
     const { inviteId: urlInviteId } = useParams();
     const navigate = useNavigate();
     const [showWarning, setShowWarning] = useState(false);
@@ -36,14 +38,12 @@ const Pairing = ({ profile, onUpdate }) => {
     const [manualCode, setManualCode] = useState('');
     const [loading, setLoading] = useState(false);
     
-    // New states for confirmation flow
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [senderInfo, setSenderInfo] = useState(null);
     const [activeInviteId, setActiveInviteId] = useState(null);
     const [showReceiverSuccess, setShowReceiverSuccess] = useState(false);
 
-    // Step management for sender
-    const [step, setStep] = useState('none'); // 'none', 'date_selection'
+    const [step, setStep] = useState('none');
     const [day, setDay] = useState(new Date().getDate());
     const [month, setMonth] = useState(new Date().getMonth() + 1);
     const [year, setYear] = useState(new Date().getFullYear());
@@ -53,7 +53,6 @@ const Pairing = ({ profile, onUpdate }) => {
     const months = Array.from({ length: 12 }, (_, i) => i + 1);
     const years = Array.from({ length: 50 }, (_, i) => new Date().getFullYear() - i);
 
-    // Initial check for join URL - Fetch sender info instead of auto-joining
     useEffect(() => {
         const fetchSenderForLink = async () => {
             if (urlInviteId && profile && profile.link_status === 'none') {
@@ -85,7 +84,6 @@ const Pairing = ({ profile, onUpdate }) => {
         fetchSenderForLink();
     }, [urlInviteId, profile]);
 
-    // Real-time listener for current user's invite to show success modal to sender
     useEffect(() => {
         if (profile?.link_status === 'pending' && profile?.invite_id) {
             const unsubscribe = onSnapshot(doc(db, 'invites', profile.invite_id), (docSnap) => {
@@ -125,7 +123,7 @@ const Pairing = ({ profile, onUpdate }) => {
 
             setShowWarning(false);
             setStep('none');
-            onUpdate();
+            refreshData();
         } catch (error) {
             console.error("Invite Creation Error:", error);
             alert("Lỗi khi tạo mã mời!");
@@ -155,7 +153,6 @@ const Pairing = ({ profile, onUpdate }) => {
                 return;
             }
 
-            // Fetch sender info for confirmation modal
             const senderSnap = await getDoc(doc(db, 'profiles', invData.sender_id));
             if (senderSnap.exists()) {
                 setSenderInfo(senderSnap.data());
@@ -190,7 +187,6 @@ const Pairing = ({ profile, onUpdate }) => {
 
             const coupleId = `${senderUid}_${auth.currentUser.uid}`;
 
-            // 1. Create Couple
             batch.set(doc(db, 'couples', coupleId), {
                 uids: [senderUid, auth.currentUser.uid],
                 anniversary_date: anniversaryDate,
@@ -199,21 +195,18 @@ const Pairing = ({ profile, onUpdate }) => {
                 blur_level: 0
             });
 
-            // 2. Update Invite
             batch.update(doc(db, 'invites', activeInviteId), {
                 status: 'paired',
                 receiver_id: auth.currentUser.uid,
                 paired_at: serverTimestamp()
             });
 
-            // 3. Update Sender Profile
             batch.update(doc(db, 'profiles', senderUid), {
                 link_status: 'paired',
                 partner_id: auth.currentUser.uid,
                 couple_id: coupleId
             });
 
-            // 4. Update Receiver Profile
             batch.update(doc(db, 'profiles', auth.currentUser.uid), {
                 link_status: 'paired',
                 partner_id: senderUid,
@@ -222,6 +215,7 @@ const Pairing = ({ profile, onUpdate }) => {
             });
 
             await batch.commit();
+            refreshData();
             setShowReceiverSuccess(true);
         } catch (error) {
             console.error("Join error:", error);
@@ -236,22 +230,22 @@ const Pairing = ({ profile, onUpdate }) => {
     const inviteLink = profile?.invite_id ? `${window.location.origin}/join/${profile.invite_id}` : '';
 
     return (
-        <div className="relative min-h-screen bg-background-light pb-32">
+        <div className="relative min-h-screen bg-neutral-50 pb-32">
             <style>{`
                 .hide-scrollbar::-webkit-scrollbar { display: none; }
                 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
 
-            <div className="px-6 pt-16 pb-8">
-                <h1 className="text-3xl font-bold text-slate-800">Kết nối cục cưng</h1>
-                <p className="text-slate-500 text-sm">Hãy tìm cục cưng của bạn giữa muôn vạn người nhé !!</p>
-            </div>
+            <header className="px-6 pt-16 pb-8">
+                <h1 className="text-3xl font-bold text-neutral-800 tracking-tight">Kết nối cục cưng</h1>
+                <p className="text-neutral-400 text-xs font-medium mt-1 uppercase tracking-widest leading-relaxed">Hãy tìm nửa kia giữa muôn vạn người nhé !!</p>
+            </header>
 
-            <div className="px-6 space-y-6">
+            <div className="px-6 space-y-8">
                 {(loading || joining) && (
-                    <div className="flex flex-col items-center justify-center p-20 bg-white/50 rounded-[3rem] glass">
-                        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
-                        <p className="text-slate-400 text-sm font-medium">Đang xử lý kết nối...</p>
+                    <div className="flex flex-col items-center justify-center p-20 bg-white rounded-[3rem] border border-neutral-100 shadow-sm">
+                        <div className="w-12 h-12 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mb-6" />
+                        <p className="text-neutral-400 text-xs font-black uppercase tracking-widest">Đang kết nối...</p>
                     </div>
                 )}
 
@@ -259,20 +253,20 @@ const Pairing = ({ profile, onUpdate }) => {
                     <>
                         {profile?.link_status === 'none' && step === 'none' && (
                             <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="glass p-8 rounded-[3rem] text-center"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="bg-white p-10 rounded-[3.5rem] text-center border border-neutral-100 shadow-sm"
                             >
-                                <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <span className="material-symbols-outlined text-4xl text-blue-500">link</span>
+                                <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-8 text-neutral-400">
+                                    <iconify-icon icon="solar:link-circle-bold" width="40" height="40"></iconify-icon>
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-800 mb-2">Tìm cục cưng</h3>
-                                <p className="text-sm text-slate-500 mb-8">
-                                    Gửi tín hiệu kết nối cho cục cưng để bắt đầu hành trình nhé !!!
+                                <h3 className="text-xl font-bold text-neutral-800 mb-2">Gửi tín hiệu</h3>
+                                <p className="text-sm text-neutral-500 leading-relaxed mb-10 px-4">
+                                    Bắt đầu hành trình hạnh phúc bằng cách tạo tín hiệu kết nối ngay.
                                 </p>
                                 <button
                                     onClick={handleCreateLink}
-                                    className="w-full bg-blue-500 text-white font-bold py-4 rounded-full shadow-lg shadow-blue-500/30 active:scale-95 transition-transform"
+                                    className="w-full bg-neutral-900 text-white font-black py-5 rounded-full shadow-xl hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest text-sm"
                                 >
                                     Tạo tín hiệu kết nối
                                 </button>
@@ -281,13 +275,13 @@ const Pairing = ({ profile, onUpdate }) => {
 
                         {profile?.link_status === 'none' && step === 'date_selection' && (
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
+                                initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="glass p-8 rounded-[3rem] text-center"
+                                className="bg-white p-10 rounded-[3.5rem] text-center border border-neutral-100 shadow-sm"
                             >
-                                <h3 className="text-xl font-extrabold text-slate-800 mb-6">Ngày chúng ta thành đôi</h3>
+                                <h3 className="text-xl font-black text-neutral-800 mb-8 tracking-tighter uppercase">Ngày định mệnh</h3>
                                 
-                                <div className="flex justify-center gap-4 mb-8">
+                                <div className="flex justify-center gap-4 mb-10">
                                     <WheelPicker label="Ngày" options={days} value={day} onChange={setDay} />
                                     <WheelPicker label="Tháng" options={months} value={month} onChange={setMonth} />
                                     <WheelPicker label="Năm" options={years} value={year} onChange={setYear} />
@@ -295,13 +289,13 @@ const Pairing = ({ profile, onUpdate }) => {
 
                                 <button
                                     onClick={confirmCreateLink}
-                                    className="w-full bg-blue-500 text-white font-bold py-4 rounded-full shadow-lg shadow-blue-500/30 active:scale-95 transition-transform"
+                                    className="w-full bg-neutral-900 text-white font-black py-5 rounded-full shadow-xl hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest text-sm"
                                 >
                                     Xác nhận & Tạo mã
                                 </button>
                                 <button
                                     onClick={() => setStep('none')}
-                                    className="w-full mt-4 text-slate-400 font-bold text-sm uppercase"
+                                    className="w-full mt-6 text-neutral-400 font-black text-[10px] uppercase tracking-widest"
                                 >
                                     Quay lại
                                 </button>
@@ -309,34 +303,27 @@ const Pairing = ({ profile, onUpdate }) => {
                         )}
 
                         {profile?.link_status === 'none' && step === 'none' && (
-                            <div className="relative py-4">
+                            <div className="relative py-4 flex justify-center items-center">
                                 <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-slate-200"></div>
+                                    <div className="w-full border-t border-neutral-100"></div>
                                 </div>
-                                <div className="relative flex justify-center text-xs">
-                                    <span className="px-4 bg-background-light text-slate-400 font-bold uppercase tracking-widest">Hoặc</span>
-                                </div>
+                                <span className="relative px-6 bg-neutral-50 text-[10px] font-black text-neutral-200 uppercase tracking-[0.3em]">Hoặc</span>
                             </div>
                         )}
 
                         {profile?.link_status === 'pending' && (
                             <motion.div
-                                initial={{ scale: 0.9, opacity: 0 }}
+                                initial={{ scale: 0.95, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
-                                className="glass p-8 rounded-[3rem] text-center border-2 border-blue-200 mb-6"
+                                className="bg-white p-10 rounded-[3.5rem] text-center border-2 border-rose-100 shadow-xl shadow-rose-100/20 mb-8"
                             >
-                                {hasCopied && (
-                                    <>
-                                        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                                            <span className="material-symbols-outlined text-blue-400">hourglass_empty</span>
-                                        </div>
-                                        <h3 className="text-lg font-bold text-slate-800">Đang đợi cục cưng kết nối giữa muôn vạn người...</h3>
-                                        <p className="text-xs text-slate-400 mb-6 uppercase tracking-widest font-bold">Chia sẻ mã bên dưới</p>
-                                    </>
-                                )}
+                                <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse text-rose-500">
+                                    <iconify-icon icon="solar:heart-angle-bold" width="32" height="32"></iconify-icon>
+                                </div>
+                                <h3 className="text-lg font-bold text-neutral-800 mb-8 tracking-tight">Đang đợi tín hiệu phản hồi...</h3>
 
-                                <div className="bg-slate-50 p-6 rounded-[2rem] mb-4 border border-blue-50">
-                                    <h2 className="text-4xl font-black text-blue-500 tracking-[0.2em] mb-4 font-mono">
+                                <div className="bg-neutral-50 p-8 rounded-[2.5rem] mb-6 border border-neutral-100">
+                                    <h2 className="text-4xl font-black text-rose-500 tracking-[0.2em] mb-6 font-mono">
                                         {profile.invite_id}
                                     </h2>
                                     <button
@@ -345,9 +332,9 @@ const Pairing = ({ profile, onUpdate }) => {
                                             setHasCopied(true);
                                             alert("Đã sao chép mã!");
                                         }}
-                                        className="text-blue-500 font-bold text-xs uppercase flex items-center justify-center gap-2 mx-auto"
+                                        className="bg-white text-rose-500 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 px-6 py-3 rounded-full shadow-sm mx-auto active:scale-95 transition-transform"
                                     >
-                                        <span className="material-symbols-outlined text-sm">content_copy</span>
+                                        <iconify-icon icon="solar:copy-bold" width="16" height="16"></iconify-icon>
                                         Sao chép mã
                                     </button>
                                 </div>
@@ -358,7 +345,7 @@ const Pairing = ({ profile, onUpdate }) => {
                                         setHasCopied(true);
                                         alert("Đã sao chép link!");
                                     }}
-                                    className="w-full bg-blue-100 text-blue-600 font-bold py-3 rounded-2xl text-xs uppercase"
+                                    className="w-full bg-neutral-100 text-neutral-500 font-black py-4 rounded-2xl text-[10px] uppercase tracking-widest active:scale-95 transition-transform"
                                 >
                                     Sao chép link kết nối
                                 </button>
@@ -367,27 +354,27 @@ const Pairing = ({ profile, onUpdate }) => {
 
                         {step === 'none' && (
                             <motion.div
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="glass p-8 rounded-[3rem]"
+                                className="bg-white p-10 rounded-[3.5rem] border border-neutral-100 shadow-sm"
                             >
-                                <h3 className="text-lg font-bold text-slate-800 mb-4 text-center">Cục cưng đã gửi tín hiệu gì cho bạn !</h3>
-                                <div className="flex gap-2">
+                                <h3 className="text-base font-bold text-neutral-800 mb-8 text-center tracking-tight">Cục cưng đã gửi mã cho bạn ?</h3>
+                                <div className="flex gap-3">
                                     <input
                                         type="text"
-                                        placeholder="Ví dụ: AB12CD"
+                                        placeholder="VÍ DỤ: AB12CD"
                                         value={manualCode}
                                         onChange={(e) => setManualCode(e.target.value.toUpperCase())}
-                                        className="flex-1 bg-slate-50 border-none rounded-2xl px-6 py-4 text-center font-mono font-bold text-lg text-slate-700 outline-none ring-2 ring-transparent focus:ring-blue-100 transition-all uppercase"
+                                        className="flex-1 bg-neutral-50 border-2 border-transparent focus:border-rose-100 rounded-[1.5rem] px-6 py-5 text-center font-mono font-black text-xl text-neutral-700 outline-none transition-all uppercase"
                                         maxLength={6}
                                     />
                                     <button
                                         onClick={() => handlePrepareJoin(manualCode)}
                                         disabled={manualCode.length !== 6 || loading}
-                                        className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${manualCode.length === 6 ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 text-slate-300'}`}
+                                        className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all shadow-xl ${manualCode.length === 6 ? 'bg-neutral-900 text-white scale-100' : 'bg-neutral-200 text-white scale-95 opacity-50'}`}
                                     >
-                                        <span className="material-symbols-outlined">arrow_forward</span>
+                                        <iconify-icon icon="solar:arrow-right-bold" width="32" height="32"></iconify-icon>
                                     </button>
                                 </div>
                             </motion.div>
@@ -399,34 +386,31 @@ const Pairing = ({ profile, onUpdate }) => {
             {/* Confirm Join Modal (From Link or Code) */}
             <AnimatePresence>
                 {showConfirmModal && senderInfo && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm"
-                    >
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md" onClick={() => setShowConfirmModal(false)}>
                         <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            className="bg-white rounded-[3rem] p-8 w-full max-w-sm shadow-2xl text-center"
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white rounded-[4rem] p-10 w-full max-w-sm shadow-2xl text-center"
+                            onClick={e => e.stopPropagation()}
                         >
-                            <div className="w-20 h-20 rounded-full border-4 border-blue-100 overflow-hidden mx-auto mb-6">
-                                <img src={senderInfo.avatar_url || "/api/placeholder/100/100"} alt={senderInfo.nickname} className="w-full h-full object-cover" />
+                            <div className="w-24 h-24 rounded-full border-4 border-rose-100 overflow-hidden mx-auto mb-8 shadow-xl">
+                                <img src={senderInfo.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + senderInfo.nickname} alt={senderInfo.nickname} className="w-full h-full object-cover" />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-800 mb-2">Đã tìm thấy cục cưng {senderInfo.nickname}?</h3>
-                            <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 mb-8">
-                                <p className="text-xs text-orange-600 font-bold uppercase tracking-widest mb-1 flex items-center justify-center gap-1">
-                                    <span className="material-symbols-outlined text-sm">warning</span> Lưu ý quan trọng
+                            <h3 className="text-xl font-bold text-neutral-800 mb-2">Tìm thấy {senderInfo.nickname} rồi?</h3>
+                            <div className="bg-rose-50 rounded-[2rem] p-6 mb-10 border border-rose-100">
+                                <p className="text-[10px] text-rose-500 font-black uppercase tracking-widest mb-2 flex items-center justify-center gap-2">
+                                    <iconify-icon icon="solar:danger-bold" width="14" height="14"></iconify-icon> Chắc chưa hở?
                                 </p>
-                                <p className="text-xs text-orange-700 leading-relaxed font-medium">
+                                <p className="text-xs text-neutral-600 leading-relaxed font-bold">
                                     Tìm được nhau là không rời nhau được. Chắc chưa hở cục cưng ???
                                 </p>
                             </div>
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-4">
                                 <button
                                     onClick={confirmJoinInvite}
                                     disabled={loading}
-                                    className="w-full bg-blue-500 text-white font-bold py-4 rounded-full shadow-lg shadow-blue-500/20 active:scale-95 transition-all uppercase tracking-widest"
+                                    className="w-full bg-neutral-900 text-white font-black py-5 rounded-full shadow-2xl active:scale-95 transition-all uppercase tracking-widest text-sm"
                                 >
                                     {loading ? 'Đang kết nối...' : 'Đặt bút ký đơn'}
                                 </button>
@@ -437,133 +421,121 @@ const Pairing = ({ profile, onUpdate }) => {
                                         setActiveInviteId(null);
                                         setJoining(false);
                                     }}
-                                    className="w-full bg-slate-100 text-slate-500 font-bold py-4 rounded-full"
+                                    className="w-full text-neutral-400 font-black text-[10px] uppercase tracking-widest py-2"
                                 >
-                                    Bye
+                                    Hủy bỏ
                                 </button>
                             </div>
                         </motion.div>
-                    </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
 
             {/* Warning Popup (For Sender creating link) */}
             <AnimatePresence>
                 {showWarning && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/20 backdrop-blur-sm"
-                    >
+                    <div className="fixed inset-0 z-[180] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md" onClick={() => setShowWarning(false)}>
                         <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            className="bg-white rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl"
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white rounded-[4rem] p-10 w-full max-w-sm shadow-2xl text-center"
+                            onClick={e => e.stopPropagation()}
                         >
-                            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6">
-                                <span className="material-symbols-outlined text-3xl text-orange-500">warning</span>
+                            <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mb-8 mx-auto text-rose-500">
+                                <iconify-icon icon="solar:danger-triangle-bold" width="40" height="40"></iconify-icon>
                             </div>
-                            <h3 className="text-xl font-bold text-slate-800 mb-4">Lưu ý quan trọng</h3>
-                            <p className="text-sm text-slate-500 leading-relaxed mb-8">
+                            <h3 className="text-xl font-black text-neutral-800 mb-4 uppercase tracking-tighter">Lưu ý quan trọng</h3>
+                            <p className="text-sm text-neutral-500 font-medium leading-[1.8] mb-10">
                                 Bạn chỉ có thể kết nối với **một người duy nhất**. Khi người ấy xác nhận, mối liên kết này sẽ không thể thay đổi.
                             </p>
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-4">
                                 <button
                                     onClick={() => {
                                         setShowWarning(false);
                                         setStep('date_selection');
                                     }}
-                                    className="w-full bg-blue-500 text-white font-bold py-4 rounded-full shadow-lg shadow-blue-500/20"
+                                    className="w-full bg-neutral-900 text-white font-black py-5 rounded-full shadow-2xl active:scale-95 transition-all text-sm uppercase tracking-widest"
                                 >
-                                    Tôi đã hiểu và tiếp tục
+                                    Đã hiểu & Tiếp tục
                                 </button>
                                 <button
                                     onClick={() => setShowWarning(false)}
-                                    className="w-full bg-slate-100 text-slate-500 font-bold py-4 rounded-full"
+                                    className="w-full text-neutral-400 font-black text-[10px] uppercase tracking-widest"
                                 >
                                     Hủy bỏ
                                 </button>
                             </div>
                         </motion.div>
-                    </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
 
             {/* Success Success Modal (Sender Only - When Partner confirmed) */}
             <AnimatePresence>
                 {showSuccessModal && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-blue-600/90 backdrop-blur-md"
-                    >
+                    <div className="fixed inset-0 z-[250] flex items-center justify-center p-6 bg-white/95 backdrop-blur-3xl">
                         <motion.div
-                            initial={{ scale: 0.8, y: 50 }}
-                            animate={{ scale: 1, y: 0 }}
-                            className="bg-white rounded-[3.5rem] p-10 w-full max-w-md shadow-2xl text-center relative overflow-hidden"
+                            initial={{ scale: 0.8, y: 50, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            className="text-center w-full max-w-md"
                         >
-                            <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-blue-400 via-blue-600 to-blue-400" />
-                            
-                            <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
-                                <span className="material-symbols-outlined text-6xl text-blue-500 fill-1">celebration</span>
+                            <div className="w-40 h-40 bg-rose-50 rounded-[3rem] rotate-12 flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-rose-100">
+                                <iconify-icon icon="solar:star-bold-duotone" width="80" height="80" class="text-rose-500 -rotate-12"></iconify-icon>
                             </div>
                             
-                            <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter">CHÚC MỪNG</h2>
-                            <p className="text-lg text-slate-600 leading-relaxed mb-10 font-medium">
-                                Giữa muôn vạn người, tình yêu đã tìm thấy được bạn!!
+                            <h2 className="text-5xl font-black text-neutral-900 mb-6 tracking-tighter italic">CHÚC MỪNG</h2>
+                            <p className="text-xl text-neutral-400 leading-relaxed mb-16 font-medium px-8">
+                                Giữa muôn vạn người, <br/> tình yêu đã tìm thấy được bạn!!
                             </p>
                             
                             <button
                                 onClick={() => {
-                                    onUpdate();
+                                    refreshData();
                                     navigate('/');
                                 }}
-                                className="w-full bg-blue-500 text-white font-black py-5 rounded-full shadow-xl shadow-blue-500/40 hover:scale-[1.02] active:scale-95 transition-all text-lg tracking-widest uppercase"
+                                className="w-full bg-neutral-900 text-white font-black py-7 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.2)] hover:scale-[1.05] active:scale-95 transition-all text-xl tracking-[0.2em] uppercase"
                             >
                                 Bắt đầu ngay
                             </button>
                         </motion.div>
-                    </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
 
-            <Navbar profile={profile} />
             {/* Receiver Success Modal */}
             <AnimatePresence>
                 {showReceiverSuccess && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="fixed inset-0 z-[130] flex items-center justify-center p-6 bg-rose-500/90 backdrop-blur-md"
-                    >
+                    <div className="fixed inset-0 z-[250] flex items-center justify-center p-6 bg-white/95 backdrop-blur-3xl">
                         <motion.div
-                            initial={{ scale: 0.8, y: 50 }}
-                            animate={{ scale: 1, y: 0 }}
-                            className="bg-white rounded-[3.5rem] p-10 w-full max-w-md shadow-2xl text-center"
+                            initial={{ scale: 0.8, y: 50, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            className="text-center w-full max-w-md"
                         >
-                            <div className="w-24 h-24 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
-                                <iconify-icon icon="solar:magic-stick-3-linear" width="64" height="64" class="text-rose-500"></iconify-icon>
+                            <div className="w-40 h-40 bg-rose-50 rounded-[3rem] -rotate-12 flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-rose-100">
+                                <iconify-icon icon="solar:magic-stick-3-bold" width="80" height="80" class="text-rose-500 rotate-12"></iconify-icon>
                             </div>
 
-                            <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter uppercase">CHÚC MỪNG</h2>
-                            <p className="text-lg text-slate-600 leading-relaxed mb-10 font-medium">
-                                Xe bông đã ở trước cửa. Đợi tay bạn mở cửa
+                            <h2 className="text-5xl font-black text-neutral-800 mb-6 tracking-tighter italic">CHÚC MỪNG</h2>
+                            <p className="text-xl text-neutral-400 leading-relaxed mb-16 font-medium px-8">
+                                Xe bông đã ở trước cửa. <br/> Đợi tay bạn mở cửa
                             </p>
 
                             <button
                                 onClick={() => {
-                                    onUpdate();
+                                    refreshData();
                                     navigate('/');
                                 }}
-                                className="w-full bg-rose-500 text-white font-black py-5 rounded-full shadow-xl shadow-rose-500/40 hover:scale-[1.02] active:scale-95 transition-all text-lg tracking-widest uppercase"
+                                className="w-full bg-rose-500 text-white font-black py-7 rounded-full shadow-[0_20px_50px_rgba(244,63,94,0.3)] hover:scale-[1.05] active:scale-95 transition-all text-xl tracking-[0.2em] uppercase"
                             >
                                 Lên xe nào
                             </button>
                         </motion.div>
-                    </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
+
+            <Navbar />
         </div>
     );
 };

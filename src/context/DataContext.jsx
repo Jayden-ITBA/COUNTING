@@ -11,9 +11,19 @@ export const DataProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [profile, setProfile] = useState(null);
     const [couple, setCouple] = useState(null);
+    const [partnerProfile, setPartnerProfile] = useState(null);
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [authLoading, setAuthLoading] = useState(true);
+
+    // Global loading safety timeout
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+            setAuthLoading(false);
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
         let unsubscribeProfile = () => {};
@@ -34,9 +44,19 @@ export const DataProvider = ({ children }) => {
                         // If paired, listen to couple data
                         if (profileData.couple_id) {
                             unsubscribeCouple();
-                            unsubscribeCouple = onSnapshot(doc(db, 'couples', profileData.couple_id), (coupleSnap) => {
+                            unsubscribeCouple = onSnapshot(doc(db, 'couples', profileData.couple_id), async (coupleSnap) => {
                                 if (coupleSnap.exists()) {
-                                    setCouple({ id: coupleSnap.id, ...coupleSnap.data() });
+                                    const cData = { id: coupleSnap.id, ...coupleSnap.data() };
+                                    setCouple(cData);
+
+                                    // Fetch partner profile
+                                    const partnerId = cData.uids.find(id => id !== currentUser.uid);
+                                    if (partnerId) {
+                                        const pSnap = await getDoc(doc(db, 'profiles', partnerId));
+                                        if (pSnap.exists()) {
+                                            setPartnerProfile({ id: pSnap.id, ...pSnap.data() });
+                                        }
+                                    }
                                 }
                             });
 
@@ -85,6 +105,7 @@ export const DataProvider = ({ children }) => {
         user,
         profile,
         couple,
+        partnerProfile,
         notifications,
         loading: authLoading || loading,
     };

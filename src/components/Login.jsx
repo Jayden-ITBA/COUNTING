@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { auth } from '../services/firebase';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult, FacebookAuthProvider } from 'firebase/auth';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { isInAppBrowser, isIOS, isAndroid } from '../utils/browser_detection';
-import { useEffect } from 'react';
+import { isInAppBrowser } from '../utils/browser_detection';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -21,7 +20,6 @@ const Login = () => {
             try {
                 const result = await getRedirectResult(auth);
                 if (result?.user) {
-                    // Get saved redirect path or default to home
                     const savedPath = localStorage.getItem('redirectPath') || "/";
                     localStorage.removeItem('redirectPath');
                     navigate(savedPath, { replace: true });
@@ -51,7 +49,6 @@ const Login = () => {
     const handleGoogleLogin = async () => {
         try {
             const provider = new GoogleAuthProvider();
-            // Store current "from" path to redirect back after login
             localStorage.setItem('redirectPath', from);
             await signInWithRedirect(auth, provider);
         } catch (error) {
@@ -63,7 +60,6 @@ const Login = () => {
     const handleFacebookLogin = async () => {
         try {
             const provider = new FacebookAuthProvider();
-            // Store current "from" path to redirect back after login
             localStorage.setItem('redirectPath', from);
             await signInWithRedirect(auth, provider);
         } catch (error) {
@@ -75,8 +71,8 @@ const Login = () => {
     const inApp = isInAppBrowser();
 
     return (
-        <div className="relative min-h-screen flex flex-col items-center justify-center p-6 bg-background-light overflow-y-auto">
-            {/* Soft Animated Background Pattern */}
+        <div className="relative min-h-screen flex flex-col items-center justify-center p-6 bg-[#f0f7ff] overflow-y-auto font-sans">
+            {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10 pointer-events-none"
                 style={{
                     backgroundImage: 'radial-gradient(#3B82F6 0.5px, transparent 0.5px), radial-gradient(#3B82F6 0.5px, #f0f7ff 0.5px)',
@@ -90,15 +86,13 @@ const Login = () => {
                 <motion.div 
                     initial={{ y: -50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    className="fixed top-4 left-4 right-4 z-[100] bg-rose-500 text-white p-4 rounded-2xl shadow-xl flex items-start gap-3"
+                    className="fixed top-4 left-4 right-4 z-[100] bg-blue-500 text-white p-5 rounded-[2rem] shadow-2xl flex items-start gap-4 backdrop-blur-md"
                 >
-                    <span className="material-symbols-outlined shrink-0 text-2xl">warning</span>
-                    <div className="text-sm">
-                        <p className="font-bold mb-1">Trình duyệt không hỗ trợ đăng nhập!</p>
-                        <p className="opacity-90">
-                            Bạn đang mở ứng dụng trong Facebook/Instagram. Vui lòng bấm vào 
-                            <span className="font-bold"> dấu 3 chấm </span> 
-                            và chọn <span className="font-bold">"Mở bằng trình duyệt"</span> (Chrome/Safari) để có thể đăng nhập nhé.
+                    <iconify-icon icon="solar:danger-bold" width="28" height="28" class="shrink-0"></iconify-icon>
+                    <div className="text-[13px]">
+                        <p className="font-extrabold mb-1 uppercase tracking-widest">Trình duyệt không hỗ trợ!</p>
+                        <p className="opacity-90 font-medium">
+                            Hãy bấm vào <span className="font-bold">dấu 3 chấm</span> và chọn <span className="font-bold">"Mở bằng trình duyệt"</span> để đăng nhập nhé.
                         </p>
                     </div>
                 </motion.div>
@@ -108,103 +102,108 @@ const Login = () => {
                 <motion.div
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    className="mb-8 flex flex-col items-center"
+                    className="mb-12 flex flex-col items-center text-center"
                 >
-                    <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-4 border-4 border-primary/20 shadow-sm">
-                        <span className="material-symbols-outlined text-primary text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+                    <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center mb-6 shadow-xl shadow-blue-200/40 border border-white relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary to-blue-400 opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
+                        <iconify-icon icon="solar:heart-bold-duotone" width="56" height="56" class="text-primary"></iconify-icon>
                     </div>
-                    <h1 className="text-3xl font-extrabold text-slate-800 mb-1 tracking-tight">Our Little Corner</h1>
-                    <div className="text-slate-500 text-center text-sm leading-relaxed flex flex-col items-center">
-                        <span>Mỗi giây chúng ta bên nhau là mỗi giây hạnh phúc.</span>
-                        <span>Cám ơn và Thương em</span>
+                    <h1 className="text-4xl font-black text-slate-800 mb-3 tracking-tighter">Counting My Days</h1>
+                    <div className="space-y-1">
+                        <p className="text-slate-400 text-sm font-bold tracking-widest uppercase">Every moment matters</p>
+                        <p className="text-primary/60 text-[10px] font-black uppercase tracking-[0.3em]">Cùng nhau xây đắp kỷ niệm</p>
                     </div>
                 </motion.div>
 
-                <form onSubmit={handleLogin} className="w-full space-y-5 px-2">
-                    <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-slate-700 ml-5">Email</label>
-                        <div className="relative">
-                            <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">mail</span>
-                            <input
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full bg-white border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-primary rounded-full py-4 pl-14 pr-6 text-slate-900 transition-all outline-none"
-                                placeholder="Nhập email của bạn"
-                                type="email"
-                            />
+                <div className="w-full bg-white rounded-[3.5rem] p-10 shadow-xl shadow-blue-100/50 border border-blue-50">
+                    <form onSubmit={handleLogin} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Email</label>
+                            <div className="relative group">
+                                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">
+                                    <iconify-icon icon="solar:letter-bold-duotone" width="24" height="24"></iconify-icon>
+                                </div>
+                                <input
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full bg-slate-50 border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 rounded-full py-5 pl-16 pr-6 text-slate-900 font-bold transition-all outline-none placeholder:text-slate-300"
+                                    placeholder="yourname@gmail.com"
+                                    type="email"
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-slate-700 ml-5">Mật khẩu</label>
-                        <div className="relative">
-                            <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">lock</span>
-                            <input
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-white border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-primary rounded-full py-4 pl-14 pr-14 text-slate-900 transition-all outline-none"
-                                placeholder="Nhập mật khẩu"
-                                type={showPassword ? "text" : "password"}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400"
-                            >
-                                <span className="material-symbols-outlined">{showPassword ? 'visibility_off' : 'visibility'}</span>
-                            </button>
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Mật khẩu</label>
+                            <div className="relative group">
+                                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">
+                                    <iconify-icon icon="solar:lock-keyhole-bold-duotone" width="24" height="24"></iconify-icon>
+                                </div>
+                                <input
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full bg-slate-50 border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 rounded-full py-5 pl-16 pr-16 text-slate-900 font-bold transition-all outline-none placeholder:text-slate-300"
+                                    placeholder="Nhập mật khẩu"
+                                    type={showPassword ? "text" : "password"}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
+                                >
+                                    <iconify-icon icon={showPassword ? 'solar:eye-closed-bold-duotone' : 'solar:eye-bold-duotone'} width="24" height="24"></iconify-icon>
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="flex justify-end px-2">
-                        <a className="text-sm font-medium text-primary hover:underline" href="#">Quên mật khẩu?</a>
-                    </div>
+                        <div className="flex justify-end px-4">
+                            <button type="button" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Quên mật khẩu?</button>
+                        </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-primary hover:brightness-105 text-white font-bold py-4 rounded-full shadow-lg shadow-primary/20 transition-all active:scale-[0.98] mt-2"
-                    >
-                        {loading ? "Đang xử lý..." : "Đăng nhập"}
-                    </button>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-primary hover:brightness-110 text-white font-black py-5 rounded-full shadow-lg shadow-blue-200 transition-all active:scale-[0.98] mt-4 uppercase tracking-[0.2em] text-xs"
+                        >
+                            {loading ? "Đang xử lý..." : "Bắt đầu ngay"}
+                        </button>
+                    </form>
 
-                    <div className="relative py-4">
+                    <div className="relative my-10">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-slate-200"></div>
+                            <div className="w-full border-t border-slate-50"></div>
                         </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-4 bg-background-light text-slate-400 font-medium">Hoặc tiếp tục với</span>
+                        <div className="relative flex justify-center text-[10px]">
+                            <span className="px-5 bg-white text-slate-300 font-black uppercase tracking-widest">Hoặc đăng nhập với</span>
                         </div>
                     </div>
 
-                    <div className="flex justify-center gap-6 pt-2">
-                        <button type="button" onClick={handleGoogleLogin} className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 text-slate-700 hover:bg-slate-50 transition-colors">
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-6 h-6" alt="Google" />
+                    <div className="flex justify-center gap-6">
+                        <button type="button" onClick={handleGoogleLogin} className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg border border-slate-50 hover:bg-slate-50 transition-all active:scale-90">
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-7 h-7" alt="Google" />
                         </button>
-                        <button type="button" onClick={handleFacebookLogin} className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 text-slate-700 hover:bg-slate-50 transition-colors">
-                            <svg className="w-6 h-6 fill-[#1877F2]" viewBox="0 0 24 24">
-                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                            </svg>
+                        <button type="button" onClick={handleFacebookLogin} className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg border border-slate-50 hover:bg-slate-50 transition-all active:scale-90">
+                            <iconify-icon icon="logos:facebook" width="30" height="30"></iconify-icon>
                         </button>
                     </div>
-                </form>
+                </div>
 
-                <div className="text-center mt-12 mb-8">
-                    <p className="text-slate-500 text-sm">
+                <div className="text-center mt-12 mb-12">
+                    <p className="text-slate-400 text-sm font-medium">
                         Chưa có tài khoản?
-                        <Link to="/signup" className="text-primary font-bold ml-1 hover:underline">Đăng ký ngay</Link>
+                        <Link to="/signup" className="text-primary font-extrabold ml-2 hover:underline">Tạo mới ngay</Link>
                     </p>
                 </div>
 
                 <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="w-full max-w-xs aspect-[4/3] rounded-[2rem] overflow-hidden shadow-2xl mb-12 border-4 border-white"
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-center"
                 >
-                    <img alt="Couple holding hands" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyPDXLyy7qyT3FqroPDTV3qlqCe2Dweec4NpH3sT6ucoqfGTOUEQ6NKIPljDj1puFLMxAvDUv-kgHXoDT6EdWKnv-avxXicBABvR5Jl0329_-1vI8QwysxcIhu4n_kT6SPfye_lFyxduekOsn7SDAIduFhIQbh1nVnRjRYNudX7f_AyeN-MYGXUQqFPOfSvgRj4Kpb9jtBBS5brKAEAUFbOrmAQ5kglORoUfc_MM0ndlOkHNWc8-Yi_N6kRB9Zuiipgqiq09osMg" />
+                    <p className="text-[10px] text-slate-300 font-black uppercase tracking-[0.4em]">Designed with love by You</p>
                 </motion.div>
             </div>
         </div>

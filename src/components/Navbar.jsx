@@ -1,27 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { db, auth } from '../services/firebase';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { useData } from '../context/DataContext';
 
-const Navbar = ({ profile }) => {
-    const [unreadCount, setUnreadCount] = useState(0);
-
-    useEffect(() => {
-        if (profile?.couple_id) {
-            const q = query(
-                collection(db, 'notifications'),
-                where('couple_id', '==', profile.couple_id),
-                where('recipient_id', '==', auth.currentUser.uid),
-                where('read', '==', false)
-            );
-
-            const unsubscribe = onSnapshot(q, (snapshot) => {
-                setUnreadCount(snapshot.size);
-            });
-
-            return () => unsubscribe();
-        }
-    }, [profile]);
+const Navbar = () => {
+    const { profile, notifications } = useData();
+    const unreadCount = notifications?.filter(n => !n.read).length || 0;
 
     return (
         <nav className="fixed bottom-0 inset-x-0 bg-white/80 backdrop-blur-xl border-t border-neutral-100 pb-safe pt-2 px-6 z-50">
