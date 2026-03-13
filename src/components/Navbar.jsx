@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 
 const Navbar = () => {
-    const { profile, notifications } = useData();
+    const { profile, couple, notifications } = useData();
     const unreadCount = notifications?.filter(n => !n.read).length || 0;
 
     return (
@@ -28,8 +28,16 @@ const Navbar = () => {
                 </NavLink>
 
                 <div className="w-16 h-full flex items-center justify-center -mt-6">
-                    <NavLink to="/diary" className="w-12 h-12 bg-neutral-900 rounded-full shadow-lg shadow-neutral-900/20 flex items-center justify-center text-white hover:scale-105 active:scale-95 transition-transform">
-                        <iconify-icon icon="solar:add-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
+                    <NavLink 
+                        to="/diary" 
+                        className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white hover:scale-105 active:scale-95 transition-all bg-cover bg-center ${!couple?.diary_button_url ? 'bg-neutral-900 shadow-neutral-900/20' : 'shadow-blue-200/40 border border-white/50'}`}
+                        style={{ 
+                            backgroundImage: couple?.diary_button_url ? `url(${couple.diary_button_url})` : 'none' 
+                        }}
+                    >
+                        {!couple?.diary_button_url && (
+                            <iconify-icon icon="solar:add-linear" width="24" height="24" style={{ strokeWidth: 1.5 }}></iconify-icon>
+                        )}
                     </NavLink>
                 </div>
 

@@ -134,6 +134,66 @@ const BgSettings = () => {
                         </div>
                     </div>
 
+                    {/* Diary Button Background Picker */}
+                    <div className="bg-white rounded-[3.5rem] p-8 shadow-xl shadow-blue-100/20 border border-blue-50">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-3">
+                                <iconify-icon icon="solar:button-bold-duotone" width="24" height="24" class="text-primary"></iconify-icon>
+                                <h4 className="text-slate-800 text-sm font-black uppercase tracking-widest">Nút Nhật ký</h4>
+                            </div>
+                            <div className="flex gap-2">
+                                {couple?.diary_button_url && (
+                                    <button 
+                                        onClick={async () => {
+                                            if (!profile?.couple_id) return;
+                                            setLoading(true);
+                                            try {
+                                                await updateDoc(doc(db, 'couples', profile.couple_id), {
+                                                   diary_button_url: null
+                                                });
+                                                await refreshData();
+                                            } catch (e) { alert(e.message); }
+                                            finally { setLoading(false); }
+                                        }}
+                                        className="bg-slate-100 text-slate-400 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
+                                    >
+                                        XOÁ
+                                    </button>
+                                )}
+                                <label className="bg-blue-50 text-primary px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-primary hover:text-white transition-all">
+                                    THAY ĐỔI
+                                    <input type="file" accept="image/*" className="hidden" 
+                                        onChange={async (e) => {
+                                            const file = e.target.files[0];
+                                            if (!file || !profile?.couple_id) return;
+                                            setLoading(true);
+                                            try {
+                                                const url = await uploadMedia(file);
+                                                await updateDoc(doc(db, 'couples', profile.couple_id), {
+                                                    diary_button_url: url
+                                                });
+                                                await refreshData();
+                                            } catch (err) { alert(err.message); }
+                                            finally { setLoading(false); }
+                                        }} 
+                                    />
+                                </label>
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-center py-6 bg-blue-50/20 rounded-[2.5rem] border border-dashed border-blue-100">
+                           <div 
+                             className="w-16 h-16 rounded-full shadow-xl bg-cover bg-center flex items-center justify-center text-white"
+                             style={{ 
+                                 backgroundImage: couple?.diary_button_url ? `url(${couple.diary_button_url})` : 'none',
+                                 backgroundColor: couple?.diary_button_url ? 'transparent' : '#171717'
+                             }}
+                           >
+                               {!couple?.diary_button_url && <iconify-icon icon="solar:add-linear" width="32" height="32"></iconify-icon>}
+                           </div>
+                        </div>
+                        <p className="text-center text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-6">Hình nền nút ở giữa thanh điều hướng</p>
+                    </div>
+
                     {/* Opacity/Blur Slider */}
                     <div className="bg-white rounded-[3.5rem] p-10 shadow-xl shadow-blue-100/20 border border-blue-50">
                         <div className="flex items-center gap-4 mb-8">

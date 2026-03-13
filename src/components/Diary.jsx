@@ -18,15 +18,18 @@ const Diary = () => {
     const [activeComment, setActiveComment] = useState(null);
     const [commentText, setCommentText] = useState('');
     const [selectedMedia, setSelectedMedia] = useState(null);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deletingEntryId, setDeletingEntryId] = useState(null);
+    const [entryDate, setEntryDate] = useState(new Date().toISOString().split('T')[0]);
+    const [editingEntry, setEditingEntry] = useState(null);
+    const [editContent, setEditContent] = useState('');
+    const [editDate, setEditDate] = useState('');
 
     useEffect(() => {
         if (profile?.couple_id) {
             const q = query(
                 collection(db, 'diaries'),
                 where('couple_id', '==', profile.couple_id),
-                orderBy('created_at', 'desc')
+                orderBy('entry_date', 'desc')
             );
 
             const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -74,6 +77,7 @@ const Diary = () => {
                 media: mediaUrls,
                 likes: [],
                 comments: [],
+                entry_date: entryDate,
                 created_at: serverTimestamp()
             });
 
@@ -181,6 +185,26 @@ const Diary = () => {
         setShowDeleteModal(true);
     };
 
+    const handleEdit = (entry) => {
+        setEditingEntry(entry);
+        setEditContent(entry.content);
+        setEditDate(entry.entry_date || (entry.created_at ? new Date(entry.created_at.seconds * 1000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]));
+    };
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        if (!editingEntry) return;
+        try {
+            await updateDoc(doc(db, 'diaries', editingEntry.id), {
+                content: editContent,
+                entry_date: editDate
+            });
+            setEditingEntry(null);
+        } catch (error) {
+            alert("Lỗi khi cập nhật: " + error.message);
+        }
+    };
+
     return (
         <div className="relative min-h-screen bg-[#f8faff] pb-32 font-sans">
             <header className="px-6 pt-16 pb-8 flex justify-between items-end border-b border-blue-50 bg-[#f8faff]/80 backdrop-blur-md sticky top-0 z-10">
@@ -212,6 +236,17 @@ const Diary = () => {
                                 placeholder="Hôm nay chúng ta yêu thương nhau như thế nào?"
                                 className="w-full bg-blue-50/30 rounded-[2rem] p-6 text-sm outline-none resize-none min-h-[140px] text-slate-700 border border-blue-50/50 focus:bg-white focus:border-primary/30 transition-all font-medium"
                             />
+
+                            <div className="flex items-center gap-3 px-2">
+                                <iconify-icon icon="solar:calendar-bold-duotone" width="20" height="20" class="text-primary"></iconify-icon>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Chọn ngày kỉ niệm:</span>
+                                <input 
+                                    type="date" 
+                                    value={entryDate}
+                                    onChange={(e) => setEntryDate(e.target.value)}
+                                    className="bg-blue-50/50 border border-blue-100 rounded-xl px-4 py-2 text-xs font-bold text-primary outline-none focus:border-primary/30"
+                                />
+                            </div>
 
                             <div className="flex flex-wrap gap-3">
                                 {selectedFiles.map((file, i) => (
@@ -248,6 +283,43 @@ const Diary = () => {
                 )}
             </AnimatePresence>
 
+            {/* Edit Modal */}
+            <AnimatePresence>
+                {editingEntry && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-8 bg-slate-900/60 backdrop-blur-md">
+                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-[4rem] p-10 w-full max-w-sm shadow-2xl border-8 border-white/20">
+                            <h3 className="text-2xl font-black text-slate-800 mb-8 tracking-tighter uppercase text-center">CHỈNH SỬA KỈ NIỆM</h3>
+                            
+                            <form onSubmit={handleUpdate} className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Nội dung</label>
+                                    <textarea
+                                        value={editContent}
+                                        onChange={(e) => setEditContent(e.target.value)}
+                                        className="w-full bg-blue-50/30 rounded-[2rem] p-6 text-sm outline-none resize-none min-h-[120px] text-slate-700 border border-blue-50/50 focus:bg-white focus:border-primary/30 transition-all font-medium"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Ngày kỉ niệm</label>
+                                    <input 
+                                        type="date" 
+                                        value={editDate}
+                                        onChange={(e) => setEditDate(e.target.value)}
+                                        className="w-full bg-blue-50/50 border border-blue-100 rounded-[1.5rem] px-6 py-4 text-xs font-bold text-primary outline-none focus:border-primary/30"
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-3 pt-4">
+                                    <button type="submit" className="w-full bg-primary text-white font-black py-5 rounded-full shadow-2xl shadow-blue-100 active:scale-95 transition-all uppercase tracking-widest text-[11px]">Cập nhật ngay</button>
+                                    <button type="button" onClick={() => setEditingEntry(null)} className="w-full py-2 text-slate-300 font-black text-[10px] uppercase tracking-widest">Hủy bỏ</button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
             <div className="px-6 space-y-10 pt-8">
                 {loading ? (
                     <div className="flex justify-center p-12">
@@ -274,23 +346,35 @@ const Diary = () => {
                                         <div>
                                             <h4 className="font-black text-sm text-slate-800 tracking-tight">{entry.author_name}</h4>
                                             <p className="text-[9px] text-primary font-black uppercase tracking-[0.2em] mt-1 opacity-60">
-                                                {entry.created_at ? new Date(entry.created_at.seconds * 1000).toLocaleDateString('vi-VN', {
+                                                {entry.entry_date ? new Date(entry.entry_date).toLocaleDateString('vi-VN', {
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    year: 'numeric'
+                                                }) : (entry.created_at ? new Date(entry.created_at.seconds * 1000).toLocaleDateString('vi-VN', {
                                                     month: 'long',
                                                     day: 'numeric',
                                                     hour: '2-digit',
                                                     minute: '2-digit'
-                                                }) : 'Vừa xong'}
+                                                }) : 'Vừa xong')}
                                             </p>
                                         </div>
                                     </div>
 
                                     {entry.author_id === auth.currentUser.uid && (
-                                        <button
-                                            onClick={() => handleDelete(entry.id)}
-                                            className="text-slate-200 hover:text-primary transition-colors"
-                                        >
-                                            <iconify-icon icon="solar:trash-bin-trash-linear" width="18" height="18"></iconify-icon>
-                                        </button>
+                                        <div className="flex gap-4">
+                                            <button
+                                                onClick={() => handleEdit(entry)}
+                                                className="text-slate-200 hover:text-primary transition-colors"
+                                            >
+                                                <iconify-icon icon="solar:pen-new-square-linear" width="18" height="18"></iconify-icon>
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(entry.id)}
+                                                className="text-slate-200 hover:text-primary transition-colors"
+                                            >
+                                                <iconify-icon icon="solar:trash-bin-trash-linear" width="18" height="18"></iconify-icon>
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
 
