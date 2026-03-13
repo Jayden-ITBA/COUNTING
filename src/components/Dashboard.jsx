@@ -247,16 +247,16 @@ const Dashboard = () => {
                     <div className="px-8 py-12 flex flex-col gap-10 min-h-[75vh] justify-center text-center animate-in slide-in-from-bottom-8 duration-700">
                         {profile?.invite_id && (
                             <div className="bg-blue-50/50 border border-blue-100 rounded-[3.5rem] p-10 shadow-xl shadow-blue-100/20">
-                                <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-8">Mã mời của bạn</p>
-                                <div className="bg-white rounded-3xl py-8 px-4 border border-blue-50 shadow-inner mb-10">
-                                    <h2 className="text-5xl font-black text-primary tracking-[0.25em] font-mono">{profile.invite_id}</h2>
+                                <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-8">Mã mời của bạn</p>
+                                <div className="bg-white rounded-3xl py-8 px-4 border border-blue-100/50 shadow-inner mb-10">
+                                    <h2 className="text-5xl font-black text-blue-600 tracking-[0.25em] font-mono">{profile.invite_id}</h2>
                                 </div>
                                 <button
                                     onClick={() => {
                                         navigator.clipboard.writeText(profile.invite_id);
                                         setShowWaitingAlert(true);
                                     }}
-                                    className="w-full bg-primary text-white font-black py-5 rounded-full shadow-lg shadow-blue-200 flex items-center justify-center gap-3 hover:brightness-110 active:scale-95 transition-all text-[11px] uppercase tracking-widest"
+                                    className="w-full bg-blue-500 text-white font-black py-5 rounded-full shadow-lg shadow-blue-200 flex items-center justify-center gap-3 hover:brightness-110 active:scale-95 transition-all text-[11px] uppercase tracking-widest"
                                 >
                                     <iconify-icon icon="solar:copy-bold-duotone" width="20" height="20"></iconify-icon>
                                     SAO CHÉP MÃ GỬI NGƯỜI ẤY

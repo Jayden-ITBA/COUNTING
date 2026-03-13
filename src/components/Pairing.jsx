@@ -328,8 +328,8 @@ const Pairing = () => {
                                 </div>
                                 <h3 className="text-xl font-black text-slate-800 mb-10 uppercase tracking-tight">Đang đợi phản hồi...</h3>
 
-                                <div className="bg-blue-50/30 p-10 rounded-[3rem] mb-10 border border-blue-50/50 shadow-inner">
-                                    <h2 className="text-4xl font-black text-primary tracking-[0.25em] mb-8 font-mono">
+                                <div className="bg-blue-50/50 p-10 rounded-[3rem] mb-10 border border-blue-100/50 shadow-inner">
+                                    <h2 className="text-4xl font-black text-blue-600 tracking-[0.25em] mb-8 font-mono">
                                         {profile.invite_id}
                                     </h2>
                                     <button
@@ -338,7 +338,7 @@ const Pairing = () => {
                                             setHasCopied(true);
                                             alert("Đã sao chép mã!");
                                         }}
-                                        className="bg-white text-primary font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 px-8 py-4 rounded-full shadow-lg border border-blue-50 active:scale-95 transition-all mx-auto"
+                                        className="bg-white text-blue-600 font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 px-8 py-4 rounded-full shadow-lg border border-blue-100 active:scale-95 transition-all mx-auto"
                                     >
                                         <iconify-icon icon="solar:copy-bold-duotone" width="18" height="18"></iconify-icon>
                                         Sao chép mã
@@ -448,7 +448,7 @@ const Pairing = () => {
                             className="bg-white rounded-[4rem] p-12 w-full max-w-sm shadow-2xl text-center border-8 border-white/20"
                             onClick={e => e.stopPropagation()}
                         >
-                            <div className="w-24 h-24 bg-rose-50 rounded-[2.5rem] flex items-center justify-center mb-10 mx-auto text-rose-500 shadow-xl shadow-rose-100/50">
+                            <div className="w-24 h-24 bg-blue-50 rounded-[2.5rem] flex items-center justify-center mb-10 mx-auto text-primary shadow-xl shadow-blue-100/50">
                                 <iconify-icon icon="solar:danger_triangle-bold-duotone" width="48" height="48"></iconify-icon>
                             </div>
                             <h3 className="text-2xl font-black text-slate-800 mb-4 uppercase tracking-tighter">Lưu ý quan trọng</h3>

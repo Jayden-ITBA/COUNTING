@@ -121,7 +121,7 @@ const Settings = () => {
 
           <button
             onClick={() => setShowLogoutConfirm(true)}
-            className="w-full bg-slate-50 text-slate-400 font-bold py-6 rounded-[2.5rem] flex items-center justify-center gap-3 hover:bg-red-50 hover:text-red-500 transition-all border border-slate-100 group"
+            className="w-full bg-slate-50 text-slate-400 font-bold py-6 rounded-[2.5rem] flex items-center justify-center gap-3 hover:bg-slate-100 hover:text-slate-600 transition-all border border-slate-100 group"
           >
             <iconify-icon icon="solar:logout-bold-duotone" width="24" height="24" class="group-hover:translate-x-1 transition-transform"></iconify-icon>
             <span className="uppercase tracking-[0.2em] text-[11px]">Đăng xuất tài khoản</span>
