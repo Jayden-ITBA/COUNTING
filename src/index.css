@@ -5,6 +5,7 @@
   --color-background-light: #f8faff;
   --color-background-dark: #0f172a;
   --animate-spin-slow: spin 8s linear infinite;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 .material-symbols-outlined {
