@@ -210,7 +210,7 @@ const Diary = () => {
             <header className="px-6 pt-16 pb-8 flex justify-between items-end border-b border-blue-50 bg-[#f8faff]/80 backdrop-blur-md sticky top-0 z-10">
                 <div>
                     <h1 className="text-3xl font-black text-slate-800 tracking-tight">Góc tâm tình</h1>
-                    <p className="text-primary/60 text-[10px] font-black mt-1 uppercase tracking-[0.3em]">Lưu giữ khoảnh khắc yêu thương</p>
+                    <p className="text-primary/60 text-[10px] font-black mt-1 uppercase tracking-[0.3em]">Nơi mà chúng ta gửi cho nhau những ngọt ngào và tâm tình</p>
                 </div>
                 <motion.button
                     whileTap={{ scale: 0.9 }}
@@ -276,7 +276,7 @@ const Diary = () => {
                                 disabled={uploading || (!content.trim() && selectedFiles.length === 0)}
                                 className="w-full bg-primary text-white font-black py-5 rounded-full shadow-lg shadow-blue-100 active:scale-95 transition-all text-[11px] uppercase tracking-widest disabled:opacity-50"
                             >
-                                {uploading ? 'Đang chuẩn bị...' : 'Lưu giữ kỉ niệm'}
+                                {uploading ? 'Đang đăng tải...' : 'Lưu khoảnh khắc'}
                             </button>
                         </form>
                     </motion.div>
@@ -443,7 +443,7 @@ const Diary = () => {
                                                 <input
                                                     value={commentText}
                                                     onChange={(e) => setCommentText(e.target.value)}
-                                                    placeholder="Gõ gì đó tâm tình..."
+                                                    placeholder="Ý kiến giề !!"
                                                     className="flex-1 bg-blue-50/30 border border-blue-50 shadow-inner rounded-full px-7 py-4 text-xs outline-none focus:bg-white focus:border-primary/40 transition-all font-medium"
                                                 />
                                                 <button type="submit" className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-100 active:scale-90 transition-all">

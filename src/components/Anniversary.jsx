@@ -87,7 +87,7 @@ const Anniversary = () => {
                                     </div>
                                 ) : (
                                     <div className="bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-                                        <span className="text-[10px] font-black text-primary uppercase tracking-widest tabular-nums leading-none">-{milestone.daysLeft}</span>
+                                        <span className="text-[10px] font-black text-primary uppercase tracking-widest tabular-nums leading-none">Còn {milestone.daysLeft} ngày</span>
                                     </div>
                                 )}
                             </div>

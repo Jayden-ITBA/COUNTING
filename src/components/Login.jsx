@@ -108,10 +108,9 @@ const Login = () => {
                         <div className="absolute inset-0 bg-gradient-to-br from-primary to-blue-400 opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
                         <iconify-icon icon="solar:heart-bold-duotone" width="56" height="56" class="text-primary"></iconify-icon>
                     </div>
-                    <h1 className="text-4xl font-black text-slate-800 mb-3 tracking-tighter">Counting My Days</h1>
+                    <h1 className="text-4xl font-black text-slate-800 mb-3 tracking-tighter">Our Little Corner</h1>
                     <div className="space-y-1">
-                        <p className="text-slate-400 text-sm font-bold tracking-widest uppercase">Every moment matters</p>
-                        <p className="text-primary/60 text-[10px] font-black uppercase tracking-[0.3em]">Cùng nhau xây đắp kỷ niệm</p>
+                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] px-6">Mỗi giây chúng ta bên nhau là mỗi giây hạnh phúc. Cám ơn và Thương em</p>
                     </div>
                 </motion.div>
 
@@ -128,7 +127,7 @@ const Login = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full bg-slate-50 border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 rounded-full py-5 pl-16 pr-6 text-slate-900 font-bold transition-all outline-none placeholder:text-slate-300"
-                                    placeholder="yourname@gmail.com"
+                                    placeholder="Nhập email của bạn"
                                     type="email"
                                 />
                             </div>
@@ -167,7 +166,7 @@ const Login = () => {
                             disabled={loading}
                             className="w-full bg-primary hover:brightness-110 text-white font-black py-5 rounded-full shadow-lg shadow-blue-200 transition-all active:scale-[0.98] mt-4 uppercase tracking-[0.2em] text-xs"
                         >
-                            {loading ? "Đang xử lý..." : "Bắt đầu ngay"}
+                            {loading ? "Đang xử lý..." : "Đăng nhập"}
                         </button>
                     </form>
 
@@ -192,8 +191,8 @@ const Login = () => {
 
                 <div className="text-center mt-12 mb-12">
                     <p className="text-slate-400 text-sm font-medium">
-                        Chưa có tài khoản?
-                        <Link to="/signup" className="text-primary font-extrabold ml-2 hover:underline">Tạo mới ngay</Link>
+                        Bạn chưa có tài khoản?
+                        <Link to="/signup" className="text-primary font-extrabold ml-2 hover:underline">Đăng ký ngay</Link>
                     </p>
                 </div>
 

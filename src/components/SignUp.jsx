@@ -61,8 +61,8 @@ const SignUp = () => {
                     <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center mb-6 shadow-xl shadow-blue-200/40 border border-white">
                         <iconify-icon icon="solar:heart-bold-duotone" width="56" height="56" class="text-primary"></iconify-icon>
                     </div>
-                    <h1 className="text-4xl font-black text-slate-800 mb-2 tracking-tighter">Bắt Đầu Nhật Ký</h1>
-                    <p className="text-slate-400 text-sm font-bold tracking-widest uppercase">Love is in the air</p>
+                    <h1 className="text-4xl font-black text-slate-800 mb-2 tracking-tighter">Our Little Corner</h1>
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] px-6">Nhật ký góc nhỏ của hai bạn đã bắt đầu rồi đấy</p>
                 </motion.div>
 
                 <div className="w-full bg-white rounded-[3.5rem] p-10 shadow-xl shadow-blue-100/50 border border-blue-50">
@@ -78,7 +78,7 @@ const SignUp = () => {
                                     value={nickname}
                                     onChange={(e) => setNickname(e.target.value)}
                                     className="w-full bg-slate-50 border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 rounded-full py-5 pl-16 pr-6 text-slate-900 font-bold transition-all outline-none placeholder:text-slate-300"
-                                    placeholder="Cục cưng gọi bạn là gì?"
+                                    placeholder="Cục cưng gọi bạn là gì nhỉ ?"
                                     type="text"
                                 />
                             </div>
@@ -95,7 +95,7 @@ const SignUp = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full bg-slate-50 border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 rounded-full py-5 pl-16 pr-6 text-slate-900 font-bold transition-all outline-none placeholder:text-slate-300"
-                                    placeholder="yourname@gmail.com"
+                                    placeholder="Nhập email của bạn"
                                     type="email"
                                 />
                             </div>

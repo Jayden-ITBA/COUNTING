@@ -244,7 +244,7 @@ const Pairing = () => {
 
             <header className="px-6 pt-16 pb-8 border-b border-blue-50 bg-[#f8faff]/80 backdrop-blur-md sticky top-0 z-10">
                 <h1 className="text-3xl font-black text-slate-800 tracking-tight">Kết nối cục cưng</h1>
-                <p className="text-primary/60 text-[10px] font-black mt-1 uppercase tracking-[0.3em]">Hãy tìm nửa kia giữa muôn vạn người nhé !!</p>
+                <p className="text-primary/60 text-[10px] font-black mt-1 uppercase tracking-[0.3em]">Đang đợi cục cưng kết nối giữa muôn vạn người...</p>
             </header>
 
             <div className="px-6 space-y-8 relative z-10">
@@ -373,11 +373,11 @@ const Pairing = () => {
                                 transition={{ delay: 0.1 }}
                                 className="bg-white p-12 rounded-[4rem] border border-blue-50 shadow-2xl shadow-blue-100/10"
                             >
-                                <h3 className="text-[15px] font-black text-slate-800 mb-10 text-center uppercase tracking-tighter">Bạn đã có mã định mệnh?</h3>
+                                <h3 className="text-[15px] font-black text-slate-800 mb-10 text-center uppercase tracking-tighter">Cục cưng đã gửi tín hiệu gì cho bạn !</h3>
                                 <div className="flex gap-4">
                                     <input
                                         type="text"
-                                        placeholder="AB12CD"
+                                        placeholder="Ví dụ: AB12CD"
                                         value={manualCode}
                                         onChange={(e) => setManualCode(e.target.value.toUpperCase())}
                                         className="flex-1 bg-blue-50/50 border-2 border-transparent focus:border-primary/30 rounded-[2rem] px-8 py-6 text-center font-mono font-black text-2xl text-primary outline-none transition-all uppercase tracking-widest shadow-inner"

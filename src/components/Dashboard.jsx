@@ -209,7 +209,7 @@ const Dashboard = () => {
                                 <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-5 text-slate-300">
                                     <iconify-icon icon="solar:calendar-bold-duotone" width="20" height="20"></iconify-icon>
                                 </div>
-                                <p className="text-[9px] font-black text-slate-400 tracking-widest uppercase mb-1.5">Ngày bắt đầu</p>
+                                <p className="text-[9px] font-black text-slate-400 tracking-widest uppercase mb-1.5">Started (Ngày bắt đầu)</p>
                                 <p className="text-sm font-black text-slate-800">
                                     {couple?.anniversary_date ? (couple.anniversary_date.toDate ? couple.anniversary_date.toDate() : new Date(couple.anniversary_date)).toLocaleDateString('vi-VN') : '---'}
                                 </p>
@@ -218,7 +218,7 @@ const Dashboard = () => {
                                 <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-5 text-primary">
                                     <iconify-icon icon="solar:star-bold-duotone" width="20" height="20"></iconify-icon>
                                 </div>
-                                <p className="text-[9px] font-black text-primary/60 tracking-widest uppercase mb-1.5">Mốc kỷ niệm</p>
+                                <p className="text-[9px] font-black text-primary/60 tracking-widest uppercase mb-1.5">Milestone (Cột mốc tiếp theo)</p>
                                 <p className="text-sm font-black text-primary">{(Math.floor(daysTogether / 100) + 1) * 100} Ngày</p>
                             </div>
                         </div>
@@ -363,8 +363,10 @@ const Dashboard = () => {
                             <div className="w-28 h-28 bg-blue-50 rounded-[3rem] flex items-center justify-center mx-auto mb-10 text-primary animate-bounce">
                                 <iconify-icon icon="solar:stars-bold-duotone" width="72" height="72"></iconify-icon>
                             </div>
-                            <h2 className="text-4xl font-black text-slate-800 mb-4 tracking-tighter uppercase">HOÀN TẤT</h2>
-                            <p className="text-lg text-slate-500 mb-12 font-medium leading-relaxed">Bạn đã kết nối thành công với tình yêu của mình.<br/>Hết kiếp độc thân rồi nhé {'<3'}</p>
+                            <h2 className="text-4xl font-black text-slate-800 mb-4 tracking-tighter uppercase italic">CHÚC MỪNG</h2>
+                            <p className="text-lg text-slate-500 mb-12 font-medium leading-relaxed italic">
+                                Tình yêu đời bạn đã tìm thấy được bạn!!
+                            </p>
                             <button onClick={() => window.location.reload()} className="w-full bg-slate-900 text-white font-black py-6 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all uppercase tracking-widest text-xs">Mở cánh cửa tình yêu</button>
                         </motion.div>
                     </div>

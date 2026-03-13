@@ -50,8 +50,8 @@ const ProfileOnboarding = ({ onComplete }) => {
                         <iconify-icon icon="solar:user-speak-bold-duotone" width="48" height="48"></iconify-icon>
                     </div>
                     
-                    <h2 className="text-3xl font-black text-slate-800 mb-2 tracking-tight">Chào bạn yêu!</h2>
-                    <p className="text-sm text-slate-400 font-bold mb-10 uppercase tracking-widest">Một chút thông tin về bạn</p>
+                    <h2 className="text-3xl font-black text-slate-800 mb-2 tracking-tight">Mến chào bạn thân yêu!</h2>
+                    <p className="text-sm text-slate-400 font-bold mb-10 uppercase tracking-widest px-4">Hãy cho chúng mình biết một chút về bạn nhé.</p>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="text-left space-y-2">
@@ -63,7 +63,7 @@ const ProfileOnboarding = ({ onComplete }) => {
                                 <input
                                     required
                                     type="text"
-                                    placeholder="Ví dụ: Công chúa, Bé cưng..."
+                                    placeholder="Ở nhà cục cưng gọi bạn là gì nhỉ?"
                                     value={nickname}
                                     onChange={(e) => setNickname(e.target.value)}
                                     className="w-full pl-14 pr-6 py-5 rounded-full bg-slate-50 border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 text-sm font-bold text-slate-900 transition-all outline-none"
@@ -72,7 +72,7 @@ const ProfileOnboarding = ({ onComplete }) => {
                         </div>
 
                         <div className="text-left space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Ngày sinh nhật</label>
+                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Ngày bạn khóc oe oe</label>
                             <div className="relative group">
                                 <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">
                                     <iconify-icon icon="solar:calendar-bold-duotone" width="20" height="20"></iconify-icon>
@@ -93,7 +93,7 @@ const ProfileOnboarding = ({ onComplete }) => {
                         >
                             {loading ? (
                                 <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin" />
-                            ) : "Mở cửa trái tim nào!"}
+                            ) : "Kết nối với cục cưng nào!!"}
                         </button>
                     </form>
                 </div>
