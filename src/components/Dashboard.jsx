@@ -249,11 +249,22 @@ const Dashboard = () => {
                             <div className="bg-blue-50/50 border border-blue-100 rounded-[3.5rem] p-10 shadow-xl shadow-blue-100/20">
                                 <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-8">Mã mời của bạn</p>
                                 <div className="bg-white rounded-3xl py-8 px-4 border border-blue-100/50 shadow-inner mb-10">
-                                    <h2 className="text-5xl font-black text-blue-600 tracking-[0.25em] font-mono">{profile.invite_id}</h2>
+                                    <h2 className="text-5xl font-black text-blue-600 tracking-[0.25em] font-mono">{profile.invite_id.toUpperCase()}</h2>
                                 </div>
+                                {profile.invite_id.length !== 6 && (
+                                    <div className="mb-8 p-4 bg-amber-50 rounded-2xl border border-amber-100">
+                                        <p className="text-[10px] text-amber-600 font-bold uppercase tracking-tight mb-3">Mã mời không đúng 6 ký tự</p>
+                                        <button 
+                                            onClick={() => setShowWarning(true)}
+                                            className="text-[11px] font-black text-amber-700 underline uppercase tracking-widest"
+                                        >
+                                            Tạo lại mã chuẩn (6 ký tự)
+                                        </button>
+                                    </div>
+                                )}
                                 <button
                                     onClick={() => {
-                                        navigator.clipboard.writeText(profile.invite_id);
+                                        navigator.clipboard.writeText(profile.invite_id.toUpperCase());
                                         setShowWaitingAlert(true);
                                     }}
                                     className="w-full bg-blue-500 text-white font-black py-5 rounded-full shadow-lg shadow-blue-200 flex items-center justify-center gap-3 hover:brightness-110 active:scale-95 transition-all text-[11px] uppercase tracking-widest"

@@ -227,7 +227,7 @@ const Pairing = () => {
         }
     };
 
-    const inviteLink = profile?.invite_id ? `${window.location.origin}/join/${profile.invite_id}` : '';
+    const inviteLink = profile?.invite_id ? `${window.location.origin}/join/${profile.invite_id.toUpperCase()}` : '';
 
     return (
         <div className="relative min-h-screen bg-[#f8faff] pb-32 font-sans overflow-hidden">
@@ -330,11 +330,19 @@ const Pairing = () => {
 
                                 <div className="bg-blue-50/50 p-10 rounded-[3rem] mb-10 border border-blue-100/50 shadow-inner">
                                     <h2 className="text-4xl font-black text-blue-600 tracking-[0.25em] mb-8 font-mono">
-                                        {profile.invite_id}
+                                        {profile.invite_id.toUpperCase()}
                                     </h2>
+                                    {profile.invite_id.length !== 6 && (
+                                        <button 
+                                            onClick={() => setShowWarning(true)}
+                                            className="block mx-auto mb-6 text-[10px] font-black text-amber-600 underline uppercase tracking-widest"
+                                        >
+                                            Mã không chuẩn, tạo lại mã mới?
+                                        </button>
+                                    )}
                                     <button
                                         onClick={() => {
-                                            navigator.clipboard.writeText(profile.invite_id);
+                                            navigator.clipboard.writeText(profile.invite_id.toUpperCase());
                                             setHasCopied(true);
                                             alert("Đã sao chép mã!");
                                         }}
