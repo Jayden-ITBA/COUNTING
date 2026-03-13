@@ -90,7 +90,7 @@ const Widgets = () => {
                             className="w-44 h-44 bg-white rounded-[3.5rem] shadow-2xl shadow-blue-100/30 flex flex-col items-center justify-center p-8 border border-blue-50"
                         >
                             <iconify-icon icon="solar:heart-bold-duotone" class="text-primary mb-3" width="44" height="44"></iconify-icon>
-                            <h2 className="text-5xl font-black text-slate-800 tracking-tighter leading-none">{daysTogether}</h2>
+                            <h2 className="text-5xl font-light text-slate-800 tracking-tighter tabular-nums leading-none">{daysTogether}</h2>
                             <p className="text-[10px] text-primary font-black uppercase tracking-[0.3em] mt-3">Ngày</p>
                         </motion.div>
                     </div>
@@ -115,7 +115,7 @@ const Widgets = () => {
                             </div>
                         </div>
                         <div className="text-right">
-                            <h2 className="text-6xl font-black text-slate-800 tracking-tighter leading-none">
+                            <h2 className="text-6xl font-light text-slate-800 tracking-tighter tabular-nums leading-none">
                                 {daysTogether} <span className="text-base text-primary font-black tracking-normal uppercase ml-1">Ngày</span>
                             </h2>
                             <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-3">
@@ -137,7 +137,7 @@ const Widgets = () => {
                     >
                         <div className="flex justify-between items-start mb-12">
                             <div>
-                                <h2 className="text-7xl font-black text-slate-800 tracking-tighter leading-none">
+                                <h2 className="text-7xl font-light text-slate-800 tracking-tighter tabular-nums leading-none">
                                     {daysTogether} <span className="text-xl text-primary font-black tracking-normal uppercase ml-1">Ngày</span>
                                 </h2>
                                 <p className="text-[11px] text-slate-400 font-black uppercase tracking-[0.4em] mt-4 px-1 flex items-center gap-2">

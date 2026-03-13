@@ -180,7 +180,7 @@ const Dashboard = () => {
                     <div className="px-6 animate-in fade-in duration-700">
                         <div className="flex flex-col items-center mt-12 mb-16">
                             <div className="relative group">
-                                <span className="text-8xl font-black tracking-tighter tabular-nums drop-shadow-sm text-slate-800">{daysTogether}</span>
+                                <span className="text-8xl font-light tracking-[-0.06em] tabular-nums drop-shadow-sm text-slate-800">{daysTogether}</span>
                                 <div className="absolute -top-4 -right-8 bg-primary text-white text-[10px] font-black px-3 py-1.5 rounded-xl rotate-12 shadow-lg shadow-blue-200 uppercase tracking-widest">STREAK</div>
                             </div>
                             <p className="mt-10 text-[10px] font-black tracking-[0.4em] text-primary uppercase">{getDashboardLabel(profile)}</p>
